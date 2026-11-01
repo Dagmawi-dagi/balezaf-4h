@@ -53,7 +53,7 @@ const links = [
     <div class="mx-auto flex max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
       <NuxtLink to="/" class="flex min-w-0 shrink items-center gap-2 sm:gap-3" aria-label="Balezaf Alcohol Liquors Factory PLC home">
         <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf%20alcohol%20liquors%20factory%20plc%20LOGO-qsQOjEqqCnEubCgRx3GHDzu11GaPo2.png" alt="Balezaf Alcohol Liquors Factory PLC logo" class="h-10 w-10 shrink-0 rounded-full object-cover sm:h-12 sm:w-12" />
-        <div class="min-w-0 max-w-[170px] leading-tight sm:max-w-[220px]"><span class="block truncate text-[11px] font-semibold uppercase tracking-[0.06em] sm:text-sm sm:tracking-[0.08em]">Balezaf Alcohol Liquors Factory PLC</span><span class="mt-1 block truncate text-[8px] uppercase tracking-[0.14em] text-[#65975d] sm:text-[9px] sm:tracking-[0.22em]">Alcohol &amp; Liquor Factory</span></div>
+        <div class="min-w-0 max-w-[170px] leading-tight sm:max-w-[220px]"><span class="block truncate text-[11px] font-semibold uppercase tracking-[0.06em] sm:text-sm sm:tracking-[0.08em]">Balezaf</span><span class="mt-1 block truncate text-[8px] uppercase tracking-[0.14em] text-[#65975d] sm:text-[9px] sm:tracking-[0.22em]">Alcohol &amp; Liquor Factory</span></div>
       </NuxtLink>
       <nav class="hidden items-center gap-7 text-sm font-medium lg:flex" aria-label="Main navigation">
         <NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="transition hover:text-[#65975d]">{{ link.label }}</NuxtLink>
