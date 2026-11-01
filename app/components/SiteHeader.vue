@@ -36,9 +36,15 @@ const links = [
         <div class="flex items-center gap-4">
           <span class="hidden whitespace-nowrap text-[#b8d7af] md:inline">Addis Ababa, Ethiopia</span>
           <div class="flex items-center gap-3 border-l border-white/20 pl-4" aria-label="Social media links">
-            <a href="#" aria-label="TikTok" class="transition hover:text-[#b8d7af]">TikTok</a>
-            <a href="#" aria-label="Facebook" class="transition hover:text-[#b8d7af]">Facebook</a>
-            <a href="#" aria-label="YouTube" class="transition hover:text-[#b8d7af]">YouTube</a>
+            <a href="#" aria-label="TikTok" class="transition hover:text-[#b8d7af]">
+              <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 fill-current"><path d="M15.2 3h3.1c.3 1.7 1.3 2.9 3 3.3v3.2a8.4 8.4 0 0 1-3-.8v6.2a6.1 6.1 0 1 1-6.1-6.1c.3 0 .7 0 1 .1v3.3a2.9 2.9 0 1 0 1.9 2.7V3Z" /></svg>
+            </a>
+            <a href="#" aria-label="Facebook" class="transition hover:text-[#b8d7af]">
+              <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 fill-current"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1V10H7.7v3h2.7v8h3.1Z" /></svg>
+            </a>
+            <a href="#" aria-label="YouTube" class="transition hover:text-[#b8d7af]">
+              <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 fill-current"><path d="M21.6 7.2a2.8 2.8 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2C2 9 2 12 2 12s0 3 .4 4.8a2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2C22 15 22 12 22 12s0-3-.4-4.8ZM10 15.4V8.6l6 3.4-6 3.4Z" /></svg>
+            </a>
           </div>
         </div>
       </div>
