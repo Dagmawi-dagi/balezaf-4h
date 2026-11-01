@@ -26,6 +26,16 @@ const links = [
 
 <template>
   <header :class="['sticky top-0 z-50 border-b border-[#dfe9da] bg-white text-[#173b2b] transition-shadow duration-300', isScrolled ? 'shadow-[0_8px_24px_rgba(23,59,43,0.08)]' : '']">
+    <div class="bg-[#173b2b] text-xs text-white">
+      <div class="mx-auto flex max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-10">
+        <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
+          <a href="tel:+251914300007" class="whitespace-nowrap transition hover:text-[#b8d7af]">+251 914 300 007</a>
+          <a href="tel:+251914705089" class="hidden whitespace-nowrap transition hover:text-[#b8d7af] sm:inline">+251 914 705 089</a>
+          <a href="mailto:destaalcohol@gmail.com" class="hidden truncate transition hover:text-[#b8d7af] sm:inline">destaalcohol@gmail.com</a>
+        </div>
+        <span class="hidden whitespace-nowrap text-[#b8d7af] md:inline">Addis Ababa, Ethiopia</span>
+      </div>
+    </div>
     <div class="mx-auto flex max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
       <NuxtLink to="/" class="flex min-w-0 shrink items-center gap-2 sm:gap-3" aria-label="Balezaf Alcohol Liquors Factory PLC home">
         <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf%20alcohol%20liquors%20factory%20plc%20LOGO-qsQOjEqqCnEubCgRx3GHDzu11GaPo2.png" alt="Balezaf Alcohol Liquors Factory PLC logo" class="h-10 w-10 shrink-0 rounded-full object-cover sm:h-12 sm:w-12" />
