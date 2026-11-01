@@ -13,8 +13,11 @@
           <NuxtLink to="/contact" class="hover:text-white">Contact</NuxtLink>
         </div>
       </div>
-      <div class="overflow-hidden rounded-2xl border border-white/15 bg-[#dfead9]">
-        <iframe title="Desta Alcohol & Liquor Factory location map" src="https://www.openstreetmap.org/export/embed.html?bbox=38.70%2C8.93%2C38.82%2C9.08&amp;layer=mapnik&amp;marker=9.00%2C38.76" class="h-48 w-full border-0" loading="lazy"></iframe>
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">Find us in Addis Ababa</p>
+        <div class="overflow-hidden rounded-2xl border border-white/15 bg-[#dfead9] shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
+          <iframe title="Desta Alcohol & Liquor Factory location map" src="https://www.openstreetmap.org/export/embed.html?bbox=38.70%2C8.93%2C38.82%2C9.08&amp;layer=mapnik&amp;marker=9.00%2C38.76" class="h-56 w-full border-0" loading="lazy"></iframe>
+        </div>
       </div>
     </div>
     <div class="mx-auto max-w-7xl pt-6 text-xs text-[#8daa8c]">© 2026 Desta Alcohol &amp; Liquor Factory PLC · Please enjoy responsibly.</div>

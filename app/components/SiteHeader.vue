@@ -34,10 +34,10 @@ const links = [
       </NuxtLink>
       <nav class="hidden items-center gap-7 text-sm font-medium lg:flex" aria-label="Main navigation">
         <NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="transition hover:text-[#65975d]">{{ link.label }}</NuxtLink>
-        <NuxtLink to="/#contact" class="rounded-full bg-[#173b2b] px-5 py-2.5 text-white transition hover:bg-[#35653c]">Contact us <span aria-hidden="true">↗</span></NuxtLink>
+        <NuxtLink to="/contact" class="rounded-full bg-[#173b2b] px-5 py-2.5 text-white transition hover:bg-[#35653c]">Contact us <span aria-hidden="true">↗</span></NuxtLink>
       </nav>
       <button class="rounded-full border border-[#b8d7af] px-3 py-2 text-sm lg:hidden" aria-label="Toggle menu" @click="mobileOpen = !mobileOpen">Menu</button>
     </div>
-    <nav v-if="mobileOpen" class="mx-6 mb-5 rounded-2xl bg-[#173b2b] p-5 text-white lg:hidden" aria-label="Mobile navigation"><div class="flex flex-col gap-4"><NuxtLink v-for="link in links" :key="link.to" :to="link.to" @click="mobileOpen = false">{{ link.label }}</NuxtLink><NuxtLink to="/#contact" @click="mobileOpen = false">Contact us</NuxtLink></div></nav>
+    <nav v-if="mobileOpen" class="mx-6 mb-5 rounded-2xl bg-[#173b2b] p-5 text-white lg:hidden" aria-label="Mobile navigation"><div class="flex flex-col gap-4"><NuxtLink v-for="link in links" :key="link.to" :to="link.to" @click="mobileOpen = false">{{ link.label }}</NuxtLink><NuxtLink to="/contact" @click="mobileOpen = false">Contact us</NuxtLink></div></nav>
   </header>
 </template>
