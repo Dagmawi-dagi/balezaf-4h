@@ -1,189 +1,106 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useProducts } from '~/composables/useProducts'
 
-import ananasImg from '~/assets/ananas.png'
-import appleImg from '~/assets/apple.png'
-import aprativeImg from '~/assets/aprative.png'
-import coffeeImg from '~/assets/coffee.png'
-import cognacImg from '~/assets/cognac.png'
-import ginImg from '~/assets/gin.png'
-import limeImg from '~/assets/lime.png'
-import uozoImg from '~/assets/uozo.png'
-import vodkaImg from '~/assets/vodka.png'
-import zebibImg from '~/assets/zebib.png'
-
-export interface BottleItem {
-  id: string
-  name: string
-  category: string
-  volume: string
-  abv: string
-  tagline: string
-  image: string
-  color: string
-  glowColor: string
-}
-
-const bottles: BottleItem[] = [
-  {
-    id: 'gin',
-    name: 'Desta Dry Gin',
-    category: 'London Dry Gin',
-    volume: '750ml',
-    abv: '40% Vol.',
-    tagline: 'Highland juniper botanicals with crisp citrus peel and angelica root.',
-    image: ginImg,
-    color: '#52965b',
-    glowColor: 'rgba(82, 150, 91, 0.4)',
-  },
-  {
-    id: 'vodka',
-    name: 'Desta Premium Vodka',
-    category: 'Triple-Filtered Vodka',
-    volume: '750ml',
-    abv: '40% Vol.',
-    tagline: 'Pure mountain spring water and selected grains for velvety smoothness.',
-    image: vodkaImg,
-    color: '#428ea4',
-    glowColor: 'rgba(66, 142, 164, 0.4)',
-  },
-  {
-    id: 'uozo',
-    name: 'Desta Ouzo',
-    category: 'Traditional Anise Spirit',
-    volume: '750ml',
-    abv: '41% Vol.',
-    tagline: 'Aromatic star anise and fennel seeds with a classic louche bloom.',
-    image: uozoImg,
-    color: '#2d6d93',
-    glowColor: 'rgba(45, 109, 147, 0.4)',
-  },
-  {
-    id: 'zebib',
-    name: 'Desta Zebib',
-    category: 'Heritage Dry Anise',
-    volume: '750ml',
-    abv: '43% Vol.',
-    tagline: 'Ethiopia’s iconic celebratory aperitif distilled with sun-cured grape spirit.',
-    image: zebibImg,
-    color: '#c27d2c',
-    glowColor: 'rgba(194, 125, 44, 0.4)',
-  },
-  {
-    id: 'cognac',
-    name: 'Desta Fine Brandy',
-    category: 'Oak-Aged Brandy',
-    volume: '750ml',
-    abv: '40% Vol.',
-    tagline: 'Patiently matured in French oak casks for deep dried fruit complexity.',
-    image: cognacImg,
-    color: '#aa4d28',
-    glowColor: 'rgba(170, 77, 40, 0.4)',
-  },
-  {
-    id: 'coffee',
-    name: 'Desta Coffee Liqueur',
-    category: 'Arabica Coffee Liqueur',
-    volume: '750ml',
-    abv: '24% Vol.',
-    tagline: 'Highland roasted Arabica beans infused with artisanal raw cane syrup.',
-    image: coffeeImg,
-    color: '#633924',
-    glowColor: 'rgba(99, 57, 36, 0.4)',
-  },
-  {
-    id: 'ananas',
-    name: 'Desta Ananas Liqueur',
-    category: 'Tropical Pineapple',
-    volume: '750ml',
-    abv: '24% Vol.',
-    tagline: 'Sun-drenched tropical pineapple spirit with vibrant natural sweetness.',
-    image: ananasImg,
-    color: '#c89617',
-    glowColor: 'rgba(200, 150, 23, 0.4)',
-  },
-  {
-    id: 'apple',
-    name: 'Desta Apple Liqueur',
-    category: 'Orchard Apple Liqueur',
-    volume: '750ml',
-    abv: '24% Vol.',
-    tagline: 'Crisp highland orchard apples pressed for refreshing natural fruit zest.',
-    image: appleImg,
-    color: '#b6483b',
-    glowColor: 'rgba(182, 72, 59, 0.4)',
-  },
-  {
-    id: 'lime',
-    name: 'Desta Lime Spirit',
-    category: 'Highland Lime Spirit',
-    volume: '750ml',
-    abv: '28% Vol.',
-    tagline: 'Zesty cold-pressed citrus oils with an invigorating aromatic finish.',
-    image: limeImg,
-    color: '#739f28',
-    glowColor: 'rgba(115, 159, 40, 0.4)',
-  },
-  {
-    id: 'aprative',
-    name: 'Desta Aperitif',
-    category: 'Botanical Aperitivo',
-    volume: '750ml',
-    abv: '20% Vol.',
-    tagline: 'Gentle bittersweet gentian root, bitter orange, and highland herbs.',
-    image: aprativeImg,
-    color: '#b03535',
-    glowColor: 'rgba(176, 53, 53, 0.4)',
-  },
-]
+const { products: bottles } = useProducts()
 
 const activeIndex = ref(0)
 const isAutoRotating = ref(true)
 let autoRotateTimer: any = null
+const screenWidth = ref(1024)
 
-const activeBottle = computed(() => bottles[activeIndex.value])
+function updateScreenWidth() {
+  if (typeof window !== 'undefined') {
+    screenWidth.value = window.innerWidth
+  }
+}
+
+const isMobile = computed(() => screenWidth.value < 640)
+const isTablet = computed(() => screenWidth.value >= 640 && screenWidth.value < 1024)
+
+const activeBottle = computed(() => {
+  if (!bottles.value || bottles.value.length === 0) {
+    return {
+      id: 'default',
+      name: 'Desta Spirit',
+      category: 'Signature Spirit',
+      volume: '750ml',
+      abv: '40% Vol.',
+      tagline: 'Crafted in Ethiopia.',
+      image: '',
+      color: '#52965b',
+      glowColor: 'rgba(82, 150, 91, 0.4)',
+    }
+  }
+  return bottles.value[activeIndex.value % bottles.value.length]
+})
 
 function nextBottle() {
-  activeIndex.value = (activeIndex.value + 1) % bottles.length
+  if (bottles.value.length === 0) return
+  activeIndex.value = (activeIndex.value + 1) % bottles.value.length
 }
 
 function prevBottle() {
-  activeIndex.value = (activeIndex.value - 1 + bottles.length) % bottles.length
+  if (bottles.value.length === 0) return
+  activeIndex.value = (activeIndex.value - 1 + bottles.value.length) % bottles.value.length
 }
 
 function selectBottle(index: number) {
   activeIndex.value = index
 }
 
-// Compact Arc geometric math for proportional viewport fit
+// Responsive Arc geometric calculations for fluid carousel on all screens
 function getBottleTransform(index: number) {
-  const count = bottles.length
+  const count = bottles.value.length || 10
   let diff = (index - activeIndex.value) % count
   if (diff > count / 2) diff -= count
   if (diff < -count / 2) diff += count
 
-  // Spacing angle along the circular arc
-  const angle = diff * 0.48
-  // Horizontal spread: comfortable 210px max offset so bottles don't clip container
-  const x = Math.sin(angle) * 215
-  // Curve downward as bottles recede to form the arc
-  const y = (1 - Math.cos(angle)) * 38
-  const z = Math.cos(angle) * 60
-
   const absDiff = Math.abs(diff)
   const isCenter = absDiff < 0.1
 
-  // Scale: center bottle is prominent (1.18x), receding bottles shrink smoothly (0.72x)
-  const scale = isCenter ? 1.18 : Math.max(0.68, 0.98 - absDiff * 0.14)
+  // Dynamic spread and spacing based on screen size:
+  // On mobile (< 640px), keep bottles close together (spreadX = 118px) so ALL bottles stay visible inside viewport!
+  // On tablet: spreadX = 165px
+  // On desktop: spreadX = 210px
+  let spreadX = 210
+  let angleStep = 0.48
+  let dropY = 36
+  let depthZ = 55
 
-  // Blur: active bottle crystal clear, side bottles softly blur
-  const blur = isCenter ? 0 : Math.min(absDiff * 2.2, 5.5)
+  if (isMobile.value) {
+    spreadX = 118 // Tightly clustered on small screens
+    angleStep = 0.38 // Closer angular spacing
+    dropY = 22 // Shallower vertical curve
+    depthZ = 35 // Softer depth step
+  } else if (isTablet.value) {
+    spreadX = 165
+    angleStep = 0.44
+    dropY = 30
+    depthZ = 45
+  }
 
-  // Opacity: center is 1, background bottles stay subtly visible
-  const opacity = isCenter ? 1 : Math.max(0.24, 0.9 - absDiff * 0.22)
+  const angle = diff * angleStep
+  const x = Math.sin(angle) * spreadX
+  const y = (1 - Math.cos(angle)) * dropY
+  const z = Math.cos(angle) * depthZ
 
-  // Gentle rotational tilt along the arc
-  const rotateDeg = diff * 6.5
+  // Proportional scaling for mobile vs desktop
+  let scale = 1.0
+  if (isMobile.value) {
+    scale = isCenter ? 1.15 : Math.max(0.68, 0.94 - absDiff * 0.12)
+  } else {
+    scale = isCenter ? 1.2 : Math.max(0.68, 0.98 - absDiff * 0.14)
+  }
+
+  // Soft blur so bottles remain recognizable even behind the active bottle
+  const blur = isCenter ? 0 : Math.min(absDiff * (isMobile.value ? 1.4 : 2.2), isMobile.value ? 3.5 : 5.5)
+
+  // Opacity: high enough on mobile so all bottles are clearly seen rotating together
+  const opacity = isCenter ? 1 : Math.max(isMobile.value ? 0.45 : 0.26, 0.92 - absDiff * (isMobile.value ? 0.16 : 0.22))
+
+  // Subtle tilt along the arc
+  const rotateDeg = diff * (isMobile.value ? 5.5 : 6.5)
   const zIndex = Math.round(30 - absDiff * 5)
 
   return {
@@ -210,7 +127,7 @@ function handleTouchMove(e: TouchEvent) {
 
 function handleTouchEnd() {
   const swipeDistance = touchEndX - touchStartX
-  if (Math.abs(swipeDistance) > 35) {
+  if (Math.abs(swipeDistance) > 30) {
     if (swipeDistance > 0) prevBottle()
     else nextBottle()
   }
@@ -221,7 +138,7 @@ function startAutoRotate() {
   if (autoRotateTimer) clearInterval(autoRotateTimer)
   autoRotateTimer = setInterval(() => {
     if (isAutoRotating.value) nextBottle()
-  }, 3800)
+  }, 3600)
 }
 
 function stopAutoRotate() {
@@ -232,10 +149,15 @@ function stopAutoRotate() {
 }
 
 onMounted(() => {
+  updateScreenWidth()
+  window.addEventListener('resize', updateScreenWidth, { passive: true })
   startAutoRotate()
 })
 
 onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', updateScreenWidth)
+  }
   stopAutoRotate()
 })
 </script>
@@ -249,23 +171,23 @@ onUnmounted(() => {
     @touchmove="handleTouchMove"
     @touchend="handleTouchEnd"
   >
-    <!-- Dynamic Ambient Glow behind the carousel (compact radius) -->
+    <!-- Dynamic Ambient Glow behind the carousel -->
     <div
-      class="pointer-events-none absolute left-1/2 top-28 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[80px] transition-colors duration-700 ease-out sm:h-72 sm:w-72"
-      :style="{ backgroundColor: activeBottle.glowColor }"
+      class="pointer-events-none absolute left-1/2 top-24 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[70px] transition-colors duration-700 ease-out sm:top-28 sm:h-64 sm:w-64"
+      :style="{ backgroundColor: activeBottle.glowColor || 'rgba(82, 150, 91, 0.4)' }"
     ></div>
 
     <!-- Pedestal Spotlight Floor -->
     <div
-      class="pointer-events-none absolute bottom-24 left-1/2 h-8 w-48 -translate-x-1/2 rounded-full bg-black/45 blur-md"
+      class="pointer-events-none absolute bottom-22 left-1/2 h-7 w-40 -translate-x-1/2 rounded-full bg-black/45 blur-md sm:bottom-24 sm:w-48"
     ></div>
     <div
-      class="pointer-events-none absolute bottom-25 left-1/2 h-4 w-32 -translate-x-1/2 rounded-full border border-white/20 bg-white/10 blur-xs"
+      class="pointer-events-none absolute bottom-23 left-1/2 h-3.5 w-28 -translate-x-1/2 rounded-full border border-white/20 bg-white/10 blur-xs sm:bottom-25 sm:w-32"
     ></div>
 
-    <!-- 3D Arc Stage (Compact 250px-270px height: perfect viewport fit) -->
+    <!-- 3D Arc Stage (Compact & Responsive: bottles clustered together on mobile) -->
     <div
-      class="relative mx-auto flex h-[240px] w-full max-w-[480px] items-end justify-center overflow-visible pb-2 sm:h-[260px] lg:h-[275px]"
+      class="relative mx-auto flex h-[210px] w-full max-w-[360px] items-end justify-center overflow-visible pb-2 sm:h-[245px] sm:max-w-[460px] lg:h-[265px] lg:max-w-[490px]"
       style="perspective: 1000px"
     >
       <div
@@ -280,15 +202,15 @@ onUnmounted(() => {
           <!-- Active Bottle Glow Accent Under Base -->
           <div
             v-if="index === activeIndex"
-            class="absolute -bottom-2 h-6 w-20 rounded-full blur-md transition-all duration-500"
-            :style="{ backgroundColor: bottle.glowColor }"
+            class="absolute -bottom-2 h-5 w-16 rounded-full blur-md transition-all duration-500 sm:w-20"
+            :style="{ backgroundColor: bottle.glowColor || 'rgba(82, 150, 91, 0.4)' }"
           ></div>
 
-          <!-- Product Bottle Image (Right-sized for zero scroll) -->
+          <!-- Product Bottle Image (Responsive heights: clearly visible in compact arc) -->
           <img
             :src="bottle.image"
             :alt="bottle.name"
-            class="h-44 w-auto max-w-[105px] object-contain drop-shadow-[0_14px_18px_rgba(0,0,0,0.5)] transition-all sm:h-52 sm:max-w-[125px] lg:h-56 lg:max-w-[135px]"
+            class="h-36 w-auto max-w-[90px] object-contain drop-shadow-[0_12px_16px_rgba(0,0,0,0.5)] transition-all sm:h-48 sm:max-w-[115px] lg:h-54 lg:max-w-[130px]"
             loading="eager"
             draggable="false"
           />
@@ -298,9 +220,9 @@ onUnmounted(() => {
 
     <!-- Integrated Compact Bottle Information & Controls Card -->
     <div class="relative z-30 mt-1 w-full max-w-md px-2 text-center">
-      <!-- Unboxed Metadata (Zero-pill discipline) -->
+      <!-- Unboxed Metadata -->
       <div
-        class="flex items-center justify-center gap-2 text-xs font-medium text-[#c9e6c1] transition-all duration-300"
+        class="flex items-center justify-center gap-2 text-[11px] font-medium text-[#c9e6c1] transition-all duration-300 sm:text-xs"
       >
         <span class="tracking-wider uppercase">{{ activeBottle.category }}</span>
         <span aria-hidden="true" class="text-white/40">·</span>
@@ -311,28 +233,28 @@ onUnmounted(() => {
 
       <!-- Bottle Title -->
       <h3
-        class="mt-1 font-serif text-xl font-semibold tracking-tight text-white transition-all duration-300 sm:text-2xl"
+        class="mt-0.5 font-serif text-lg font-semibold tracking-tight text-white transition-all duration-300 sm:text-2xl"
       >
         {{ activeBottle.name }}
       </h3>
 
       <!-- 1-line Tagline / Tasting Note -->
       <p
-        class="mx-auto mt-1 line-clamp-1 max-w-sm text-xs leading-normal text-[#d8e7d4] transition-all duration-300 sm:text-xs"
+        class="mx-auto mt-0.5 line-clamp-1 max-w-sm text-[11px] leading-normal text-[#d8e7d4] transition-all duration-300 sm:text-xs"
       >
-        {{ activeBottle.tagline }}
+        {{ activeBottle.tagline || activeBottle.note }}
       </p>
 
       <!-- Compact Unified Interactive Control Bar -->
-      <div class="mt-3 flex items-center justify-center gap-3">
+      <div class="mt-2.5 flex items-center justify-center gap-2.5 sm:mt-3 sm:gap-3">
         <!-- Prev Button -->
         <button
           type="button"
-          class="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-110 hover:border-white/50 hover:bg-white/20 active:scale-95"
+          class="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-110 hover:border-white/50 hover:bg-white/20 active:scale-95 sm:h-8 sm:w-8"
           aria-label="Previous bottle"
           @click="prevBottle"
         >
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -344,7 +266,7 @@ onUnmounted(() => {
 
         <!-- Pagination Indicators -->
         <div
-          class="flex items-center gap-1 rounded-full border border-white/15 bg-black/35 px-2.5 py-1 backdrop-blur-md"
+          class="flex items-center gap-1 rounded-full border border-white/15 bg-black/35 px-2 py-0.5 backdrop-blur-md sm:px-2.5 sm:py-1"
         >
           <button
             v-for="(bottle, idx) in bottles"
@@ -353,7 +275,7 @@ onUnmounted(() => {
             class="h-1.5 rounded-full transition-all duration-300"
             :class="[
               idx === activeIndex
-                ? 'w-4 bg-white shadow-[0_0_6px_rgba(255,255,255,0.9)]'
+                ? 'w-3.5 bg-white shadow-[0_0_6px_rgba(255,255,255,0.9)] sm:w-4'
                 : 'w-1.5 bg-white/35 hover:bg-white/60',
             ]"
             :aria-label="`Go to ${bottle.name}`"
@@ -364,11 +286,11 @@ onUnmounted(() => {
         <!-- Next Button -->
         <button
           type="button"
-          class="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-110 hover:border-white/50 hover:bg-white/20 active:scale-95"
+          class="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-110 hover:border-white/50 hover:bg-white/20 active:scale-95 sm:h-8 sm:w-8"
           aria-label="Next bottle"
           @click="nextBottle"
         >
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -381,7 +303,7 @@ onUnmounted(() => {
         <!-- Quick Order CTA -->
         <NuxtLink
           :to="`/order?product=${encodeURIComponent(activeBottle.name)}`"
-          class="inline-flex items-center gap-1 rounded-full bg-[#c6dfbc] px-3.5 py-1.5 text-xs font-semibold text-[#173b2b] shadow-sm transition-all hover:bg-white hover:shadow-md"
+          class="inline-flex items-center gap-1 rounded-full bg-[#c6dfbc] px-3 py-1 text-[11px] font-semibold text-[#173b2b] shadow-sm transition-all hover:bg-white hover:shadow-md sm:px-3.5 sm:py-1.5 sm:text-xs"
         >
           <span>Order</span>
           <span aria-hidden="true">↗</span>
