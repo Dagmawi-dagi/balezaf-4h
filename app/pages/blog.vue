@@ -12,6 +12,7 @@ const events = [
 ]
 
 const journalItems = [...posts, ...events]
+const fallbackImage = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf_blog_bg_green-VvU1YVwjlyPHJV2gYJlczTbYJ6iLwp.png'
 const selectedPost = ref<(typeof journalItems)[number] | null>(null)
 
 function openPost(post: (typeof journalItems)[number]) {
@@ -36,7 +37,7 @@ function closePost() {
           <article v-for="item in journalItems" :key="item.title" class="flex h-full flex-col overflow-hidden rounded-3xl bg-[#f1f6ee]">
             <div
               class="flex h-52 w-full items-end rounded-none bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] bg-cover bg-center p-6"
-              :style="item.image ? { backgroundImage: `url(${item.image})` } : undefined"
+              :style="{ backgroundImage: `url(${item.image || fallbackImage})` }"
             >
               <span class="rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold tracking-[.18em] text-[#173b2b]">{{ item.kind }}</span>
             </div>
@@ -58,7 +59,7 @@ function closePost() {
         <button class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f0e4] text-xl text-[#173b2b]" type="button" aria-label="Close story" @click="closePost">×</button>
         <div
           class="h-48 rounded-none bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] bg-cover bg-center sm:h-60"
-          :style="selectedPost.image ? { backgroundImage: `url(${selectedPost.image})` } : undefined"
+          :style="{ backgroundImage: `url(${selectedPost.image || fallbackImage})` }"
           role="img"
           :aria-label="`${selectedPost.title} image`"
         />
