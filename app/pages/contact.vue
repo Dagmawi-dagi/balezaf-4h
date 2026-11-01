@@ -1,3 +1,15 @@
+<script setup lang="ts">
+const inquirySent = ref(false)
+const inquiry = reactive({ name: '', email: '', message: '' })
+
+function submitInquiry() {
+  inquirySent.value = true
+  inquiry.name = ''
+  inquiry.email = ''
+  inquiry.message = ''
+}
+</script>
+
 <template>
   <main class="min-h-screen bg-[#fffdf9] text-[#183b2a]">
     <SiteHeader />
@@ -15,6 +27,16 @@
             <iframe title="Map showing Desta Alcohol & Liquor Factory in Addis Ababa, Ethiopia" src="https://www.openstreetmap.org/export/embed.html?bbox=38.70%2C8.93%2C38.82%2C9.08&amp;layer=mapnik&amp;marker=9.00%2C38.76" class="h-[360px] w-full border-0 sm:h-[430px]" loading="lazy"></iframe>
           </div>
         </div>
+
+        <form class="mt-12 rounded-3xl bg-[#f1f6ed] p-7 sm:p-10" @submit.prevent="submitInquiry">
+          <div v-if="inquirySent" class="mb-6 rounded-xl border border-[#b8d7af] bg-white p-4 text-sm text-[#35653c]">Thanks — your inquiry has been received. We&apos;ll be in touch soon.</div>
+          <div class="grid gap-5 sm:grid-cols-2">
+            <label class="text-sm font-medium">Name<input v-model="inquiry.name" required class="field" placeholder="Your name" /></label>
+            <label class="text-sm font-medium">Email<input v-model="inquiry.email" required type="email" class="field" placeholder="you@company.com" /></label>
+          </div>
+          <label class="mt-5 block text-sm font-medium">How can we help?<textarea v-model="inquiry.message" required class="field min-h-32 resize-y" placeholder="Tell us about your order or partnership"></textarea></label>
+          <button class="mt-6 rounded-full bg-[#173b2b] px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-[#35653c]">Send inquiry <span aria-hidden="true">↗</span></button>
+        </form>
       </div>
     </section>
     <SiteFooter />
