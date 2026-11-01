@@ -36,10 +36,14 @@ body,
 }
 
 .site-header {
+  position: static;
+  width: 100%;
+}
+
+.site-header-nav {
   position: sticky !important;
   top: 0 !important;
   z-index: 9999;
-  align-self: flex-start;
   width: 100%;
 }
 

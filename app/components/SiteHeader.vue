@@ -26,7 +26,7 @@ const links = [
 </script>
 
 <template>
-  <header :class="['site-header sticky top-0 z-50 w-full border-b border-[#dfe9da] bg-white text-[#173b2b] transition-shadow duration-300', isScrolled ? 'shadow-[0_8px_24px_rgba(23,59,43,0.08)]' : '']">
+  <header :class="['site-header w-full border-b border-[#dfe9da] bg-white text-[#173b2b] transition-shadow duration-300', isScrolled ? 'shadow-[0_8px_24px_rgba(23,59,43,0.08)]' : '']">
     <div class="bg-[#173b2b] text-xs text-white">
       <div class="mx-auto flex max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-10">
         <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
@@ -50,7 +50,8 @@ const links = [
         </div>
       </div>
     </div>
-    <div class="mx-auto flex max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
+    <div class="site-header-nav sticky top-0 z-50 bg-white">
+      <div class="mx-auto flex max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
       <NuxtLink to="/" class="flex min-w-0 shrink items-center gap-2 sm:gap-3" aria-label="Balezaf Alcohol Liquors Factory PLC home">
         <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf%20alcohol%20liquors%20factory%20plc%20LOGO-qsQOjEqqCnEubCgRx3GHDzu11GaPo2.png" alt="Balezaf Alcohol Liquors Factory PLC logo" class="h-10 w-10 shrink-0 rounded-full object-cover sm:h-12 sm:w-12" />
         <div class="min-w-0 max-w-[170px] leading-tight sm:max-w-[220px]"><span class="block truncate text-[11px] font-semibold uppercase tracking-[0.06em] sm:text-sm sm:tracking-[0.08em]">Balezaf</span><span class="mt-1 block truncate text-[8px] uppercase tracking-[0.14em] text-[#65975d] sm:text-[9px] sm:tracking-[0.22em]">Alcohol &amp; Liquor Factory</span></div>
@@ -62,5 +63,6 @@ const links = [
       <button class="rounded-full border border-[#b8d7af] px-3 py-2 text-sm xl:hidden" aria-label="Toggle menu" @click="mobileOpen = !mobileOpen">Menu</button>
     </div>
     <nav v-if="mobileOpen" class="mx-6 mb-5 rounded-2xl bg-[#173b2b] p-5 text-white xl:hidden" aria-label="Mobile navigation"><div class="flex flex-col gap-4"><NuxtLink v-for="link in links" :key="link.to" :to="link.to" @click="mobileOpen = false">{{ link.label }}</NuxtLink><NuxtLink to="/contact" @click="mobileOpen = false">Contact us</NuxtLink></div></nav>
+    </div>
   </header>
 </template>
