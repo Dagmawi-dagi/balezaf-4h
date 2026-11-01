@@ -28,9 +28,9 @@ const links = [
 <template>
   <header :class="['sticky top-0 z-50 border-b border-[#dfe9da] bg-white text-[#173b2b] transition-shadow duration-300', isScrolled ? 'shadow-[0_8px_24px_rgba(23,59,43,0.08)]' : '']">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
-      <NuxtLink to="/" class="flex items-center gap-3" aria-label="Desta Spirits home">
-        <div class="flex h-11 w-11 items-center justify-center rounded-full bg-[#173b2b] text-sm font-bold text-white">D</div>
-        <div class="leading-none"><span class="block text-lg font-semibold tracking-[0.18em]">DESTA</span><span class="mt-1 block text-[9px] uppercase tracking-[0.25em] text-[#65975d]">Spirits &amp; Liqueurs</span></div>
+      <NuxtLink to="/" class="flex items-center gap-3" aria-label="Balezaf Alcohol Liquors Factory PLC home">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf%20alcohol%20liquors%20factory%20plc%20LOGO-qsQOjEqqCnEubCgRx3GHDzu11GaPo2.png" alt="Balezaf Alcohol Liquors Factory PLC logo" class="h-12 w-12 rounded-full object-cover" />
+        <div class="max-w-[220px] leading-tight"><span class="block text-sm font-semibold uppercase tracking-[0.08em]">Balezaf Alcohol Liquors Factory PLC</span><span class="mt-1 block text-[9px] uppercase tracking-[0.22em] text-[#65975d]">Alcohol &amp; Liquor Factory</span></div>
       </NuxtLink>
       <nav class="hidden items-center gap-7 text-sm font-medium lg:flex" aria-label="Main navigation">
         <NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="transition hover:text-[#65975d]">{{ link.label }}</NuxtLink>
