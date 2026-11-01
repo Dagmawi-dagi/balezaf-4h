@@ -1,14 +1,14 @@
 <script setup lang="ts">
 const posts = [
-  { kind: 'Blog', category: 'MAKING BALEZAF', title: 'The botanicals that make our gin unmistakably Ethiopian', date: '12 April 2026', text: 'From bright citrus to fragrant herbs, explore the local ingredients that shape our signature profile.' },
-  { kind: 'Blog', category: 'SERVE NOTES', title: 'A better highball starts with patience', date: '28 March 2026', text: 'A simple ritual for a fresh, balanced serve that lets every note in the bottle breathe.' },
-  { kind: 'Blog', category: 'PEOPLE & PLACE', title: 'Inside the new generation of Addis hospitality', date: '04 February 2026', text: 'The bartenders, chefs, and hosts building a more generous drinks culture in Ethiopia.' },
+  { kind: 'Blog', category: 'MAKING BALEZAF', title: 'The botanicals that make our gin unmistakably Ethiopian', date: '12 April 2026', image: '', text: 'From bright citrus to fragrant herbs, explore the local ingredients that shape our signature profile.' },
+  { kind: 'Blog', category: 'SERVE NOTES', title: 'A better highball starts with patience', date: '28 March 2026', image: '', text: 'A simple ritual for a fresh, balanced serve that lets every note in the bottle breathe.' },
+  { kind: 'Blog', category: 'PEOPLE & PLACE', title: 'Inside the new generation of Addis hospitality', date: '04 February 2026', image: '', text: 'The bartenders, chefs, and hosts building a more generous drinks culture in Ethiopia.' },
 ]
 
 const events = [
-  { kind: 'Event', category: 'UPCOMING EVENT', title: 'Balezaf Tasting Table', date: '18 May 2026', place: 'Balezaf House · Addis Ababa', text: 'An intimate evening exploring our newest botanical spirits and seasonal serves.' },
-  { kind: 'Event', category: 'UPCOMING EVENT', title: 'Taste of Ethiopia', date: '06 June 2026', place: 'Millennium Hall · Addis Ababa', text: 'Meet our makers and discover the ingredients behind Ethiopia’s modern spirit.' },
-  { kind: 'Event', category: 'UPCOMING EVENT', title: 'Craft & Culture', date: '24 July 2026', place: 'The Skylight Garden · Addis Ababa', text: 'A creative gathering pairing local food, music, and considered cocktails.' },
+  { kind: 'Event', category: 'UPCOMING EVENT', title: 'Balezaf Tasting Table', date: '18 May 2026', image: '', place: 'Balezaf House · Addis Ababa', text: 'An intimate evening exploring our newest botanical spirits and seasonal serves.' },
+  { kind: 'Event', category: 'UPCOMING EVENT', title: 'Taste of Ethiopia', date: '06 June 2026', image: '', place: 'Millennium Hall · Addis Ababa', text: 'Meet our makers and discover the ingredients behind Ethiopia’s modern spirit.' },
+  { kind: 'Event', category: 'UPCOMING EVENT', title: 'Craft & Culture', date: '24 July 2026', image: '', place: 'The Skylight Garden · Addis Ababa', text: 'A creative gathering pairing local food, music, and considered cocktails.' },
 ]
 
 const journalItems = [...posts, ...events]
@@ -34,7 +34,10 @@ function closePost() {
 
         <div class="mt-16 grid gap-x-7 gap-y-12 md:grid-cols-3">
           <article v-for="item in journalItems" :key="item.title" class="flex h-full flex-col">
-            <div class="flex h-52 items-end rounded-3xl bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] p-6">
+            <div
+              class="flex h-52 items-end rounded-3xl bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] bg-cover bg-center p-6"
+              :style="item.image ? { backgroundImage: `url(${item.image})` } : undefined"
+            >
               <span class="rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold tracking-[.18em] text-[#173b2b]">{{ item.kind }}</span>
             </div>
             <div class="flex flex-1 flex-col">
@@ -53,6 +56,12 @@ function closePost() {
     <div v-if="selectedPost" class="fixed inset-0 z-[60] flex items-center justify-center bg-[#173b2b]/70 p-4" role="presentation" @click.self="closePost">
       <article class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-[#fffdf9] p-7 text-[#173b2b] shadow-2xl sm:p-10" role="dialog" aria-modal="true" :aria-labelledby="`post-${selectedPost.title}`">
         <button class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f0e4] text-xl text-[#173b2b]" type="button" aria-label="Close story" @click="closePost">×</button>
+        <div
+          class="mb-8 h-48 rounded-2xl bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] bg-cover bg-center sm:h-60"
+          :style="selectedPost.image ? { backgroundImage: `url(${selectedPost.image})` } : undefined"
+          role="img"
+          :aria-label="`${selectedPost.title} image`"
+        />
         <p class="eyebrow pr-12">{{ selectedPost.category }}</p>
         <h2 :id="`post-${selectedPost.title}`" class="mt-5 pr-8 font-serif text-4xl leading-tight sm:text-5xl">{{ selectedPost.title }}</h2>
         <p class="mt-5 text-sm text-[#779277]">{{ selectedPost.date }}</p>
