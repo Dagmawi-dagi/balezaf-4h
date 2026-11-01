@@ -26,7 +26,7 @@ const links = [
 </script>
 
 <template>
-  <header :class="['sticky top-0 z-50 border-b border-[#dfe9da] bg-white text-[#173b2b] transition-shadow duration-300', isScrolled ? 'shadow-[0_8px_24px_rgba(23,59,43,0.08)]' : '']">
+  <header :class="['site-header sticky top-0 z-50 w-full border-b border-[#dfe9da] bg-white text-[#173b2b] transition-shadow duration-300', isScrolled ? 'shadow-[0_8px_24px_rgba(23,59,43,0.08)]' : '']">
     <div class="bg-[#173b2b] text-xs text-white">
       <div class="mx-auto flex max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-10">
         <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">

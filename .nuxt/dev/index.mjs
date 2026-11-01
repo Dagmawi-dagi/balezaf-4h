@@ -657,7 +657,7 @@ const _inlineRuntimeConfig = {
       }
     }
   },
-  "appSecret": "f008b8ad38fb9087c81f99b594b60938f6ad97a5e065493c00eec6b3c57f0d9e",
+  "appSecret": "85951ef07ab7619f4333257259c282a6c488543abed58090c6ac07ffbce6c2dc",
   "public": {}
 };
 const envOptions = {
@@ -1109,7 +1109,7 @@ const renderSSRHeadOptions = {"omitLineBreaks":true};
 
 const NUXT_PRERENDER_NO_SSR_ROUTES = ["/index.html","/200.html","/404.html"];
 const NUXT_NO_SCRIPTS_PATTERNS = [];
-const NUXT_PAGE_PATTERNS = ["/admin","/blog","/careers","/events","/"];
+const NUXT_PAGE_PATTERNS = ["/about","/admin","/blog","/careers","/contact","/events","/order","/products","/"];
 const NUXT_SSR_STREAMING = false;
 const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"}],"link":[],"style":[],"script":[],"noscript":[],"htmlAttrs":{"lang":"en"}};
 const appRootTag = "div";

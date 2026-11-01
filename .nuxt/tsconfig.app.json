@@ -104,7 +104,7 @@
         "./imports"
       ],
       "#app-manifest": [
-        "./manifest/meta/a83371b0-8647-4f30-8ffd-96b078294378.json"
+        "./manifest/meta/dev.json"
       ],
       "#components": [
         "./components.d.ts"
@@ -246,7 +246,7 @@
     "../node_modules/.pnpm/@nuxt+telemetry@2.9.1_@nuxt+kit@4.6.3_@nuxt+schema@4.6.3_confbox@0.3.2_dotenv@17.4.2_gi_0c248412ef3c213f052cb6ebec38fda3/node_modules/dist/*.tsx",
     "../node_modules/.pnpm/@nuxt+telemetry@2.9.1_@nuxt+kit@4.6.3_@nuxt+schema@4.6.3_confbox@0.3.2_dotenv@17.4.2_gi_0c248412ef3c213f052cb6ebec38fda3/node_modules/dist/*.jsx",
     "../node_modules/.pnpm/@nuxt+telemetry@2.9.1_@nuxt+kit@4.6.3_@nuxt+schema@4.6.3_confbox@0.3.2_dotenv@17.4.2_gi_0c248412ef3c213f052cb6ebec38fda3/node_modules/dist/*.vue",
-    "../.output",
+    "dev",
     "../server"
   ],
   "vueCompilerOptions": {

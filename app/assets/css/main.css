@@ -29,6 +29,13 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
   box-shadow: 0 0 0 3px rgba(23, 99, 58, 0.14);
 }
 
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  align-self: flex-start;
+}
+
 body {
  margin: 0; min-width: 0; overflow-x: hidden; }
 *, *::before, *::after { box-sizing: border-box; }
