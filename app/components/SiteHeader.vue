@@ -26,7 +26,7 @@ const links = [
 </script>
 
 <template>
-  <header :class="['sticky top-0 z-50 border-b text-[#173b2b] transition-all duration-300', isScrolled ? 'border-[#dfe9da] bg-white/95 shadow-[0_8px_24px_rgba(23,59,43,0.08)] backdrop-blur-md' : 'border-[#dfe9da] bg-[#fffdf9]']">
+  <header :class="['sticky top-0 z-50 border-b border-[#dfe9da] bg-white text-[#173b2b] transition-shadow duration-300', isScrolled ? 'shadow-[0_8px_24px_rgba(23,59,43,0.08)]' : '']">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
       <NuxtLink to="/" class="flex items-center gap-3" aria-label="Desta Spirits home">
         <div class="flex h-11 w-11 items-center justify-center rounded-full bg-[#173b2b] text-sm font-bold text-white">D</div>
