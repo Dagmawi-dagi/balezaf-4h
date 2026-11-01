@@ -16,6 +16,9 @@ const {
 
 const activeTab = ref('Products')
 const tabs = ['Products', 'Overview', 'Events', 'Blog posts', 'Job vacancies']
+const viewMode = ref<'table' | 'grid'>('table')
+const searchQuery = ref('')
+
 const toastMessage = ref('')
 const showToast = ref(false)
 
@@ -24,8 +27,20 @@ function notify(msg: string) {
   showToast.value = true
   setTimeout(() => {
     showToast.value = false
-  }, 3200)
+  }, 2800)
 }
+
+// Filtered products based on search
+const filteredProducts = computed(() => {
+  if (!searchQuery.value.trim()) return products.value
+  const q = searchQuery.value.toLowerCase()
+  return products.value.filter(
+    (p) =>
+      p.name.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      (p.note && p.note.toLowerCase().includes(q))
+  )
+})
 
 // ----------------------------------------------------
 // 1. PRODUCTS MANAGEMENT
@@ -81,52 +96,53 @@ function openProductAddModal() {
   const newId = 'prod_' + Date.now().toString(36)
   Object.assign(productForm, {
     id: newId,
-    name: 'New Ethiopian Spirit',
+    name: '',
     category: 'Craft Spirit',
     volume: '750ml',
     abv: '40% Vol.',
     tagline: 'Handcrafted with traditional botanicals and mountain spring water.',
-    note: 'Smooth character with distinctive aromatic notes and a warming finish.',
+    note: '',
     imageKey: 'gin',
     color: '#52965b',
     glowColor: 'rgba(82, 150, 91, 0.45)',
-    aroma: 'Fresh citrus, wild botanicals, and warm spice.',
-    palate: 'Silky texture with balanced sweetness and natural warmth.',
-    finish: 'Crisp, lingering aromatic finish.',
-    serving: 'Serve chilled or on the rocks.',
+    aroma: '',
+    palate: '',
+    finish: '',
+    serving: 'Serve chilled over ice.',
     isTopFlagship: false,
   })
   isProductModalOpen.value = true
 }
 
 function saveProductChanges() {
+  if (!productForm.name.trim()) return
   if (isNewProduct.value) {
     addProduct({ ...productForm })
-    notify(`Created product "${productForm.name}" successfully!`)
+    notify(`Created "${productForm.name}"!`)
   } else if (editingProduct.value) {
     updateProduct(editingProduct.value.id, { ...productForm })
-    notify(`Saved changes for "${productForm.name}"!`)
+    notify(`Updated "${productForm.name}"!`)
   }
   isProductModalOpen.value = false
 }
 
 function removeProduct(id: string, name: string) {
-  if (confirm(`Are you sure you want to delete "${name}" from the catalogue?`)) {
+  if (confirm(`Delete "${name}" from catalogue?`)) {
     deleteProduct(id)
-    notify(`Deleted product "${name}".`)
+    notify(`Deleted "${name}".`)
   }
 }
 
 function toggleFlagship(prod: any) {
   const currentFlagships = products.value.filter((p) => p.isTopFlagship)
   if (!prod.isTopFlagship && currentFlagships.length >= 3) {
-    notify('Home page already has 3 flagships. Please untoggle one first.')
+    notify('Home page already features 3 flagships. Remove one first.')
     return
   }
   updateProduct(prod.id, { isTopFlagship: !prod.isTopFlagship })
   notify(
     !prod.isTopFlagship
-      ? `"${prod.name}" is now featured on the Home Page!`
+      ? `"${prod.name}" featured on Home Page!`
       : `Removed "${prod.name}" from Home Page top 3.`
   )
 }
@@ -329,12 +345,12 @@ function saveBlogChanges() {
   if (!blogForm.title.trim()) return
   if (isNewBlog.value) {
     blogPosts.value.unshift({ ...blogForm })
-    notify(`Published post "${blogForm.title}"!`)
+    notify(`Created story "${blogForm.title}"!`)
   } else {
     const idx = blogPosts.value.findIndex((p) => p.id === editingBlogId.value)
     if (idx !== -1) {
       blogPosts.value[idx] = { ...blogForm }
-      notify(`Updated post "${blogForm.title}"!`)
+      notify(`Updated story "${blogForm.title}"!`)
     }
   }
   saveBlogToStorage()
@@ -468,7 +484,7 @@ function handleImport() {
   if (!importJsonText.value.trim()) return
   const success = importJsonString(importJsonText.value.trim())
   if (success) {
-    notify('Successfully imported product catalogue from JSON!')
+    notify('Imported product catalogue from JSON!')
     showImportModal.value = false
     importJsonText.value = ''
   } else {
@@ -486,6 +502,7 @@ function handleFileUpload(event: Event) {
       const success = importJsonString(content)
       if (success) {
         notify('Successfully imported JSON file!')
+        showImportModal.value = false
       } else {
         alert('Invalid JSON file format.')
       }
@@ -518,132 +535,187 @@ onMounted(() => {
 })
 
 useSeoMeta({
-  title: 'Content Admin Workspace | Balezaf Spirits',
-  description: 'Manage products catalogue, tasting notes, events, journal stories, and job vacancies.',
+  title: 'Admin Workspace | Balezaf Biherawi',
+  description: 'Manage products catalogue, tasting profiles, events, journal stories, and job vacancies.',
 })
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#f3f7ef] text-[#173b2b]">
+  <div class="min-h-screen bg-[#f4f7f2] text-[#173b2b] text-[13px] antialiased">
     <!-- Toast notification -->
     <div
       v-if="showToast"
-      class="fixed bottom-6 right-6 z-[200] flex items-center gap-3 rounded-2xl border border-[#b8d7af] bg-[#173b2b] px-5 py-3.5 text-sm font-medium text-white shadow-2xl transition-all"
+      class="fixed bottom-5 right-5 z-[200] flex items-center gap-2 rounded-lg border border-[#3e744a] bg-[#173b2b] px-4 py-2.5 text-xs font-medium text-white shadow-lg transition-all"
     >
-      <span class="text-[#c6dfbc]">✓</span>
+      <span class="text-[#a4d49a]">✓</span>
       <span>{{ toastMessage }}</span>
     </div>
 
     <div class="flex min-h-screen">
-      <!-- Admin Sidebar -->
-      <aside class="hidden w-64 shrink-0 bg-[#173b2b] p-7 text-white lg:block">
-        <NuxtLink to="/" class="flex items-center gap-2.5">
-          <div class="flex h-8 w-8 items-center justify-center rounded-full bg-[#c6dfbc] font-serif font-bold text-[#173b2b]">
-            B
-          </div>
-          <div>
-            <span class="block text-sm font-semibold tracking-wider">BALEZAF</span>
-            <span class="block text-[10px] text-[#9fc495]">Content Studio</span>
-          </div>
-        </NuxtLink>
+      <!-- Admin Compact Sidebar -->
+      <aside class="hidden w-56 shrink-0 flex-col justify-between border-r border-[#1e4835] bg-[#173b2b] p-4 text-white md:flex">
+        <div>
+          <!-- Brand Logo -->
+          <NuxtLink to="/" class="flex items-center gap-2.5 px-2 py-1.5">
+            <div class="flex h-7 w-7 items-center justify-center rounded-md bg-[#c6dfbc] font-serif font-bold text-xs text-[#173b2b]">
+              B
+            </div>
+            <div>
+              <span class="block text-xs font-bold tracking-wider uppercase">BALEZAF</span>
+              <span class="block text-[10px] text-[#8ebb84]">Admin Workspace</span>
+            </div>
+          </NuxtLink>
 
-        <nav class="mt-10 space-y-1.5">
-          <button
-            v-for="tab in tabs"
-            :key="tab"
-            class="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-medium transition"
-            :class="activeTab === tab ? 'bg-[#35653c] text-white shadow-sm' : 'text-[#c8ddc4] hover:bg-white/10'"
-            @click="activeTab = tab"
+          <!-- Nav Items -->
+          <nav class="mt-6 space-y-1">
+            <button
+              v-for="tab in tabs"
+              :key="tab"
+              type="button"
+              class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs font-medium transition"
+              :class="activeTab === tab ? 'bg-[#2b593a] text-white shadow-xs font-semibold' : 'text-[#bcd5b9] hover:bg-white/10 hover:text-white'"
+              @click="activeTab = tab"
+            >
+              <span>{{ tab }}</span>
+              <span
+                v-if="tab === 'Products'"
+                class="rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold"
+              >
+                {{ products.length }}
+              </span>
+              <span
+                v-else-if="tab === 'Events'"
+                class="rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold"
+              >
+                {{ events.length }}
+              </span>
+              <span
+                v-else-if="tab === 'Blog posts'"
+                class="rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold"
+              >
+                {{ blogPosts.length }}
+              </span>
+              <span
+                v-else-if="tab === 'Job vacancies'"
+                class="rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold"
+              >
+                {{ jobVacancies.length }}
+              </span>
+            </button>
+          </nav>
+        </div>
+
+        <div class="border-t border-white/10 pt-3">
+          <NuxtLink
+            to="/"
+            class="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-[#9fc495] transition hover:bg-white/10 hover:text-white"
           >
-            <span>{{ tab }}</span>
-            <span
-              v-if="tab === 'Products'"
-              class="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white"
-            >
-              {{ products.length }}
-            </span>
-            <span
-              v-else-if="tab === 'Events'"
-              class="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white"
-            >
-              {{ events.length }}
-            </span>
-            <span
-              v-else-if="tab === 'Blog posts'"
-              class="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white"
-            >
-              {{ blogPosts.length }}
-            </span>
-            <span
-              v-else-if="tab === 'Job vacancies'"
-              class="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white"
-            >
-              {{ jobVacancies.length }}
-            </span>
-          </button>
-        </nav>
-
-        <div class="mt-12 border-t border-white/15 pt-6">
-          <NuxtLink to="/" class="inline-flex items-center gap-2 text-xs font-medium text-[#b8d7af] transition hover:text-white">
-            <span>← Return to website</span>
+            <span>← Back to Website</span>
           </NuxtLink>
         </div>
       </aside>
 
       <!-- Main Workspace -->
-      <main class="flex-1">
-        <!-- Top App Bar -->
-        <header class="flex items-center justify-between border-b border-[#dfe9da] bg-white px-6 py-4 lg:px-10">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#65975d]">Content Management Studio</p>
-            <h1 class="mt-0.5 font-serif text-2xl font-semibold sm:text-3xl">{{ activeTab }}</h1>
+      <main class="flex-1 flex flex-col min-w-0">
+        <!-- Compact Top App Bar -->
+        <header class="flex h-14 items-center justify-between border-b border-[#dce8d7] bg-white px-5 sm:px-6">
+          <div class="flex items-center gap-3">
+            <!-- Mobile tab switcher for small screens -->
+            <select
+              v-model="activeTab"
+              class="md:hidden rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-medium text-[#173b2b]"
+            >
+              <option v-for="t in tabs" :key="t" :value="t">{{ t }}</option>
+            </select>
+
+            <div class="hidden sm:block">
+              <h1 class="text-sm font-bold text-[#173b2b] tracking-tight">{{ activeTab }} Management</h1>
+              <p class="text-[11px] text-[#6b856f]">Balezaf Biherawi Content &amp; Catalogue Studio</p>
+            </div>
           </div>
 
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2.5">
             <NuxtLink
               to="/"
-              class="rounded-full border border-[#dce8d7] px-4 py-1.5 text-xs font-semibold text-[#173b2b] transition hover:bg-[#edf5e9]"
+              class="inline-flex items-center gap-1 rounded-md border border-[#cddfc9] bg-white px-3 py-1 text-xs font-medium text-[#173b2b] transition hover:bg-[#edf5e9]"
             >
-              Preview Live Site ↗
+              <span>Live Site</span>
+              <span class="text-[10px] text-gray-500">↗</span>
             </NuxtLink>
-            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-[#c6dfbc] text-xs font-bold text-[#173b2b]">
-              Admin
+            <div class="flex h-7 w-7 items-center justify-center rounded-md bg-[#dcebd8] text-[11px] font-bold text-[#173b2b]">
+              AD
             </div>
           </div>
         </header>
 
-        <!-- Tab Content -->
-        <section class="mx-auto max-w-7xl px-5 py-8 sm:px-6 lg:px-10">
-          <!-- 1. PRODUCTS TAB -->
-          <div v-if="activeTab === 'Products'">
-            <!-- Controls Bar -->
-            <div class="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
-              <div>
-                <h2 class="font-serif text-2xl font-semibold">Products Catalogue (JSON)</h2>
-                <p class="mt-1 text-xs text-[#66816b]">
-                  Edit product details, tasting profiles, and choose the 3 home page flagships. Non-dev friendly.
-                </p>
+        <!-- Tab Content Body (Standard Padding & Scale) -->
+        <div class="flex-1 p-4 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto">
+          <!-- ============================================== -->
+          <!-- 1. PRODUCTS TAB (Standard Table / Dense Grid)  -->
+          <!-- ============================================== -->
+          <div v-if="activeTab === 'Products'" class="space-y-3.5">
+            <!-- Toolbar -->
+            <div class="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs">
+              <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                <div class="relative w-full max-w-xs">
+                  <input
+                    v-model="searchQuery"
+                    type="text"
+                    placeholder="Search spirit name, category..."
+                    class="admin-input !py-1 text-xs pl-8"
+                  />
+                  <svg class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <span class="text-xs text-[#6e8a72] whitespace-nowrap">
+                  {{ filteredProducts.length }} spirits
+                </span>
               </div>
 
-              <div class="flex flex-wrap items-center gap-2.5">
+              <!-- Action Controls -->
+              <div class="flex flex-wrap items-center gap-2">
+                <!-- Table / Grid View Toggle -->
+                <div class="flex items-center rounded-md border border-[#cddfc9] bg-[#f8faf6] p-0.5">
+                  <button
+                    type="button"
+                    class="rounded px-2.5 py-1 text-xs font-medium transition"
+                    :class="viewMode === 'table' ? 'bg-white text-[#173b2b] shadow-2xs font-semibold' : 'text-[#6e8a72] hover:text-[#173b2b]'"
+                    @click="viewMode = 'table'"
+                    title="Compact Table View"
+                  >
+                    Table
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded px-2.5 py-1 text-xs font-medium transition"
+                    :class="viewMode === 'grid' ? 'bg-white text-[#173b2b] shadow-2xs font-semibold' : 'text-[#6e8a72] hover:text-[#173b2b]'"
+                    @click="viewMode = 'grid'"
+                    title="Grid View"
+                  >
+                    Grid
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 rounded-full border border-[#b8cdb6] bg-white px-4 py-2 text-xs font-semibold text-[#2b5837] shadow-xs transition hover:bg-[#edf5e9]"
-                  title="Download products.json"
+                  class="inline-flex items-center gap-1 rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-medium text-[#173b2b] transition hover:bg-[#edf5e9]"
+                  title="Export products.json file"
                   @click="downloadJsonFile"
                 >
-                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="h-3.5 w-3.5 text-[#35653c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  <span>Export products.json</span>
+                  <span>Export JSON</span>
                 </button>
 
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 rounded-full border border-[#b8cdb6] bg-white px-4 py-2 text-xs font-semibold text-[#2b5837] shadow-xs transition hover:bg-[#edf5e9]"
+                  class="inline-flex items-center gap-1 rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-medium text-[#173b2b] transition hover:bg-[#edf5e9]"
+                  title="Import JSON into catalogue"
                   @click="showImportModal = true"
                 >
-                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="h-3.5 w-3.5 text-[#35653c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                   </svg>
                   <span>Import JSON</span>
@@ -651,7 +723,8 @@ useSeoMeta({
 
                 <button
                   type="button"
-                  class="rounded-full border border-gray-200 px-3.5 py-2 text-xs text-gray-500 transition hover:bg-gray-100"
+                  class="rounded-md border border-gray-200 px-2 py-1 text-[11px] text-gray-500 hover:bg-gray-100"
+                  title="Reset to products.json default factory data"
                   @click="handleResetDefaults"
                 >
                   Reset Factory
@@ -659,516 +732,620 @@ useSeoMeta({
 
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 rounded-full bg-[#173b2b] px-5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
+                  class="inline-flex items-center gap-1 rounded-md bg-[#173b2b] px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-[#2b593a]"
                   @click="openProductAddModal"
                 >
-                  <span>+ Create New Product</span>
+                  <span>+ Create Product</span>
                 </button>
               </div>
             </div>
 
-            <!-- Products Grid Cards -->
-            <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Standard Compact Table View (Default: All fits on 1 screen) -->
+            <div v-if="viewMode === 'table'" class="overflow-hidden rounded-xl border border-[#dce8d7] bg-white shadow-2xs">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="border-b border-[#e5efe2] bg-[#f8faf6] text-[11px] font-semibold uppercase tracking-wider text-[#547959]">
+                      <th class="py-2.5 pl-4 pr-2 w-12 text-center">Bottle</th>
+                      <th class="py-2.5 px-3">Product Name</th>
+                      <th class="py-2.5 px-3">Category</th>
+                      <th class="py-2.5 px-3">ABV / Vol</th>
+                      <th class="py-2.5 px-3">Home Top 3</th>
+                      <th class="py-2.5 px-3 pr-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[#edf3eb]">
+                    <tr
+                      v-for="prod in filteredProducts"
+                      :key="prod.id"
+                      class="hover:bg-[#fbfdfa] transition-colors"
+                    >
+                      <!-- Bottle Thumbnail -->
+                      <td class="py-1.5 pl-4 pr-2 text-center">
+                        <div class="mx-auto flex h-10 w-9 items-center justify-center rounded bg-[#f5f8f3] p-1">
+                          <img
+                            :src="prod.image"
+                            :alt="prod.name"
+                            class="max-h-8 w-auto object-contain"
+                          />
+                        </div>
+                      </td>
+
+                      <!-- Name & Tasting summary -->
+                      <td class="py-2 px-3">
+                        <div class="font-semibold text-[#173b2b]">{{ prod.name }}</div>
+                        <div class="text-[11px] text-[#69846d] line-clamp-1 max-w-sm">
+                          {{ prod.note || prod.tagline }}
+                        </div>
+                      </td>
+
+                      <!-- Category -->
+                      <td class="py-2 px-3">
+                        <span class="inline-block rounded px-2 py-0.5 text-[11px] font-medium" :class="prod.badge || 'bg-gray-100 text-gray-700'">
+                          {{ prod.category }}
+                        </span>
+                      </td>
+
+                      <!-- ABV & Volume -->
+                      <td class="py-2 px-3 text-[#526f57] whitespace-nowrap">
+                        {{ prod.abv }} · {{ prod.volume }}
+                      </td>
+
+                      <!-- Home Page Flagship Toggle -->
+                      <td class="py-2 px-3">
+                        <button
+                          type="button"
+                          class="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium transition"
+                          :class="prod.isTopFlagship ? 'bg-[#faeedd] text-[#844d11] font-semibold border border-[#e6c79a]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
+                          :title="prod.isTopFlagship ? 'Featured in Home Page top 3' : 'Click to toggle Home Page feature'"
+                          @click="toggleFlagship(prod)"
+                        >
+                          <span>{{ prod.isTopFlagship ? '★ Featured' : '☆ Standard' }}</span>
+                        </button>
+                      </td>
+
+                      <!-- Actions -->
+                      <td class="py-2 px-3 pr-4 text-right whitespace-nowrap space-x-1.5">
+                        <button
+                          type="button"
+                          class="rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#173b2b] transition hover:bg-[#edf5e9]"
+                          @click="openProductEditModal(prod)"
+                        >
+                          Edit ✎
+                        </button>
+                        <button
+                          type="button"
+                          class="rounded-md px-2 py-1 text-[11px] text-red-600 transition hover:bg-red-50 hover:text-red-800"
+                          title="Delete product"
+                          @click="removeProduct(prod.id, prod.name)"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Compact Grid View (Alternative) -->
+            <div v-else class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <div
-                v-for="prod in products"
+                v-for="prod in filteredProducts"
                 :key="prod.id"
-                class="group flex flex-col justify-between rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm transition-all hover:border-[#65975d]/50 hover:shadow-md"
+                class="flex flex-col justify-between rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs hover:border-[#8ebb84] transition"
               >
                 <div>
                   <div class="flex items-center justify-between">
-                    <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="prod.badge">
+                    <span class="rounded px-2 py-0.5 text-[10px] font-semibold" :class="prod.badge || 'bg-gray-100 text-gray-700'">
                       {{ prod.category }}
                     </span>
-
                     <button
                       type="button"
-                      class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition"
-                      :class="prod.isTopFlagship ? 'bg-[#faeedd] text-[#744510] border border-[#e2be8a]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
-                      :title="prod.isTopFlagship ? 'Featured in Home Page top 3' : 'Click to feature on Home Page'"
+                      class="text-[10px] font-medium px-1.5 py-0.5 rounded transition"
+                      :class="prod.isTopFlagship ? 'bg-[#faeedd] text-[#844d11] font-semibold' : 'text-gray-400 hover:text-gray-700'"
                       @click="toggleFlagship(prod)"
                     >
-                      <span>★</span>
-                      <span>{{ prod.isTopFlagship ? 'Top 3 Flagship' : 'Standard' }}</span>
+                      {{ prod.isTopFlagship ? '★ Top 3' : '☆ Standard' }}
                     </button>
                   </div>
 
-                  <div class="my-4 flex h-40 items-center justify-center rounded-2xl bg-[#f7faf4] p-3">
+                  <div class="my-2 flex h-24 items-center justify-center rounded-lg bg-[#f8faf6] p-2">
                     <img
                       :src="prod.image"
                       :alt="prod.name"
-                      class="h-36 w-auto max-w-[90px] object-contain drop-shadow-md"
+                      class="h-20 w-auto object-contain drop-shadow-sm"
                     />
                   </div>
 
-                  <div class="flex items-baseline justify-between">
-                    <h3 class="font-serif text-xl font-semibold text-[#173b2b]">{{ prod.name }}</h3>
-                    <span class="text-xs text-[#779277]">{{ prod.abv }} · {{ prod.volume }}</span>
-                  </div>
-
-                  <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-[#54715a]">
+                  <h3 class="font-semibold text-xs text-[#173b2b]">{{ prod.name }}</h3>
+                  <p class="text-[11px] text-[#6b856f]">{{ prod.abv }} · {{ prod.volume }}</p>
+                  <p class="mt-1 line-clamp-2 text-[11px] text-[#55715a] leading-tight">
                     {{ prod.note }}
                   </p>
                 </div>
 
-                <div class="mt-5 flex items-center justify-between border-t border-[#edf2e9] pt-4">
+                <div class="mt-3 flex items-center justify-between border-t border-[#edf2ea] pt-2 text-[11px]">
                   <button
                     type="button"
-                    class="rounded-full bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[#35653c]"
+                    class="font-semibold text-[#173b2b] hover:text-[#35653c]"
                     @click="openProductEditModal(prod)"
                   >
-                    Edit Product ✎
+                    Edit ✎
                   </button>
-
                   <button
                     type="button"
-                    class="text-xs text-red-600 transition hover:text-red-800"
-                    title="Delete product"
+                    class="text-red-600 hover:text-red-800"
                     @click="removeProduct(prod.id, prod.name)"
                   >
-                    Remove
+                    Delete
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 2. OVERVIEW TAB -->
-          <div v-else-if="activeTab === 'Overview'">
-            <div class="grid gap-4 sm:grid-cols-4">
-              <div class="rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
-                <p class="text-xs uppercase tracking-wider text-[#66816b]">Total Products</p>
-                <strong class="mt-2 block font-serif text-3xl font-bold text-[#173b2b]">{{ products.length }}</strong>
-                <button class="mt-3 text-xs font-semibold text-[#3e7647]" @click="activeTab = 'Products'">
-                  Manage catalogue →
-                </button>
+          <!-- ============================================== -->
+          <!-- 2. OVERVIEW TAB (Standard Metrics Dashboard)   -->
+          <!-- ============================================== -->
+          <div v-else-if="activeTab === 'Overview'" class="space-y-4">
+            <!-- 4 Metric Cards in 1 Row -->
+            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div class="rounded-xl border border-[#dce8d7] bg-white p-4 shadow-2xs">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-[#6e8a72]">Spirits Catalogue</span>
+                <div class="mt-1 flex items-baseline justify-between">
+                  <strong class="font-serif text-2xl font-bold text-[#173b2b]">{{ products.length }}</strong>
+                  <button class="text-[11px] font-semibold text-[#35653c] hover:underline" @click="activeTab = 'Products'">
+                    View →
+                  </button>
+                </div>
               </div>
 
-              <div class="rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
-                <p class="text-xs uppercase tracking-wider text-[#66816b]">Published Events</p>
-                <strong class="mt-2 block font-serif text-3xl font-bold text-[#173b2b]">{{ events.length }}</strong>
-                <button class="mt-3 text-xs font-semibold text-[#3e7647]" @click="activeTab = 'Events'">
-                  Manage events →
-                </button>
+              <div class="rounded-xl border border-[#dce8d7] bg-white p-4 shadow-2xs">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-[#6e8a72]">Published Events</span>
+                <div class="mt-1 flex items-baseline justify-between">
+                  <strong class="font-serif text-2xl font-bold text-[#173b2b]">{{ events.length }}</strong>
+                  <button class="text-[11px] font-semibold text-[#35653c] hover:underline" @click="activeTab = 'Events'">
+                    View →
+                  </button>
+                </div>
               </div>
 
-              <div class="rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
-                <p class="text-xs uppercase tracking-wider text-[#66816b]">Journal Posts</p>
-                <strong class="mt-2 block font-serif text-3xl font-bold text-[#173b2b]">{{ blogPosts.length }}</strong>
-                <button class="mt-3 text-xs font-semibold text-[#3e7647]" @click="activeTab = 'Blog posts'">
-                  Manage posts →
-                </button>
+              <div class="rounded-xl border border-[#dce8d7] bg-white p-4 shadow-2xs">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-[#6e8a72]">Journal Stories</span>
+                <div class="mt-1 flex items-baseline justify-between">
+                  <strong class="font-serif text-2xl font-bold text-[#173b2b]">{{ blogPosts.length }}</strong>
+                  <button class="text-[11px] font-semibold text-[#35653c] hover:underline" @click="activeTab = 'Blog posts'">
+                    View →
+                  </button>
+                </div>
               </div>
 
-              <div class="rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
-                <p class="text-xs uppercase tracking-wider text-[#66816b]">Open Vacancies</p>
-                <strong class="mt-2 block font-serif text-3xl font-bold text-[#173b2b]">{{ jobVacancies.length }}</strong>
-                <button class="mt-3 text-xs font-semibold text-[#3e7647]" @click="activeTab = 'Job vacancies'">
-                  Manage careers →
-                </button>
+              <div class="rounded-xl border border-[#dce8d7] bg-white p-4 shadow-2xs">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-[#6e8a72]">Open Careers</span>
+                <div class="mt-1 flex items-baseline justify-between">
+                  <strong class="font-serif text-2xl font-bold text-[#173b2b]">{{ jobVacancies.length }}</strong>
+                  <button class="text-[11px] font-semibold text-[#35653c] hover:underline" @click="activeTab = 'Job vacancies'">
+                    View →
+                  </button>
+                </div>
               </div>
             </div>
 
-            <!-- Quick Creation Actions -->
-            <div class="mt-8 rounded-3xl border border-[#dfe9da] bg-white p-8 shadow-sm">
-              <h2 class="font-serif text-2xl font-semibold">Quick Create Actions</h2>
-              <p class="mt-1 text-sm text-[#54715a]">
-                Launch creation modals directly from your dashboard:
-              </p>
+            <!-- Quick Creation Bar -->
+            <div class="rounded-xl border border-[#dce8d7] bg-white p-4 shadow-2xs">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#547959]">Quick Creation Modals</h2>
+              <p class="mt-0.5 text-xs text-[#6e8a72]">Create items directly without leaving the dashboard:</p>
 
-              <div class="mt-6 flex flex-wrap gap-3">
+              <div class="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
+                  class="rounded-md bg-[#173b2b] px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#2b593a]"
                   @click="openProductAddModal"
                 >
-                  + Create Product
+                  + New Product
                 </button>
                 <button
                   type="button"
-                  class="rounded-full border border-[#173b2b] px-5 py-2.5 text-xs font-semibold text-[#173b2b] transition hover:bg-[#edf5e9]"
+                  class="rounded-md border border-[#cddfc9] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
                   @click="openEventCreateModal"
                 >
-                  + Create Event
+                  + New Event
                 </button>
                 <button
                   type="button"
-                  class="rounded-full border border-[#173b2b] px-5 py-2.5 text-xs font-semibold text-[#173b2b] transition hover:bg-[#edf5e9]"
+                  class="rounded-md border border-[#cddfc9] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
                   @click="openBlogCreateModal"
                 >
-                  + Create Journal Post
+                  + New Story
                 </button>
                 <button
                   type="button"
-                  class="rounded-full border border-[#173b2b] px-5 py-2.5 text-xs font-semibold text-[#173b2b] transition hover:bg-[#edf5e9]"
+                  class="rounded-md border border-[#cddfc9] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
                   @click="openJobCreateModal"
                 >
-                  + Post Vacancy
+                  + New Vacancy
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- 3. EVENTS TAB -->
-          <div v-else-if="activeTab === 'Events'" class="space-y-6">
-            <div class="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
+          <!-- ============================================== -->
+          <!-- 3. EVENTS TAB (Standard Compact Data List)     -->
+          <!-- ============================================== -->
+          <div v-else-if="activeTab === 'Events'" class="space-y-3.5">
+            <div class="flex items-center justify-between rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs">
               <div>
-                <h2 class="font-serif text-2xl font-semibold">Distillery Events &amp; Tastings</h2>
-                <p class="mt-1 text-xs text-[#66816b]">Manage upcoming tastings, cultural dinners, and community gatherings.</p>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-[#547959]">Events &amp; Tastings</h2>
+                <p class="text-[11px] text-[#6e8a72]">Manage upcoming tastings, cultural dinners, and masterclasses.</p>
               </div>
               <button
                 type="button"
-                class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
+                class="rounded-md bg-[#173b2b] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2b593a]"
                 @click="openEventCreateModal"
               >
-                + Create New Event
+                + Create Event
               </button>
             </div>
 
-            <div class="grid gap-4">
-              <div
-                v-for="evt in events"
-                :key="evt.id"
-                class="flex flex-col justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-xs sm:flex-row sm:items-center"
-              >
-                <div>
-                  <div class="flex items-center gap-2.5">
-                    <span class="rounded-full bg-[#edf5e9] px-2.5 py-0.5 text-[11px] font-semibold text-[#2b5837]">
-                      {{ evt.date }}
-                    </span>
-                    <span class="text-xs text-[#8eaa86]">· {{ evt.place }}</span>
-                    <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                      {{ evt.status }}
-                    </span>
+            <div class="overflow-hidden rounded-xl border border-[#dce8d7] bg-white shadow-2xs">
+              <div class="divide-y divide-[#edf3eb]">
+                <div
+                  v-for="evt in events"
+                  :key="evt.id"
+                  class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-[#fbfdfa] transition gap-2"
+                >
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="rounded bg-[#edf4eb] px-2 py-0.5 text-[10px] font-semibold text-[#285736]">
+                        {{ evt.date }}
+                      </span>
+                      <span class="text-[11px] text-[#6d8a71]">· {{ evt.place }}</span>
+                      <span class="rounded bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">
+                        {{ evt.status }}
+                      </span>
+                    </div>
+                    <h3 class="mt-1 font-semibold text-xs text-[#173b2b]">{{ evt.title }}</h3>
+                    <p class="mt-0.5 text-[11px] text-[#55715a] line-clamp-1">{{ evt.text }}</p>
                   </div>
-                  <h3 class="mt-2 font-serif text-xl font-semibold text-[#173b2b]">{{ evt.title }}</h3>
-                  <p class="mt-1 max-w-2xl text-xs leading-relaxed text-[#54715a]">{{ evt.text }}</p>
-                </div>
 
-                <div class="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    class="rounded-full bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[#35653c]"
-                    @click="openEventEditModal(evt)"
-                  >
-                    Edit ✎
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-600 transition hover:bg-red-50"
-                    @click="removeEvent(evt.id, evt.title)"
-                  >
-                    Delete
-                  </button>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      class="rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
+                      @click="openEventEditModal(evt)"
+                    >
+                      Edit ✎
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                      @click="removeEvent(evt.id, evt.title)"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 4. BLOG POSTS TAB -->
-          <div v-else-if="activeTab === 'Blog posts'" class="space-y-6">
-            <div class="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
+          <!-- ============================================== -->
+          <!-- 4. BLOG POSTS TAB (Standard Compact Data List) -->
+          <!-- ============================================== -->
+          <div v-else-if="activeTab === 'Blog posts'" class="space-y-3.5">
+            <div class="flex items-center justify-between rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs">
               <div>
-                <h2 class="font-serif text-2xl font-semibold">Journal Stories &amp; Articles</h2>
-                <p class="mt-1 text-xs text-[#66816b]">Publish insights into distillation, botanical sourcing, and drinks culture.</p>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-[#547959]">Journal Stories</h2>
+                <p class="text-[11px] text-[#6e8a72]">Distillery news, heritage stories, and serve notes.</p>
               </div>
               <button
                 type="button"
-                class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
+                class="rounded-md bg-[#173b2b] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2b593a]"
                 @click="openBlogCreateModal"
               >
-                + Create New Post
+                + Create Story
               </button>
             </div>
 
-            <div class="grid gap-4">
-              <div
-                v-for="post in blogPosts"
-                :key="post.id"
-                class="flex flex-col justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-xs sm:flex-row sm:items-center"
-              >
-                <div>
-                  <div class="flex items-center gap-2.5">
-                    <span class="rounded-full bg-[#edf5e9] px-2.5 py-0.5 text-[11px] font-semibold text-[#2b5837]">
-                      {{ post.category }}
-                    </span>
-                    <span class="text-xs text-[#8eaa86]">· {{ post.date }}</span>
-                    <span class="text-xs text-[#8eaa86]">· By {{ post.author }}</span>
+            <div class="overflow-hidden rounded-xl border border-[#dce8d7] bg-white shadow-2xs">
+              <div class="divide-y divide-[#edf3eb]">
+                <div
+                  v-for="post in blogPosts"
+                  :key="post.id"
+                  class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-[#fbfdfa] transition gap-2"
+                >
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="rounded bg-[#edf4eb] px-2 py-0.5 text-[10px] font-semibold text-[#285736]">
+                        {{ post.category }}
+                      </span>
+                      <span class="text-[11px] text-[#6d8a71]">· {{ post.date }}</span>
+                      <span class="text-[11px] text-[#6d8a71]">· {{ post.author }}</span>
+                    </div>
+                    <h3 class="mt-1 font-semibold text-xs text-[#173b2b]">{{ post.title }}</h3>
+                    <p class="mt-0.5 text-[11px] text-[#55715a] line-clamp-1">{{ post.text }}</p>
                   </div>
-                  <h3 class="mt-2 font-serif text-xl font-semibold text-[#173b2b]">{{ post.title }}</h3>
-                  <p class="mt-1 max-w-2xl text-xs leading-relaxed text-[#54715a]">{{ post.text }}</p>
-                </div>
 
-                <div class="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    class="rounded-full bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[#35653c]"
-                    @click="openBlogEditModal(post)"
-                  >
-                    Edit ✎
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-600 transition hover:bg-red-50"
-                    @click="removeBlogPost(post.id, post.title)"
-                  >
-                    Delete
-                  </button>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      class="rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
+                      @click="openBlogEditModal(post)"
+                    >
+                      Edit ✎
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                      @click="removeBlogPost(post.id, post.title)"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 5. JOB VACANCIES TAB -->
-          <div v-else-if="activeTab === 'Job vacancies'" class="space-y-6">
-            <div class="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
+          <!-- ============================================== -->
+          <!-- 5. JOB VACANCIES TAB (Standard Compact Data List)-->
+          <!-- ============================================== -->
+          <div v-else-if="activeTab === 'Job vacancies'" class="space-y-3.5">
+            <div class="flex items-center justify-between rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs">
               <div>
-                <h2 class="font-serif text-2xl font-semibold">Careers &amp; Job Vacancies</h2>
-                <p class="mt-1 text-xs text-[#66816b]">Post new positions across distillery production, quality, marketing, and management.</p>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-[#547959]">Careers &amp; Vacancies</h2>
+                <p class="text-[11px] text-[#6e8a72]">Open positions across distillation, commercial, and administration.</p>
               </div>
               <button
                 type="button"
-                class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
+                class="rounded-md bg-[#173b2b] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2b593a]"
                 @click="openJobCreateModal"
               >
-                + Create New Vacancy
+                + Post Vacancy
               </button>
             </div>
 
-            <div class="grid gap-4">
-              <div
-                v-for="job in jobVacancies"
-                :key="job.id"
-                class="flex flex-col justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-xs sm:flex-row sm:items-center"
-              >
-                <div>
-                  <div class="flex items-center gap-2.5">
-                    <span class="rounded-full bg-[#edf5e9] px-2.5 py-0.5 text-[11px] font-semibold text-[#2b5837]">
-                      {{ job.type }}
-                    </span>
-                    <span class="text-xs text-[#8eaa86]">· {{ job.team }}</span>
-                    <span
-                      class="rounded-full px-2 py-0.5 text-[10px] font-bold"
-                      :class="job.status === 'Open' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'"
-                    >
-                      {{ job.status }}
-                    </span>
+            <div class="overflow-hidden rounded-xl border border-[#dce8d7] bg-white shadow-2xs">
+              <div class="divide-y divide-[#edf3eb]">
+                <div
+                  v-for="job in jobVacancies"
+                  :key="job.id"
+                  class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-[#fbfdfa] transition gap-2"
+                >
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="rounded bg-[#edf4eb] px-2 py-0.5 text-[10px] font-semibold text-[#285736]">
+                        {{ job.type }}
+                      </span>
+                      <span class="text-[11px] text-[#6d8a71]">· {{ job.team }}</span>
+                      <span
+                        class="rounded px-1.5 py-0.5 text-[9px] font-bold"
+                        :class="job.status === 'Open' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'"
+                      >
+                        {{ job.status }}
+                      </span>
+                    </div>
+                    <h3 class="mt-1 font-semibold text-xs text-[#173b2b]">{{ job.title }}</h3>
+                    <p class="mt-0.5 text-[11px] text-[#55715a] line-clamp-1">{{ job.description }}</p>
                   </div>
-                  <h3 class="mt-2 font-serif text-xl font-semibold text-[#173b2b]">{{ job.title }}</h3>
-                  <p class="mt-1 max-w-2xl text-xs leading-relaxed text-[#54715a]">{{ job.description }}</p>
-                </div>
 
-                <div class="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    class="rounded-full bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[#35653c]"
-                    @click="openJobEditModal(job)"
-                  >
-                    Edit ✎
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-600 transition hover:bg-red-50"
-                    @click="removeJob(job.id, job.title)"
-                  >
-                    Delete
-                  </button>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      class="rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
+                      @click="openJobEditModal(job)"
+                    >
+                      Edit ✎
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                      @click="removeJob(job.id, job.title)"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
+        </div>
       </main>
     </div>
 
     <!-- ============================================== -->
-    <!-- MODAL 1: PRODUCT CREATE / EDIT MODAL           -->
+    <!-- STANDARD MODAL 1: PRODUCT CREATE / EDIT        -->
+    <!-- Compact layout fitting without excessive scroll -->
     <!-- ============================================== -->
     <Teleport to="body">
       <div
         v-if="isProductModalOpen"
-        class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4"
         role="dialog"
         aria-modal="true"
       >
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isProductModalOpen = false"></div>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="isProductModalOpen = false"></div>
 
-        <div class="relative z-10 max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[#dce8d7] bg-[#fffdf9] p-6 text-[#173b2b] shadow-2xl sm:p-8">
-          <div class="flex items-center justify-between border-b border-[#e4ede1] pb-4">
+        <div class="relative z-10 flex max-h-[88vh] w-full max-w-xl flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
+          <!-- Compact Header (Fixed) -->
+          <div class="flex items-center justify-between border-b border-[#e5efe2] bg-[#f8faf6] px-5 py-3 shrink-0">
             <div>
-              <p class="text-xs uppercase tracking-wider text-[#65975d]">Product Catalogue</p>
-              <h2 class="font-serif text-2xl font-semibold">
-                {{ isNewProduct ? 'Create New Product' : `Edit ${productForm.name}` }}
+              <p class="text-[10px] font-bold uppercase tracking-wider text-[#547959]">Product Catalogue</p>
+              <h2 class="text-sm font-bold text-[#173b2b]">
+                {{ isNewProduct ? 'Create New Spirit' : `Edit: ${productForm.name}` }}
               </h2>
             </div>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100"
+              class="flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700 text-xs"
               @click="isProductModalOpen = false"
             >
               ✕
             </button>
           </div>
 
-          <form class="mt-6 space-y-4 text-xs" @submit.prevent="saveProductChanges">
-            <div class="grid gap-4 sm:grid-cols-2">
+          <!-- Body (Scrollable only if screen is tiny) -->
+          <form class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs" @submit.prevent="saveProductChanges">
+            <!-- Row 1: Name & Category -->
+            <div class="grid gap-3 sm:grid-cols-2">
               <div>
-                <label class="block font-semibold text-[#173b2b]">Product Name</label>
-                <input v-model="productForm.name" required class="field" placeholder="e.g. Desta Dry Gin" />
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Spirit Name *</label>
+                <input v-model="productForm.name" required class="admin-input" placeholder="e.g. Desta Dry Gin" />
               </div>
               <div>
-                <label class="block font-semibold text-[#173b2b]">Category</label>
-                <input v-model="productForm.category" required class="field" placeholder="e.g. London Dry Gin" />
-              </div>
-            </div>
-
-            <div class="grid gap-4 sm:grid-cols-3">
-              <div>
-                <label class="block font-semibold text-[#173b2b]">ABV (% Alcohol)</label>
-                <input v-model="productForm.abv" required class="field" placeholder="e.g. 40% Vol." />
-              </div>
-              <div>
-                <label class="block font-semibold text-[#173b2b]">Volume</label>
-                <input v-model="productForm.volume" required class="field" placeholder="e.g. 750ml" />
-              </div>
-              <div>
-                <label class="block font-semibold text-[#173b2b]">Bottle Image Model</label>
-                <select v-model="productForm.imageKey" class="field bg-white">
-                  <option v-for="key in availableImageKeys" :key="key" :value="key">
-                    {{ key.toUpperCase() }} bottle
-                  </option>
-                </select>
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Category *</label>
+                <input v-model="productForm.category" required class="admin-input" placeholder="e.g. London Dry Gin" />
               </div>
             </div>
 
+            <!-- Row 2: ABV, Volume, Image Model -->
+            <div class="grid gap-3 sm:grid-cols-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">ABV (%) *</label>
+                <input v-model="productForm.abv" required class="admin-input" placeholder="e.g. 40% Vol." />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Volume *</label>
+                <input v-model="productForm.volume" required class="admin-input" placeholder="e.g. 750ml" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Bottle Image</label>
+                <div class="flex items-center gap-1.5">
+                  <select v-model="productForm.imageKey" class="admin-input flex-1">
+                    <option v-for="key in availableImageKeys" :key="key" :value="key">
+                      {{ key.toUpperCase() }}
+                    </option>
+                  </select>
+                  <div class="flex h-8 w-7 items-center justify-center rounded border border-[#cddfc9] bg-[#f8faf6] shrink-0 p-0.5">
+                    <img :src="resolveBottleImage(productForm.imageKey)" alt="Preview" class="max-h-7 max-w-full object-contain" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 3: Description -->
             <div>
-              <label class="block font-semibold text-[#173b2b]">Card Description / Note</label>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Card Note / Description *</label>
               <textarea
                 v-model="productForm.note"
                 required
                 rows="2"
-                class="field resize-y"
-                placeholder="Product description for cards..."
+                class="admin-input resize-y"
+                placeholder="Distinctive tasting summary for catalogue cards..."
               ></textarea>
             </div>
 
-            <div class="rounded-2xl border border-[#dce8d7] bg-[#f8fbf6] p-4 space-y-3">
-              <p class="font-semibold text-xs text-[#2c6338] uppercase tracking-wider">Tasting Profile (Shown in Modal)</p>
-              <div>
-                <label class="block font-medium text-[#173b2b]">Aroma (Nose)</label>
-                <input v-model="productForm.aroma" class="field bg-white" placeholder="e.g. Wild highland juniper, fresh lime..." />
+            <!-- Tasting Profile (Compact 2x2 Grid) -->
+            <div class="rounded-lg border border-[#dce8d7] bg-[#f8faf6] p-3 space-y-2">
+              <span class="block text-[10px] font-bold uppercase tracking-wider text-[#3e6f47]">
+                Tasting Specs (Shown in Details Modal)
+              </span>
+
+              <div class="grid gap-2.5 sm:grid-cols-2">
+                <div>
+                  <label class="block text-[10px] font-medium text-[#284f37] mb-0.5">Aroma (Nose)</label>
+                  <input v-model="productForm.aroma" class="admin-input !py-1 text-xs" placeholder="Wild juniper, fresh lime..." />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-medium text-[#284f37] mb-0.5">Palate (Taste)</label>
+                  <input v-model="productForm.palate" class="admin-input !py-1 text-xs" placeholder="Zesty citrus, herbal pine..." />
+                </div>
               </div>
-              <div>
-                <label class="block font-medium text-[#173b2b]">Palate (Taste)</label>
-                <input v-model="productForm.palate" class="field bg-white" placeholder="e.g. Zesty citrus entry, herbal pine..." />
-              </div>
-              <div>
-                <label class="block font-medium text-[#173b2b]">Finish</label>
-                <input v-model="productForm.finish" class="field bg-white" placeholder="e.g. Crisp, lingering dry finish..." />
-              </div>
-              <div>
-                <label class="block font-medium text-[#173b2b]">Serving Suggestion</label>
-                <input v-model="productForm.serving" class="field bg-white" placeholder="e.g. Serve over clear ice with tonic..." />
+
+              <div class="grid gap-2.5 sm:grid-cols-2">
+                <div>
+                  <label class="block text-[10px] font-medium text-[#284f37] mb-0.5">Finish</label>
+                  <input v-model="productForm.finish" class="admin-input !py-1 text-xs" placeholder="Crisp, lingering dry finish..." />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-medium text-[#284f37] mb-0.5">Perfect Serve</label>
+                  <input v-model="productForm.serving" class="admin-input !py-1 text-xs" placeholder="Serve over ice with tonic..." />
+                </div>
               </div>
             </div>
 
-            <div class="flex items-center gap-3 rounded-xl border border-[#e4ede1] bg-white p-3.5">
+            <!-- Flagship Checkbox -->
+            <div class="flex items-center gap-2 rounded-lg border border-[#e5efe2] bg-[#f8faf6] px-3 py-2">
               <input
                 id="flagship_toggle"
                 v-model="productForm.isTopFlagship"
                 type="checkbox"
-                class="h-4 w-4 rounded border-gray-300 text-[#173b2b] focus:ring-[#65975d]"
+                class="h-3.5 w-3.5 rounded border-gray-300 text-[#173b2b] focus:ring-[#35653c]"
               />
-              <label for="flagship_toggle" class="cursor-pointer select-none text-xs font-semibold text-[#173b2b]">
+              <label for="flagship_toggle" class="cursor-pointer select-none text-[11px] font-semibold text-[#173b2b]">
                 Feature as one of Top 3 Flagships on Home Page
               </label>
             </div>
 
-            <div class="flex items-center justify-end gap-3 border-t border-[#e4ede1] pt-4">
-              <button
-                type="button"
-                class="rounded-full border border-gray-300 px-5 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-                @click="isProductModalOpen = false"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="rounded-full bg-[#173b2b] px-6 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#35653c]"
-              >
-                {{ isNewProduct ? 'Create Product' : 'Save Changes' }}
-              </button>
-            </div>
+            <!-- Hidden submit button to allow Enter key to submit form -->
+            <button type="submit" class="hidden"></button>
           </form>
+
+          <!-- Compact Footer (Fixed) -->
+          <div class="flex items-center justify-end gap-2 border-t border-[#e5efe2] bg-[#f8faf6] px-5 py-2.5 shrink-0">
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+              @click="isProductModalOpen = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="rounded-md bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#2b593a]"
+              @click="saveProductChanges"
+            >
+              {{ isNewProduct ? 'Create Product' : 'Save Changes' }}
+            </button>
+          </div>
         </div>
       </div>
     </Teleport>
 
     <!-- ============================================== -->
-    <!-- MODAL 2: EVENT CREATE / EDIT MODAL             -->
+    <!-- STANDARD MODAL 2: EVENT CREATE / EDIT          -->
     <!-- ============================================== -->
     <Teleport to="body">
       <div
         v-if="isEventModalOpen"
-        class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4"
         role="dialog"
         aria-modal="true"
       >
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isEventModalOpen = false"></div>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="isEventModalOpen = false"></div>
 
-        <div class="relative z-10 max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-[#dce8d7] bg-[#fffdf9] p-6 text-[#173b2b] shadow-2xl sm:p-8">
-          <div class="flex items-center justify-between border-b border-[#e4ede1] pb-4">
+        <div class="relative z-10 flex max-h-[85vh] w-full max-w-md flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
+          <div class="flex items-center justify-between border-b border-[#e5efe2] bg-[#f8faf6] px-5 py-3 shrink-0">
             <div>
-              <p class="text-xs uppercase tracking-wider text-[#65975d]">Events Studio</p>
-              <h2 class="font-serif text-2xl font-semibold">
-                {{ isNewEvent ? 'Create New Event' : 'Edit Event' }}
+              <p class="text-[10px] font-bold uppercase tracking-wider text-[#547959]">Events Studio</p>
+              <h2 class="text-sm font-bold text-[#173b2b]">
+                {{ isNewEvent ? 'Create Event' : 'Edit Event' }}
               </h2>
             </div>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100"
+              class="flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700 text-xs"
               @click="isEventModalOpen = false"
             >
               ✕
             </button>
           </div>
 
-          <form class="mt-6 space-y-4 text-xs" @submit.prevent="saveEventChanges">
+          <form class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs" @submit.prevent="saveEventChanges">
             <div>
-              <label class="block font-semibold text-[#173b2b]">Event Title</label>
-              <input v-model="eventForm.title" required class="field" placeholder="e.g. Balezaf Tasting Table" />
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Event Title *</label>
+              <input v-model="eventForm.title" required class="admin-input" placeholder="e.g. Balezaf Tasting Table" />
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-3 sm:grid-cols-2">
               <div>
-                <label class="block font-semibold text-[#173b2b]">Date</label>
-                <input v-model="eventForm.date" required class="field" placeholder="e.g. 18 May 2026" />
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Date *</label>
+                <input v-model="eventForm.date" required class="admin-input" placeholder="e.g. 18 May 2026" />
               </div>
               <div>
-                <label class="block font-semibold text-[#173b2b]">Category</label>
-                <input v-model="eventForm.category" required class="field" placeholder="e.g. UPCOMING EVENT" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block font-semibold text-[#173b2b]">Location / Venue</label>
-              <input v-model="eventForm.place" required class="field" placeholder="e.g. Balezaf House · Addis Ababa" />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-[#173b2b]">Event Description</label>
-              <textarea
-                v-model="eventForm.text"
-                required
-                rows="3"
-                class="field resize-y"
-                placeholder="What can guests expect at this gathering?"
-              ></textarea>
-            </div>
-
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="block font-semibold text-[#173b2b]">Status</label>
-                <select v-model="eventForm.status" class="field bg-white">
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Status</label>
+                <select v-model="eventForm.status" class="admin-input">
                   <option value="Published">Published</option>
                   <option value="Draft">Draft</option>
                   <option value="Archived">Archived</option>
@@ -1176,163 +1353,179 @@ useSeoMeta({
               </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 border-t border-[#e4ede1] pt-4">
-              <button
-                type="button"
-                class="rounded-full border border-gray-300 px-5 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-                @click="isEventModalOpen = false"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="rounded-full bg-[#173b2b] px-6 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#35653c]"
-              >
-                {{ isNewEvent ? 'Create Event' : 'Save Changes' }}
-              </button>
+            <div>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Location / Venue *</label>
+              <input v-model="eventForm.place" required class="admin-input" placeholder="e.g. Balezaf House · Addis Ababa" />
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Event Description *</label>
+              <textarea
+                v-model="eventForm.text"
+                required
+                rows="3"
+                class="admin-input resize-y"
+                placeholder="What can guests expect at this gathering?"
+              ></textarea>
             </div>
           </form>
+
+          <div class="flex items-center justify-end gap-2 border-t border-[#e5efe2] bg-[#f8faf6] px-5 py-2.5 shrink-0">
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+              @click="isEventModalOpen = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="rounded-md bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#2b593a]"
+              @click="saveEventChanges"
+            >
+              {{ isNewEvent ? 'Create Event' : 'Save Changes' }}
+            </button>
+          </div>
         </div>
       </div>
     </Teleport>
 
     <!-- ============================================== -->
-    <!-- MODAL 3: BLOG POST CREATE / EDIT MODAL         -->
+    <!-- STANDARD MODAL 3: BLOG POST CREATE / EDIT      -->
     <!-- ============================================== -->
     <Teleport to="body">
       <div
         v-if="isBlogModalOpen"
-        class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4"
         role="dialog"
         aria-modal="true"
       >
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isBlogModalOpen = false"></div>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="isBlogModalOpen = false"></div>
 
-        <div class="relative z-10 max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-[#dce8d7] bg-[#fffdf9] p-6 text-[#173b2b] shadow-2xl sm:p-8">
-          <div class="flex items-center justify-between border-b border-[#e4ede1] pb-4">
+        <div class="relative z-10 flex max-h-[85vh] w-full max-w-md flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
+          <div class="flex items-center justify-between border-b border-[#e5efe2] bg-[#f8faf6] px-5 py-3 shrink-0">
             <div>
-              <p class="text-xs uppercase tracking-wider text-[#65975d]">Journal Studio</p>
-              <h2 class="font-serif text-2xl font-semibold">
-                {{ isNewBlog ? 'Create New Story' : 'Edit Story' }}
+              <p class="text-[10px] font-bold uppercase tracking-wider text-[#547959]">Journal Studio</p>
+              <h2 class="text-sm font-bold text-[#173b2b]">
+                {{ isNewBlog ? 'Create Story' : 'Edit Story' }}
               </h2>
             </div>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100"
+              class="flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700 text-xs"
               @click="isBlogModalOpen = false"
             >
               ✕
             </button>
           </div>
 
-          <form class="mt-6 space-y-4 text-xs" @submit.prevent="saveBlogChanges">
+          <form class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs" @submit.prevent="saveBlogChanges">
             <div>
-              <label class="block font-semibold text-[#173b2b]">Story Title</label>
-              <input v-model="blogForm.title" required class="field" placeholder="e.g. The botanicals that make our gin..." />
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Story Title *</label>
+              <input v-model="blogForm.title" required class="admin-input" placeholder="e.g. Highland Botanicals..." />
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-3 sm:grid-cols-2">
               <div>
-                <label class="block font-semibold text-[#173b2b]">Category</label>
-                <select v-model="blogForm.category" class="field bg-white">
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Category</label>
+                <select v-model="blogForm.category" class="admin-input">
                   <option value="MAKING BALEZAF">MAKING BALEZAF</option>
                   <option value="SERVE NOTES">SERVE NOTES</option>
                   <option value="PEOPLE &amp; PLACE">PEOPLE &amp; PLACE</option>
                   <option value="HERITAGE">HERITAGE</option>
                 </select>
               </div>
-
               <div>
-                <label class="block font-semibold text-[#173b2b]">Author / Contributor</label>
-                <input v-model="blogForm.author" required class="field" placeholder="e.g. Master Distiller" />
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Author</label>
+                <input v-model="blogForm.author" required class="admin-input" placeholder="e.g. Master Distiller" />
               </div>
             </div>
 
             <div>
-              <label class="block font-semibold text-[#173b2b]">Publication Date</label>
-              <input v-model="blogForm.date" required class="field" placeholder="e.g. 12 April 2026" />
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Publication Date *</label>
+              <input v-model="blogForm.date" required class="admin-input" placeholder="e.g. 12 April 2026" />
             </div>
 
             <div>
-              <label class="block font-semibold text-[#173b2b]">Story Content / Excerpt</label>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Story Excerpt / Content *</label>
               <textarea
                 v-model="blogForm.text"
                 required
-                rows="4"
-                class="field resize-y"
-                placeholder="Write the story or article content..."
+                rows="3"
+                class="admin-input resize-y"
+                placeholder="Write the summary or article content..."
               ></textarea>
             </div>
 
             <div>
-              <label class="block font-semibold text-[#173b2b]">Cover Image URL (optional)</label>
-              <input v-model="blogForm.image" class="field" placeholder="https://..." />
-            </div>
-
-            <div class="flex items-center justify-end gap-3 border-t border-[#e4ede1] pt-4">
-              <button
-                type="button"
-                class="rounded-full border border-gray-300 px-5 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-                @click="isBlogModalOpen = false"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="rounded-full bg-[#173b2b] px-6 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#35653c]"
-              >
-                {{ isNewBlog ? 'Publish Story' : 'Save Changes' }}
-              </button>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Cover Image URL (optional)</label>
+              <input v-model="blogForm.image" class="admin-input" placeholder="https://..." />
             </div>
           </form>
+
+          <div class="flex items-center justify-end gap-2 border-t border-[#e5efe2] bg-[#f8faf6] px-5 py-2.5 shrink-0">
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+              @click="isBlogModalOpen = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="rounded-md bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#2b593a]"
+              @click="saveBlogChanges"
+            >
+              {{ isNewBlog ? 'Publish Story' : 'Save Changes' }}
+            </button>
+          </div>
         </div>
       </div>
     </Teleport>
 
     <!-- ============================================== -->
-    <!-- MODAL 4: JOB VACANCY CREATE / EDIT MODAL       -->
+    <!-- STANDARD MODAL 4: JOB VACANCY CREATE / EDIT    -->
     <!-- ============================================== -->
     <Teleport to="body">
       <div
         v-if="isJobModalOpen"
-        class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4"
         role="dialog"
         aria-modal="true"
       >
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isJobModalOpen = false"></div>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="isJobModalOpen = false"></div>
 
-        <div class="relative z-10 max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-[#dce8d7] bg-[#fffdf9] p-6 text-[#173b2b] shadow-2xl sm:p-8">
-          <div class="flex items-center justify-between border-b border-[#e4ede1] pb-4">
+        <div class="relative z-10 flex max-h-[85vh] w-full max-w-md flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
+          <div class="flex items-center justify-between border-b border-[#e5efe2] bg-[#f8faf6] px-5 py-3 shrink-0">
             <div>
-              <p class="text-xs uppercase tracking-wider text-[#65975d]">Careers Studio</p>
-              <h2 class="font-serif text-2xl font-semibold">
-                {{ isNewJob ? 'Post New Vacancy' : 'Edit Vacancy' }}
+              <p class="text-[10px] font-bold uppercase tracking-wider text-[#547959]">Careers Studio</p>
+              <h2 class="text-sm font-bold text-[#173b2b]">
+                {{ isNewJob ? 'Post Vacancy' : 'Edit Vacancy' }}
               </h2>
             </div>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100"
+              class="flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700 text-xs"
               @click="isJobModalOpen = false"
             >
               ✕
             </button>
           </div>
 
-          <form class="mt-6 space-y-4 text-xs" @submit.prevent="saveJobChanges">
+          <form class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs" @submit.prevent="saveJobChanges">
             <div>
-              <label class="block font-semibold text-[#173b2b]">Job Role Title</label>
-              <input v-model="jobForm.title" required class="field" placeholder="e.g. Brand & Partnerships Manager" />
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Role Title *</label>
+              <input v-model="jobForm.title" required class="admin-input" placeholder="e.g. Brand & Partnerships Manager" />
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-3 sm:grid-cols-2">
               <div>
-                <label class="block font-semibold text-[#173b2b]">Team &amp; Location</label>
-                <input v-model="jobForm.team" required class="field" placeholder="e.g. Commercial · Addis Ababa" />
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Team &amp; Location *</label>
+                <input v-model="jobForm.team" required class="admin-input" placeholder="e.g. Commercial · Addis Ababa" />
               </div>
-
               <div>
-                <label class="block font-semibold text-[#173b2b]">Employment Type</label>
-                <select v-model="jobForm.type" class="field bg-white">
+                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Type</label>
+                <select v-model="jobForm.type" class="admin-input">
                   <option value="Full-time">Full-time</option>
                   <option value="Part-time">Part-time</option>
                   <option value="Contract">Contract</option>
@@ -1342,108 +1535,107 @@ useSeoMeta({
             </div>
 
             <div>
-              <label class="block font-semibold text-[#173b2b]">Role Overview / Key Responsibilities</label>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Role Overview / Description *</label>
               <textarea
                 v-model="jobForm.description"
                 required
-                rows="4"
-                class="field resize-y"
-                placeholder="Brief summary of duties and requirements..."
+                rows="3"
+                class="admin-input resize-y"
+                placeholder="Key responsibilities and qualifications..."
               ></textarea>
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="block font-semibold text-[#173b2b]">Status</label>
-                <select v-model="jobForm.status" class="field bg-white">
-                  <option value="Open">Open</option>
-                  <option value="Closed / Filled">Closed / Filled</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="flex items-center justify-end gap-3 border-t border-[#e4ede1] pt-4">
-              <button
-                type="button"
-                class="rounded-full border border-gray-300 px-5 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-                @click="isJobModalOpen = false"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="rounded-full bg-[#173b2b] px-6 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#35653c]"
-              >
-                {{ isNewJob ? 'Post Vacancy' : 'Save Changes' }}
-              </button>
+            <div>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Status</label>
+              <select v-model="jobForm.status" class="admin-input">
+                <option value="Open">Open</option>
+                <option value="Closed / Filled">Closed / Filled</option>
+              </select>
             </div>
           </form>
+
+          <div class="flex items-center justify-end gap-2 border-t border-[#e5efe2] bg-[#f8faf6] px-5 py-2.5 shrink-0">
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+              @click="isJobModalOpen = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="rounded-md bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#2b593a]"
+              @click="saveJobChanges"
+            >
+              {{ isNewJob ? 'Post Vacancy' : 'Save Changes' }}
+            </button>
+          </div>
         </div>
       </div>
     </Teleport>
 
     <!-- ============================================== -->
-    <!-- MODAL 5: IMPORT PRODUCTS JSON MODAL            -->
+    <!-- STANDARD MODAL 5: IMPORT PRODUCTS JSON         -->
     <!-- ============================================== -->
     <Teleport to="body">
       <div
         v-if="showImportModal"
-        class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4"
         role="dialog"
         aria-modal="true"
       >
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showImportModal = false"></div>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="showImportModal = false"></div>
 
-        <div class="relative z-10 w-full max-w-lg rounded-3xl border border-[#dce8d7] bg-[#fffdf9] p-6 text-[#173b2b] shadow-2xl">
-          <div class="flex items-center justify-between border-b border-[#e4ede1] pb-3">
-            <h3 class="font-serif text-xl font-semibold">Import Products JSON</h3>
+        <div class="relative z-10 w-full max-w-md rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl p-5">
+          <div class="flex items-center justify-between border-b border-[#e5efe2] pb-2.5">
+            <h3 class="text-sm font-bold text-[#173b2b]">Import Products JSON</h3>
             <button
               type="button"
-              class="flex h-7 w-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+              class="flex h-6 w-6 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700 text-xs"
               @click="showImportModal = false"
             >
               ✕
             </button>
           </div>
 
-          <div class="mt-4 space-y-4 text-xs">
+          <div class="mt-3.5 space-y-3 text-xs">
             <div>
-              <label class="block font-semibold">Upload products.json File:</label>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Upload products.json file:</label>
               <input
                 type="file"
                 accept=".json,application/json"
-                class="mt-1.5 block w-full text-xs text-gray-600 file:mr-4 file:rounded-full file:border-0 file:bg-[#173b2b] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-[#35653c]"
+                class="block w-full text-xs text-gray-600 file:mr-3 file:rounded-md file:border-0 file:bg-[#173b2b] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-[#2b593a]"
                 @change="handleFileUpload"
               />
             </div>
 
-            <div class="relative flex items-center py-1">
+            <div class="relative flex items-center py-0.5">
               <div class="flex-grow border-t border-gray-200"></div>
-              <span class="mx-3 shrink text-gray-400">or paste JSON</span>
+              <span class="mx-2 shrink text-[10px] text-gray-400 uppercase tracking-wider">or paste JSON</span>
               <div class="flex-grow border-t border-gray-200"></div>
             </div>
 
             <div>
-              <label class="block font-semibold">Paste JSON Array:</label>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Paste JSON Array:</label>
               <textarea
                 v-model="importJsonText"
-                rows="6"
-                class="field font-mono text-[11px]"
+                rows="4"
+                class="admin-input font-mono text-[11px]"
                 placeholder='[ { "id": "gin", "name": "Desta Dry Gin", ... } ]'
               ></textarea>
             </div>
 
-            <div class="flex items-center justify-end gap-2.5 pt-2">
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
               <button
                 type="button"
-                class="rounded-full border border-gray-300 px-4 py-2 text-xs"
+                class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
                 @click="showImportModal = false"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                class="rounded-full bg-[#173b2b] px-5 py-2 text-xs font-semibold text-white transition hover:bg-[#35653c]"
+                class="rounded-md bg-[#173b2b] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2b593a]"
                 @click="handleImport"
               >
                 Apply JSON
@@ -1455,3 +1647,24 @@ useSeoMeta({
     </Teleport>
   </div>
 </template>
+
+<style scoped>
+.admin-input {
+  display: block;
+  width: 100%;
+  border: 1px solid #d4e2d0;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  color: #173b2b;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.admin-input:focus {
+  border-color: #3b7447;
+  box-shadow: 0 0 0 2px rgba(59, 116, 71, 0.15);
+}
+</style>
