@@ -14,6 +14,8 @@ type HydrationStrategies = {
 type LazyComponent<T> = DefineComponent<HydrationStrategies, {}, {}, {}, {}, {}, {}, { hydrated: () => void }> & T
 
 interface _GlobalComponents {
+  HeroBottleArc: typeof import("../../app/components/HeroBottleArc.vue")['default']
+  ProductDetailModal: typeof import("../../app/components/ProductDetailModal.vue")['default']
   SiteFooter: typeof import("../../app/components/SiteFooter.vue")['default']
   SiteHeader: typeof import("../../app/components/SiteHeader.vue")['default']
   /**
@@ -110,6 +112,8 @@ interface _GlobalComponents {
    * @see https://nuxt.com/docs/4.x/api/components/nuxt-island
    */
   NuxtIsland: typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/components/nuxt-island")['default']
+  LazyHeroBottleArc: LazyComponent<typeof import("../../app/components/HeroBottleArc.vue")['default']>
+  LazyProductDetailModal: LazyComponent<typeof import("../../app/components/ProductDetailModal.vue")['default']>
   LazySiteFooter: LazyComponent<typeof import("../../app/components/SiteFooter.vue")['default']>
   LazySiteHeader: LazyComponent<typeof import("../../app/components/SiteHeader.vue")['default']>
   /**
