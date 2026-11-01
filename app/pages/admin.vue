@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { type ProductItem, resolveBottleImage, useProducts } from '~/composables/useProducts'
 
 const {
@@ -24,12 +24,14 @@ function notify(msg: string) {
   showToast.value = true
   setTimeout(() => {
     showToast.value = false
-  }, 3000)
+  }, 3200)
 }
 
-// Product editing state
+// ----------------------------------------------------
+// 1. PRODUCTS MANAGEMENT
+// ----------------------------------------------------
 const editingProduct = ref<ProductItem | null>(null)
-const isEditModalOpen = ref(false)
+const isProductModalOpen = ref(false)
 const isNewProduct = ref(false)
 
 const productForm = reactive<ProductItem>({
@@ -50,7 +52,7 @@ const productForm = reactive<ProductItem>({
   isTopFlagship: false,
 })
 
-function openEditModal(prod: any) {
+function openProductEditModal(prod: any) {
   isNewProduct.value = false
   editingProduct.value = prod
   Object.assign(productForm, {
@@ -70,13 +72,13 @@ function openEditModal(prod: any) {
     serving: prod.serving || '',
     isTopFlagship: !!prod.isTopFlagship,
   })
-  isEditModalOpen.value = true
+  isProductModalOpen.value = true
 }
 
-function openAddModal() {
+function openProductAddModal() {
   isNewProduct.value = true
   editingProduct.value = null
-  const newId = 'product_' + Date.now().toString(36)
+  const newId = 'prod_' + Date.now().toString(36)
   Object.assign(productForm, {
     id: newId,
     name: 'New Ethiopian Spirit',
@@ -88,13 +90,13 @@ function openAddModal() {
     imageKey: 'gin',
     color: '#52965b',
     glowColor: 'rgba(82, 150, 91, 0.45)',
-    aroma: 'Fresh citrus, herbal botanicals, and warm spice.',
+    aroma: 'Fresh citrus, wild botanicals, and warm spice.',
     palate: 'Silky texture with balanced sweetness and natural warmth.',
     finish: 'Crisp, lingering aromatic finish.',
     serving: 'Serve chilled or on the rocks.',
     isTopFlagship: false,
   })
-  isEditModalOpen.value = true
+  isProductModalOpen.value = true
 }
 
 function saveProductChanges() {
@@ -105,7 +107,7 @@ function saveProductChanges() {
     updateProduct(editingProduct.value.id, { ...productForm })
     notify(`Saved changes for "${productForm.name}"!`)
   }
-  isEditModalOpen.value = false
+  isProductModalOpen.value = false
 }
 
 function removeProduct(id: string, name: string) {
@@ -129,7 +131,336 @@ function toggleFlagship(prod: any) {
   )
 }
 
-// JSON Import handling
+// ----------------------------------------------------
+// 2. EVENTS MANAGEMENT
+// ----------------------------------------------------
+interface EventItem {
+  id: string
+  title: string
+  date: string
+  place: string
+  category: string
+  text: string
+  status: string
+}
+
+const events = ref<EventItem[]>([
+  {
+    id: 'evt-1',
+    title: 'Desta Tasting Table',
+    date: '18 May 2026',
+    place: 'Desta House · Addis Ababa',
+    category: 'UPCOMING EVENT',
+    text: 'An intimate evening exploring our newest botanical spirits and seasonal serves with our master distillers.',
+    status: 'Published',
+  },
+  {
+    id: 'evt-2',
+    title: 'Taste of Ethiopia',
+    date: '06 June 2026',
+    place: 'Millennium Hall · Addis Ababa',
+    category: 'UPCOMING EVENT',
+    text: 'Meet our makers and discover the indigenous botanicals behind Ethiopia’s modern spirits.',
+    status: 'Published',
+  },
+  {
+    id: 'evt-3',
+    title: 'Craft & Culture Gala',
+    date: '24 July 2026',
+    place: 'The Skylight Garden · Addis Ababa',
+    category: 'UPCOMING EVENT',
+    text: 'A creative gathering pairing local culinary craft, live music, and considered cocktail pairings.',
+    status: 'Published',
+  },
+])
+
+const isEventModalOpen = ref(false)
+const isNewEvent = ref(false)
+const editingEventId = ref<string | null>(null)
+
+const eventForm = reactive<EventItem>({
+  id: '',
+  title: '',
+  date: '',
+  place: '',
+  category: 'UPCOMING EVENT',
+  text: '',
+  status: 'Published',
+})
+
+function openEventCreateModal() {
+  isNewEvent.value = true
+  editingEventId.value = null
+  Object.assign(eventForm, {
+    id: 'evt_' + Date.now().toString(36),
+    title: '',
+    date: '15 August 2026',
+    place: 'Balezaf House · Addis Ababa',
+    category: 'UPCOMING EVENT',
+    text: '',
+    status: 'Published',
+  })
+  isEventModalOpen.value = true
+}
+
+function openEventEditModal(evt: EventItem) {
+  isNewEvent.value = false
+  editingEventId.value = evt.id
+  Object.assign(eventForm, { ...evt })
+  isEventModalOpen.value = true
+}
+
+function saveEventChanges() {
+  if (!eventForm.title.trim()) return
+  if (isNewEvent.value) {
+    events.value.unshift({ ...eventForm })
+    notify(`Created event "${eventForm.title}"!`)
+  } else {
+    const idx = events.value.findIndex((e) => e.id === editingEventId.value)
+    if (idx !== -1) {
+      events.value[idx] = { ...eventForm }
+      notify(`Updated event "${eventForm.title}"!`)
+    }
+  }
+  saveEventsToStorage()
+  isEventModalOpen.value = false
+}
+
+function removeEvent(id: string, title: string) {
+  if (confirm(`Delete event "${title}"?`)) {
+    events.value = events.value.filter((e) => e.id !== id)
+    saveEventsToStorage()
+    notify(`Deleted event "${title}".`)
+  }
+}
+
+function saveEventsToStorage() {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('balezaf_events', JSON.stringify(events.value))
+  }
+}
+
+// ----------------------------------------------------
+// 3. BLOG POSTS MANAGEMENT
+// ----------------------------------------------------
+interface BlogPostItem {
+  id: string
+  title: string
+  category: string
+  date: string
+  author: string
+  image: string
+  text: string
+  status: string
+}
+
+const blogPosts = ref<BlogPostItem[]>([
+  {
+    id: 'post-1',
+    title: 'The botanicals that make our gin unmistakably Ethiopian',
+    category: 'MAKING BALEZAF',
+    date: '12 April 2026',
+    author: 'Distillery Team',
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf_blog_bg_green-VvU1YVwjlyPHJV2gYJlczTbYJ6iLwp.png',
+    text: 'From bright highland citrus to fragrant kosoret and wild angelica, explore the local ingredients that shape our signature botanical profile.',
+    status: 'Published',
+  },
+  {
+    id: 'post-2',
+    title: 'A better highball starts with patience',
+    category: 'SERVE NOTES',
+    date: '28 March 2026',
+    author: 'Beverage Director',
+    image: '',
+    text: 'A simple ritual for a fresh, balanced serve that lets every aromatic note in the bottle breathe naturally.',
+    status: 'Published',
+  },
+  {
+    id: 'post-3',
+    title: 'Inside the new generation of Addis hospitality',
+    category: 'PEOPLE & PLACE',
+    date: '04 February 2026',
+    author: 'Balezaf Editorial',
+    image: '',
+    text: 'The bartenders, chefs, and hosts building a more generous and vibrant drinks culture in the heart of Ethiopia.',
+    status: 'Published',
+  },
+])
+
+const isBlogModalOpen = ref(false)
+const isNewBlog = ref(false)
+const editingBlogId = ref<string | null>(null)
+
+const blogForm = reactive<BlogPostItem>({
+  id: '',
+  title: '',
+  category: 'MAKING BALEZAF',
+  date: '',
+  author: 'Distillery Team',
+  image: '',
+  text: '',
+  status: 'Published',
+})
+
+function openBlogCreateModal() {
+  isNewBlog.value = true
+  editingBlogId.value = null
+  Object.assign(blogForm, {
+    id: 'post_' + Date.now().toString(36),
+    title: '',
+    category: 'MAKING BALEZAF',
+    date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+    author: 'Distillery Team',
+    image: '',
+    text: '',
+    status: 'Published',
+  })
+  isBlogModalOpen.value = true
+}
+
+function openBlogEditModal(post: BlogPostItem) {
+  isNewBlog.value = false
+  editingBlogId.value = post.id
+  Object.assign(blogForm, { ...post })
+  isBlogModalOpen.value = true
+}
+
+function saveBlogChanges() {
+  if (!blogForm.title.trim()) return
+  if (isNewBlog.value) {
+    blogPosts.value.unshift({ ...blogForm })
+    notify(`Published post "${blogForm.title}"!`)
+  } else {
+    const idx = blogPosts.value.findIndex((p) => p.id === editingBlogId.value)
+    if (idx !== -1) {
+      blogPosts.value[idx] = { ...blogForm }
+      notify(`Updated post "${blogForm.title}"!`)
+    }
+  }
+  saveBlogToStorage()
+  isBlogModalOpen.value = false
+}
+
+function removeBlogPost(id: string, title: string) {
+  if (confirm(`Delete post "${title}"?`)) {
+    blogPosts.value = blogPosts.value.filter((p) => p.id !== id)
+    saveBlogToStorage()
+    notify(`Deleted post "${title}".`)
+  }
+}
+
+function saveBlogToStorage() {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('balezaf_blog_posts', JSON.stringify(blogPosts.value))
+  }
+}
+
+// ----------------------------------------------------
+// 4. JOB VACANCIES MANAGEMENT
+// ----------------------------------------------------
+interface JobItem {
+  id: string
+  title: string
+  team: string
+  type: string
+  description: string
+  status: string
+}
+
+const jobVacancies = ref<JobItem[]>([
+  {
+    id: 'job-1',
+    title: 'Brand & Partnerships Manager',
+    team: 'Growth · Addis Ababa',
+    type: 'Full-time',
+    description: 'Lead brand collaborations with top hospitality venues, cultural festivals, and creative partners.',
+    status: 'Open',
+  },
+  {
+    id: 'job-2',
+    title: 'Production Quality Lead',
+    team: 'Distillery · Addis Ababa',
+    type: 'Full-time',
+    description: 'Ensure international spirits quality standards across botanical extraction, distillation, and bottling.',
+    status: 'Open',
+  },
+  {
+    id: 'job-3',
+    title: 'Trade Marketing Associate',
+    team: 'Commercial · Addis Ababa',
+    type: 'Full-time',
+    description: 'Execute retail and on-premise promotional programs across Addis Ababa and regional distribution hubs.',
+    status: 'Open',
+  },
+])
+
+const isJobModalOpen = ref(false)
+const isNewJob = ref(false)
+const editingJobId = ref<string | null>(null)
+
+const jobForm = reactive<JobItem>({
+  id: '',
+  title: '',
+  team: 'Distillery · Addis Ababa',
+  type: 'Full-time',
+  description: '',
+  status: 'Open',
+})
+
+function openJobCreateModal() {
+  isNewJob.value = true
+  editingJobId.value = null
+  Object.assign(jobForm, {
+    id: 'job_' + Date.now().toString(36),
+    title: '',
+    team: 'Operations · Addis Ababa',
+    type: 'Full-time',
+    description: '',
+    status: 'Open',
+  })
+  isJobModalOpen.value = true
+}
+
+function openJobEditModal(job: JobItem) {
+  isNewJob.value = false
+  editingJobId.value = job.id
+  Object.assign(jobForm, { ...job })
+  isJobModalOpen.value = true
+}
+
+function saveJobChanges() {
+  if (!jobForm.title.trim()) return
+  if (isNewJob.value) {
+    jobVacancies.value.unshift({ ...jobForm })
+    notify(`Created vacancy "${jobForm.title}"!`)
+  } else {
+    const idx = jobVacancies.value.findIndex((j) => j.id === editingJobId.value)
+    if (idx !== -1) {
+      jobVacancies.value[idx] = { ...jobForm }
+      notify(`Updated vacancy "${jobForm.title}"!`)
+    }
+  }
+  saveJobsToStorage()
+  isJobModalOpen.value = false
+}
+
+function removeJob(id: string, title: string) {
+  if (confirm(`Delete vacancy "${title}"?`)) {
+    jobVacancies.value = jobVacancies.value.filter((j) => j.id !== id)
+    saveJobsToStorage()
+    notify(`Deleted vacancy "${title}".`)
+  }
+}
+
+function saveJobsToStorage() {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('balezaf_jobs', JSON.stringify(jobVacancies.value))
+  }
+}
+
+// ----------------------------------------------------
+// 5. JSON IMPORT / EXPORT MODAL
+// ----------------------------------------------------
 const showImportModal = ref(false)
 const importJsonText = ref('')
 
@@ -170,15 +501,25 @@ function handleResetDefaults() {
   }
 }
 
-const stats = [
-  { label: 'Total Products in JSON', value: computed(() => products.value.length.toString()) },
-  { label: 'Featured on Home', value: computed(() => topProducts.value.length.toString()) },
-  { label: 'Distillery Plant', value: 'Addis Ababa' },
-]
+// Hydrate from localStorage on mounted
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    try {
+      const storedEvt = localStorage.getItem('balezaf_events')
+      if (storedEvt) events.value = JSON.parse(storedEvt)
+      const storedBlog = localStorage.getItem('balezaf_blog_posts')
+      if (storedBlog) blogPosts.value = JSON.parse(storedBlog)
+      const storedJobs = localStorage.getItem('balezaf_jobs')
+      if (storedJobs) jobVacancies.value = JSON.parse(storedJobs)
+    } catch (e) {
+      console.warn('Could not load custom content from localStorage', e)
+    }
+  }
+})
 
 useSeoMeta({
-  title: 'Content Admin | Balezaf Spirits',
-  description: 'Manage product catalogue, tasting notes, and website content.',
+  title: 'Content Admin Workspace | Balezaf Spirits',
+  description: 'Manage products catalogue, tasting notes, events, journal stories, and job vacancies.',
 })
 </script>
 
@@ -221,6 +562,24 @@ useSeoMeta({
             >
               {{ products.length }}
             </span>
+            <span
+              v-else-if="tab === 'Events'"
+              class="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white"
+            >
+              {{ events.length }}
+            </span>
+            <span
+              v-else-if="tab === 'Blog posts'"
+              class="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white"
+            >
+              {{ blogPosts.length }}
+            </span>
+            <span
+              v-else-if="tab === 'Job vacancies'"
+              class="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white"
+            >
+              {{ jobVacancies.length }}
+            </span>
           </button>
         </nav>
 
@@ -236,7 +595,7 @@ useSeoMeta({
         <!-- Top App Bar -->
         <header class="flex items-center justify-between border-b border-[#dfe9da] bg-white px-6 py-4 lg:px-10">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#65975d]">Content Management System</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#65975d]">Content Management Studio</p>
             <h1 class="mt-0.5 font-serif text-2xl font-semibold sm:text-3xl">{{ activeTab }}</h1>
           </div>
 
@@ -255,23 +614,22 @@ useSeoMeta({
 
         <!-- Tab Content -->
         <section class="mx-auto max-w-7xl px-5 py-8 sm:px-6 lg:px-10">
-          <!-- PRODUCTS CMS TAB -->
+          <!-- 1. PRODUCTS TAB -->
           <div v-if="activeTab === 'Products'">
-            <!-- Controls Bar: Add, Export JSON, Import JSON, Reset -->
+            <!-- Controls Bar -->
             <div class="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
               <div>
                 <h2 class="font-serif text-2xl font-semibold">Products Catalogue (JSON)</h2>
                 <p class="mt-1 text-xs text-[#66816b]">
-                  Edit product details, tasting notes, and toggle the 3 home page flagships. Non-dev friendly — updates take effect live!
+                  Edit product details, tasting profiles, and choose the 3 home page flagships. Non-dev friendly.
                 </p>
               </div>
 
               <div class="flex flex-wrap items-center gap-2.5">
-                <!-- Export products.json Button -->
                 <button
                   type="button"
                   class="inline-flex items-center gap-1.5 rounded-full border border-[#b8cdb6] bg-white px-4 py-2 text-xs font-semibold text-[#2b5837] shadow-xs transition hover:bg-[#edf5e9]"
-                  title="Download products.json to computer"
+                  title="Download products.json"
                   @click="downloadJsonFile"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -280,7 +638,6 @@ useSeoMeta({
                   <span>Export products.json</span>
                 </button>
 
-                <!-- Import JSON button -->
                 <button
                   type="button"
                   class="inline-flex items-center gap-1.5 rounded-full border border-[#b8cdb6] bg-white px-4 py-2 text-xs font-semibold text-[#2b5837] shadow-xs transition hover:bg-[#edf5e9]"
@@ -292,7 +649,6 @@ useSeoMeta({
                   <span>Import JSON</span>
                 </button>
 
-                <!-- Reset Defaults -->
                 <button
                   type="button"
                   class="rounded-full border border-gray-200 px-3.5 py-2 text-xs text-gray-500 transition hover:bg-gray-100"
@@ -301,13 +657,12 @@ useSeoMeta({
                   Reset Factory
                 </button>
 
-                <!-- Add New Product -->
                 <button
                   type="button"
                   class="inline-flex items-center gap-1.5 rounded-full bg-[#173b2b] px-5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
-                  @click="openAddModal"
+                  @click="openProductAddModal"
                 >
-                  <span>+ Add Product</span>
+                  <span>+ Create New Product</span>
                 </button>
               </div>
             </div>
@@ -320,13 +675,11 @@ useSeoMeta({
                 class="group flex flex-col justify-between rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm transition-all hover:border-[#65975d]/50 hover:shadow-md"
               >
                 <div>
-                  <!-- Top Row: Category & Flagship Toggle -->
                   <div class="flex items-center justify-between">
                     <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="prod.badge">
                       {{ prod.category }}
                     </span>
 
-                    <!-- Flagship star toggle -->
                     <button
                       type="button"
                       class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition"
@@ -339,7 +692,6 @@ useSeoMeta({
                     </button>
                   </div>
 
-                  <!-- Bottle Image Thumbnail -->
                   <div class="my-4 flex h-40 items-center justify-center rounded-2xl bg-[#f7faf4] p-3">
                     <img
                       :src="prod.image"
@@ -348,7 +700,6 @@ useSeoMeta({
                     />
                   </div>
 
-                  <!-- Name and Specs -->
                   <div class="flex items-baseline justify-between">
                     <h3 class="font-serif text-xl font-semibold text-[#173b2b]">{{ prod.name }}</h3>
                     <span class="text-xs text-[#779277]">{{ prod.abv }} · {{ prod.volume }}</span>
@@ -357,21 +708,15 @@ useSeoMeta({
                   <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-[#54715a]">
                     {{ prod.note }}
                   </p>
-
-                  <!-- Tasting note snippet -->
-                  <div class="mt-3 rounded-xl bg-[#edf5e9]/50 p-2.5 text-[11px] text-[#2c5339]">
-                    <span class="font-semibold text-[#1f402b]">Nose:</span> {{ prod.aroma || 'Botanical bouquet' }}
-                  </div>
                 </div>
 
-                <!-- Card Actions -->
                 <div class="mt-5 flex items-center justify-between border-t border-[#edf2e9] pt-4">
                   <button
                     type="button"
                     class="rounded-full bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[#35653c]"
-                    @click="openEditModal(prod)"
+                    @click="openProductEditModal(prod)"
                   >
-                    Edit Info ✎
+                    Edit Product ✎
                   </button>
 
                   <button
@@ -387,69 +732,247 @@ useSeoMeta({
             </div>
           </div>
 
-          <!-- OVERVIEW TAB -->
+          <!-- 2. OVERVIEW TAB -->
           <div v-else-if="activeTab === 'Overview'">
-            <div class="grid gap-4 sm:grid-cols-3">
-              <div v-for="stat in stats" :key="stat.label" class="rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
-                <p class="text-xs uppercase tracking-wider text-[#66816b]">{{ stat.label }}</p>
-                <strong class="mt-2 block font-serif text-3xl font-bold text-[#173b2b]">{{ stat.value }}</strong>
+            <div class="grid gap-4 sm:grid-cols-4">
+              <div class="rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
+                <p class="text-xs uppercase tracking-wider text-[#66816b]">Total Products</p>
+                <strong class="mt-2 block font-serif text-3xl font-bold text-[#173b2b]">{{ products.length }}</strong>
+                <button class="mt-3 text-xs font-semibold text-[#3e7647]" @click="activeTab = 'Products'">
+                  Manage catalogue →
+                </button>
+              </div>
+
+              <div class="rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
+                <p class="text-xs uppercase tracking-wider text-[#66816b]">Published Events</p>
+                <strong class="mt-2 block font-serif text-3xl font-bold text-[#173b2b]">{{ events.length }}</strong>
+                <button class="mt-3 text-xs font-semibold text-[#3e7647]" @click="activeTab = 'Events'">
+                  Manage events →
+                </button>
+              </div>
+
+              <div class="rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
+                <p class="text-xs uppercase tracking-wider text-[#66816b]">Journal Posts</p>
+                <strong class="mt-2 block font-serif text-3xl font-bold text-[#173b2b]">{{ blogPosts.length }}</strong>
+                <button class="mt-3 text-xs font-semibold text-[#3e7647]" @click="activeTab = 'Blog posts'">
+                  Manage posts →
+                </button>
+              </div>
+
+              <div class="rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
+                <p class="text-xs uppercase tracking-wider text-[#66816b]">Open Vacancies</p>
+                <strong class="mt-2 block font-serif text-3xl font-bold text-[#173b2b]">{{ jobVacancies.length }}</strong>
+                <button class="mt-3 text-xs font-semibold text-[#3e7647]" @click="activeTab = 'Job vacancies'">
+                  Manage careers →
+                </button>
               </div>
             </div>
 
-            <div class="mt-8 rounded-3xl border border-[#dfe9da] bg-white p-7 shadow-sm">
-              <h2 class="font-serif text-2xl font-semibold">JSON Data Persistence</h2>
-              <p class="mt-2 max-w-xl text-sm leading-relaxed text-[#54715a]">
-                All product information is maintained in structured JSON (<code class="rounded bg-gray-100 px-1.5 py-0.5 text-xs">app/data/products.json</code>).
-                When edits are made in this Admin panel, they are saved to your browser state immediately and can be exported as a fresh JSON file with one click.
+            <!-- Quick Creation Actions -->
+            <div class="mt-8 rounded-3xl border border-[#dfe9da] bg-white p-8 shadow-sm">
+              <h2 class="font-serif text-2xl font-semibold">Quick Create Actions</h2>
+              <p class="mt-1 text-sm text-[#54715a]">
+                Launch creation modals directly from your dashboard:
               </p>
-              <div class="mt-6 flex items-center gap-3">
+
+              <div class="mt-6 flex flex-wrap gap-3">
                 <button
                   type="button"
-                  class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#35653c]"
-                  @click="activeTab = 'Products'"
+                  class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
+                  @click="openProductAddModal"
                 >
-                  Manage Products Catalogue →
+                  + Create Product
+                </button>
+                <button
+                  type="button"
+                  class="rounded-full border border-[#173b2b] px-5 py-2.5 text-xs font-semibold text-[#173b2b] transition hover:bg-[#edf5e9]"
+                  @click="openEventCreateModal"
+                >
+                  + Create Event
+                </button>
+                <button
+                  type="button"
+                  class="rounded-full border border-[#173b2b] px-5 py-2.5 text-xs font-semibold text-[#173b2b] transition hover:bg-[#edf5e9]"
+                  @click="openBlogCreateModal"
+                >
+                  + Create Journal Post
+                </button>
+                <button
+                  type="button"
+                  class="rounded-full border border-[#173b2b] px-5 py-2.5 text-xs font-semibold text-[#173b2b] transition hover:bg-[#edf5e9]"
+                  @click="openJobCreateModal"
+                >
+                  + Post Vacancy
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- OTHER TABS (Events, Blog, Vacancies) -->
-          <div v-else class="rounded-3xl border border-[#dfe9da] bg-white p-7 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-4">
+          <!-- 3. EVENTS TAB -->
+          <div v-else-if="activeTab === 'Events'" class="space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
               <div>
-                <p class="eyebrow">{{ activeTab }}</p>
-                <h2 class="mt-1 font-serif text-2xl font-semibold">Manage {{ activeTab.toLowerCase() }}</h2>
+                <h2 class="font-serif text-2xl font-semibold">Distillery Events &amp; Tastings</h2>
+                <p class="mt-1 text-xs text-[#66816b]">Manage upcoming tastings, cultural dinners, and community gatherings.</p>
               </div>
               <button
                 type="button"
-                class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white"
-                @click="notify('Draft saved!')"
+                class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
+                @click="openEventCreateModal"
               >
-                + Create new
+                + Create New Event
               </button>
             </div>
-            <div class="mt-6 grid gap-3">
-              <div v-for="i in 3" :key="i" class="flex items-center justify-between rounded-2xl border border-[#edf2e9] p-4 text-sm">
+
+            <div class="grid gap-4">
+              <div
+                v-for="evt in events"
+                :key="evt.id"
+                class="flex flex-col justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-xs sm:flex-row sm:items-center"
+              >
                 <div>
-                  <h3 class="font-semibold text-[#173b2b]">
-                    {{
-                      activeTab === 'Events'
-                        ? ['Desta Tasting Table', 'Taste of Ethiopia', 'Craft & Culture'][i - 1]
-                        : activeTab === 'Blog posts'
-                        ? ['The botanicals that make our gin…', 'A better highball starts with patience', 'Inside the new generation of Addis…'][i - 1]
-                        : ['Brand & Partnerships Manager', 'Production Quality Lead', 'Trade Marketing Associate'][i - 1]
-                    }}
-                  </h3>
-                  <p class="mt-0.5 text-xs text-[#779277]">Published · Last edited {{ i }} day{{ i > 1 ? 's' : '' }} ago</p>
+                  <div class="flex items-center gap-2.5">
+                    <span class="rounded-full bg-[#edf5e9] px-2.5 py-0.5 text-[11px] font-semibold text-[#2b5837]">
+                      {{ evt.date }}
+                    </span>
+                    <span class="text-xs text-[#8eaa86]">· {{ evt.place }}</span>
+                    <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      {{ evt.status }}
+                    </span>
+                  </div>
+                  <h3 class="mt-2 font-serif text-xl font-semibold text-[#173b2b]">{{ evt.title }}</h3>
+                  <p class="mt-1 max-w-2xl text-xs leading-relaxed text-[#54715a]">{{ evt.text }}</p>
                 </div>
-                <button
-                  type="button"
-                  class="rounded-full border border-[#b8d7af] px-3.5 py-1 text-xs font-medium text-[#35653c] hover:bg-[#edf5e9]"
-                  @click="notify('Opened draft editor!')"
-                >
-                  Edit
-                </button>
+
+                <div class="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    class="rounded-full bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[#35653c]"
+                    @click="openEventEditModal(evt)"
+                  >
+                    Edit ✎
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-600 transition hover:bg-red-50"
+                    @click="removeEvent(evt.id, evt.title)"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. BLOG POSTS TAB -->
+          <div v-else-if="activeTab === 'Blog posts'" class="space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
+              <div>
+                <h2 class="font-serif text-2xl font-semibold">Journal Stories &amp; Articles</h2>
+                <p class="mt-1 text-xs text-[#66816b]">Publish insights into distillation, botanical sourcing, and drinks culture.</p>
+              </div>
+              <button
+                type="button"
+                class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
+                @click="openBlogCreateModal"
+              >
+                + Create New Post
+              </button>
+            </div>
+
+            <div class="grid gap-4">
+              <div
+                v-for="post in blogPosts"
+                :key="post.id"
+                class="flex flex-col justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-xs sm:flex-row sm:items-center"
+              >
+                <div>
+                  <div class="flex items-center gap-2.5">
+                    <span class="rounded-full bg-[#edf5e9] px-2.5 py-0.5 text-[11px] font-semibold text-[#2b5837]">
+                      {{ post.category }}
+                    </span>
+                    <span class="text-xs text-[#8eaa86]">· {{ post.date }}</span>
+                    <span class="text-xs text-[#8eaa86]">· By {{ post.author }}</span>
+                  </div>
+                  <h3 class="mt-2 font-serif text-xl font-semibold text-[#173b2b]">{{ post.title }}</h3>
+                  <p class="mt-1 max-w-2xl text-xs leading-relaxed text-[#54715a]">{{ post.text }}</p>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    class="rounded-full bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[#35653c]"
+                    @click="openBlogEditModal(post)"
+                  >
+                    Edit ✎
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-600 transition hover:bg-red-50"
+                    @click="removeBlogPost(post.id, post.title)"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. JOB VACANCIES TAB -->
+          <div v-else-if="activeTab === 'Job vacancies'" class="space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-sm">
+              <div>
+                <h2 class="font-serif text-2xl font-semibold">Careers &amp; Job Vacancies</h2>
+                <p class="mt-1 text-xs text-[#66816b]">Post new positions across distillery production, quality, marketing, and management.</p>
+              </div>
+              <button
+                type="button"
+                class="rounded-full bg-[#173b2b] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#35653c]"
+                @click="openJobCreateModal"
+              >
+                + Create New Vacancy
+              </button>
+            </div>
+
+            <div class="grid gap-4">
+              <div
+                v-for="job in jobVacancies"
+                :key="job.id"
+                class="flex flex-col justify-between gap-4 rounded-3xl border border-[#dfe9da] bg-white p-6 shadow-xs sm:flex-row sm:items-center"
+              >
+                <div>
+                  <div class="flex items-center gap-2.5">
+                    <span class="rounded-full bg-[#edf5e9] px-2.5 py-0.5 text-[11px] font-semibold text-[#2b5837]">
+                      {{ job.type }}
+                    </span>
+                    <span class="text-xs text-[#8eaa86]">· {{ job.team }}</span>
+                    <span
+                      class="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                      :class="job.status === 'Open' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'"
+                    >
+                      {{ job.status }}
+                    </span>
+                  </div>
+                  <h3 class="mt-2 font-serif text-xl font-semibold text-[#173b2b]">{{ job.title }}</h3>
+                  <p class="mt-1 max-w-2xl text-xs leading-relaxed text-[#54715a]">{{ job.description }}</p>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    class="rounded-full bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[#35653c]"
+                    @click="openJobEditModal(job)"
+                  >
+                    Edit ✎
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-600 transition hover:bg-red-50"
+                    @click="removeJob(job.id, job.title)"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -457,59 +980,56 @@ useSeoMeta({
       </main>
     </div>
 
-    <!-- PRODUCT EDIT MODAL FOR NON-DEVS -->
+    <!-- ============================================== -->
+    <!-- MODAL 1: PRODUCT CREATE / EDIT MODAL           -->
+    <!-- ============================================== -->
     <Teleport to="body">
       <div
-        v-if="isEditModalOpen"
+        v-if="isProductModalOpen"
         class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6"
         role="dialog"
         aria-modal="true"
       >
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isEditModalOpen = false"></div>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isProductModalOpen = false"></div>
 
         <div class="relative z-10 max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[#dce8d7] bg-[#fffdf9] p-6 text-[#173b2b] shadow-2xl sm:p-8">
           <div class="flex items-center justify-between border-b border-[#e4ede1] pb-4">
             <div>
-              <p class="text-xs uppercase tracking-wider text-[#65975d]">Product Editor (JSON)</p>
+              <p class="text-xs uppercase tracking-wider text-[#65975d]">Product Catalogue</p>
               <h2 class="font-serif text-2xl font-semibold">
-                {{ isNewProduct ? 'Add New Product' : `Edit ${productForm.name}` }}
+                {{ isNewProduct ? 'Create New Product' : `Edit ${productForm.name}` }}
               </h2>
             </div>
             <button
               type="button"
               class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100"
-              @click="isEditModalOpen = false"
+              @click="isProductModalOpen = false"
             >
               ✕
             </button>
           </div>
 
           <form class="mt-6 space-y-4 text-xs" @submit.prevent="saveProductChanges">
-            <!-- Name & Category -->
             <div class="grid gap-4 sm:grid-cols-2">
               <div>
                 <label class="block font-semibold text-[#173b2b]">Product Name</label>
                 <input v-model="productForm.name" required class="field" placeholder="e.g. Desta Dry Gin" />
               </div>
-
               <div>
                 <label class="block font-semibold text-[#173b2b]">Category</label>
                 <input v-model="productForm.category" required class="field" placeholder="e.g. London Dry Gin" />
               </div>
             </div>
 
-            <!-- Volume, ABV, Image Selection -->
             <div class="grid gap-4 sm:grid-cols-3">
               <div>
                 <label class="block font-semibold text-[#173b2b]">ABV (% Alcohol)</label>
                 <input v-model="productForm.abv" required class="field" placeholder="e.g. 40% Vol." />
               </div>
-
               <div>
                 <label class="block font-semibold text-[#173b2b]">Volume</label>
                 <input v-model="productForm.volume" required class="field" placeholder="e.g. 750ml" />
               </div>
-
               <div>
                 <label class="block font-semibold text-[#173b2b]">Bottle Image Model</label>
                 <select v-model="productForm.imageKey" class="field bg-white">
@@ -520,44 +1040,37 @@ useSeoMeta({
               </div>
             </div>
 
-            <!-- Description / Note -->
             <div>
-              <label class="block font-semibold text-[#173b2b]">Description / Note</label>
+              <label class="block font-semibold text-[#173b2b]">Card Description / Note</label>
               <textarea
                 v-model="productForm.note"
                 required
                 rows="2"
                 class="field resize-y"
-                placeholder="Brief product description for cards..."
+                placeholder="Product description for cards..."
               ></textarea>
             </div>
 
-            <!-- Detailed Tasting Notes Section -->
             <div class="rounded-2xl border border-[#dce8d7] bg-[#f8fbf6] p-4 space-y-3">
               <p class="font-semibold text-xs text-[#2c6338] uppercase tracking-wider">Tasting Profile (Shown in Modal)</p>
-
               <div>
                 <label class="block font-medium text-[#173b2b]">Aroma (Nose)</label>
-                <input v-model="productForm.aroma" class="field bg-white" placeholder="e.g. Wild highland juniper, fresh lime peel..." />
+                <input v-model="productForm.aroma" class="field bg-white" placeholder="e.g. Wild highland juniper, fresh lime..." />
               </div>
-
               <div>
                 <label class="block font-medium text-[#173b2b]">Palate (Taste)</label>
-                <input v-model="productForm.palate" class="field bg-white" placeholder="e.g. Zesty citrus entry, herbal pine richness..." />
+                <input v-model="productForm.palate" class="field bg-white" placeholder="e.g. Zesty citrus entry, herbal pine..." />
               </div>
-
               <div>
                 <label class="block font-medium text-[#173b2b]">Finish</label>
                 <input v-model="productForm.finish" class="field bg-white" placeholder="e.g. Crisp, lingering dry finish..." />
               </div>
-
               <div>
                 <label class="block font-medium text-[#173b2b]">Serving Suggestion</label>
-                <input v-model="productForm.serving" class="field bg-white" placeholder="e.g. Serve over clear ice with premium tonic water..." />
+                <input v-model="productForm.serving" class="field bg-white" placeholder="e.g. Serve over clear ice with tonic..." />
               </div>
             </div>
 
-            <!-- Top Flagship Toggle -->
             <div class="flex items-center gap-3 rounded-xl border border-[#e4ede1] bg-white p-3.5">
               <input
                 id="flagship_toggle"
@@ -570,21 +1083,19 @@ useSeoMeta({
               </label>
             </div>
 
-            <!-- Actions -->
             <div class="flex items-center justify-end gap-3 border-t border-[#e4ede1] pt-4">
               <button
                 type="button"
                 class="rounded-full border border-gray-300 px-5 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-                @click="isEditModalOpen = false"
+                @click="isProductModalOpen = false"
               >
                 Cancel
               </button>
-
               <button
                 type="submit"
                 class="rounded-full bg-[#173b2b] px-6 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#35653c]"
               >
-                Save Product Changes
+                {{ isNewProduct ? 'Create Product' : 'Save Changes' }}
               </button>
             </div>
           </form>
@@ -592,7 +1103,288 @@ useSeoMeta({
       </div>
     </Teleport>
 
-    <!-- IMPORT JSON MODAL -->
+    <!-- ============================================== -->
+    <!-- MODAL 2: EVENT CREATE / EDIT MODAL             -->
+    <!-- ============================================== -->
+    <Teleport to="body">
+      <div
+        v-if="isEventModalOpen"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isEventModalOpen = false"></div>
+
+        <div class="relative z-10 max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-[#dce8d7] bg-[#fffdf9] p-6 text-[#173b2b] shadow-2xl sm:p-8">
+          <div class="flex items-center justify-between border-b border-[#e4ede1] pb-4">
+            <div>
+              <p class="text-xs uppercase tracking-wider text-[#65975d]">Events Studio</p>
+              <h2 class="font-serif text-2xl font-semibold">
+                {{ isNewEvent ? 'Create New Event' : 'Edit Event' }}
+              </h2>
+            </div>
+            <button
+              type="button"
+              class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100"
+              @click="isEventModalOpen = false"
+            >
+              ✕
+            </button>
+          </div>
+
+          <form class="mt-6 space-y-4 text-xs" @submit.prevent="saveEventChanges">
+            <div>
+              <label class="block font-semibold text-[#173b2b]">Event Title</label>
+              <input v-model="eventForm.title" required class="field" placeholder="e.g. Balezaf Tasting Table" />
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block font-semibold text-[#173b2b]">Date</label>
+                <input v-model="eventForm.date" required class="field" placeholder="e.g. 18 May 2026" />
+              </div>
+              <div>
+                <label class="block font-semibold text-[#173b2b]">Category</label>
+                <input v-model="eventForm.category" required class="field" placeholder="e.g. UPCOMING EVENT" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-[#173b2b]">Location / Venue</label>
+              <input v-model="eventForm.place" required class="field" placeholder="e.g. Balezaf House · Addis Ababa" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-[#173b2b]">Event Description</label>
+              <textarea
+                v-model="eventForm.text"
+                required
+                rows="3"
+                class="field resize-y"
+                placeholder="What can guests expect at this gathering?"
+              ></textarea>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block font-semibold text-[#173b2b]">Status</label>
+                <select v-model="eventForm.status" class="field bg-white">
+                  <option value="Published">Published</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Archived">Archived</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 border-t border-[#e4ede1] pt-4">
+              <button
+                type="button"
+                class="rounded-full border border-gray-300 px-5 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+                @click="isEventModalOpen = false"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="rounded-full bg-[#173b2b] px-6 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#35653c]"
+              >
+                {{ isNewEvent ? 'Create Event' : 'Save Changes' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- ============================================== -->
+    <!-- MODAL 3: BLOG POST CREATE / EDIT MODAL         -->
+    <!-- ============================================== -->
+    <Teleport to="body">
+      <div
+        v-if="isBlogModalOpen"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isBlogModalOpen = false"></div>
+
+        <div class="relative z-10 max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-[#dce8d7] bg-[#fffdf9] p-6 text-[#173b2b] shadow-2xl sm:p-8">
+          <div class="flex items-center justify-between border-b border-[#e4ede1] pb-4">
+            <div>
+              <p class="text-xs uppercase tracking-wider text-[#65975d]">Journal Studio</p>
+              <h2 class="font-serif text-2xl font-semibold">
+                {{ isNewBlog ? 'Create New Story' : 'Edit Story' }}
+              </h2>
+            </div>
+            <button
+              type="button"
+              class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100"
+              @click="isBlogModalOpen = false"
+            >
+              ✕
+            </button>
+          </div>
+
+          <form class="mt-6 space-y-4 text-xs" @submit.prevent="saveBlogChanges">
+            <div>
+              <label class="block font-semibold text-[#173b2b]">Story Title</label>
+              <input v-model="blogForm.title" required class="field" placeholder="e.g. The botanicals that make our gin..." />
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block font-semibold text-[#173b2b]">Category</label>
+                <select v-model="blogForm.category" class="field bg-white">
+                  <option value="MAKING BALEZAF">MAKING BALEZAF</option>
+                  <option value="SERVE NOTES">SERVE NOTES</option>
+                  <option value="PEOPLE &amp; PLACE">PEOPLE &amp; PLACE</option>
+                  <option value="HERITAGE">HERITAGE</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-semibold text-[#173b2b]">Author / Contributor</label>
+                <input v-model="blogForm.author" required class="field" placeholder="e.g. Master Distiller" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-[#173b2b]">Publication Date</label>
+              <input v-model="blogForm.date" required class="field" placeholder="e.g. 12 April 2026" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-[#173b2b]">Story Content / Excerpt</label>
+              <textarea
+                v-model="blogForm.text"
+                required
+                rows="4"
+                class="field resize-y"
+                placeholder="Write the story or article content..."
+              ></textarea>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-[#173b2b]">Cover Image URL (optional)</label>
+              <input v-model="blogForm.image" class="field" placeholder="https://..." />
+            </div>
+
+            <div class="flex items-center justify-end gap-3 border-t border-[#e4ede1] pt-4">
+              <button
+                type="button"
+                class="rounded-full border border-gray-300 px-5 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+                @click="isBlogModalOpen = false"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="rounded-full bg-[#173b2b] px-6 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#35653c]"
+              >
+                {{ isNewBlog ? 'Publish Story' : 'Save Changes' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- ============================================== -->
+    <!-- MODAL 4: JOB VACANCY CREATE / EDIT MODAL       -->
+    <!-- ============================================== -->
+    <Teleport to="body">
+      <div
+        v-if="isJobModalOpen"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isJobModalOpen = false"></div>
+
+        <div class="relative z-10 max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-[#dce8d7] bg-[#fffdf9] p-6 text-[#173b2b] shadow-2xl sm:p-8">
+          <div class="flex items-center justify-between border-b border-[#e4ede1] pb-4">
+            <div>
+              <p class="text-xs uppercase tracking-wider text-[#65975d]">Careers Studio</p>
+              <h2 class="font-serif text-2xl font-semibold">
+                {{ isNewJob ? 'Post New Vacancy' : 'Edit Vacancy' }}
+              </h2>
+            </div>
+            <button
+              type="button"
+              class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100"
+              @click="isJobModalOpen = false"
+            >
+              ✕
+            </button>
+          </div>
+
+          <form class="mt-6 space-y-4 text-xs" @submit.prevent="saveJobChanges">
+            <div>
+              <label class="block font-semibold text-[#173b2b]">Job Role Title</label>
+              <input v-model="jobForm.title" required class="field" placeholder="e.g. Brand & Partnerships Manager" />
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block font-semibold text-[#173b2b]">Team &amp; Location</label>
+                <input v-model="jobForm.team" required class="field" placeholder="e.g. Commercial · Addis Ababa" />
+              </div>
+
+              <div>
+                <label class="block font-semibold text-[#173b2b]">Employment Type</label>
+                <select v-model="jobForm.type" class="field bg-white">
+                  <option value="Full-time">Full-time</option>
+                  <option value="Part-time">Part-time</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Internship">Internship</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-[#173b2b]">Role Overview / Key Responsibilities</label>
+              <textarea
+                v-model="jobForm.description"
+                required
+                rows="4"
+                class="field resize-y"
+                placeholder="Brief summary of duties and requirements..."
+              ></textarea>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block font-semibold text-[#173b2b]">Status</label>
+                <select v-model="jobForm.status" class="field bg-white">
+                  <option value="Open">Open</option>
+                  <option value="Closed / Filled">Closed / Filled</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 border-t border-[#e4ede1] pt-4">
+              <button
+                type="button"
+                class="rounded-full border border-gray-300 px-5 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+                @click="isJobModalOpen = false"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="rounded-full bg-[#173b2b] px-6 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#35653c]"
+              >
+                {{ isNewJob ? 'Post Vacancy' : 'Save Changes' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- ============================================== -->
+    <!-- MODAL 5: IMPORT PRODUCTS JSON MODAL            -->
+    <!-- ============================================== -->
     <Teleport to="body">
       <div
         v-if="showImportModal"
