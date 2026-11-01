@@ -34,4 +34,3 @@ export { requestIdleCallback, cancelIdleCallback } from '#app/compat/idle-callba
 export { setInterval } from '#app/compat/interval';
 export { definePageMeta, PageMeta } from '#app/composables/pages';
 export { defineLazyHydrationComponent } from '#app/composables/lazy-hydration';
-export { useNuxtDevTools } from '../node_modules/.pnpm/@nuxt+devtools@3.4.4_@nuxt+schema@4.6.3_confbox@0.3.2_db0@0.3.4_dotenv@17.4.2_giget@3.3_94dd5d7a8472b4236852a45adc0f4be2/node_modules/@nuxt/devtools/dist/runtime/use-nuxt-devtools';
