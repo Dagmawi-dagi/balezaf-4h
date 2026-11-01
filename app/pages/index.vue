@@ -1,38 +1,74 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import HeroBottleArc from '~/components/HeroBottleArc.vue'
+import ProductDetailModal, { type ProductDetail } from '~/components/ProductDetailModal.vue'
 
 import ginImg from '~/assets/gin.png'
 import vodkaImg from '~/assets/vodka.png'
 import zebibImg from '~/assets/zebib.png'
 
-// Top 3 flagship products for the home page showcase (full portfolio on /products)
-const topProducts = [
+// Top 3 flagship products for the home page showcase with rich tasting profiles
+const topProducts: ProductDetail[] = [
   {
     name: 'Desta Dry Gin',
     category: 'Signature London Dry',
     abv: '40% Vol.',
+    volume: '750ml',
     note: 'Crisp botanical spirit with bright highland citrus, wild juniper, and angelica root.',
     image: ginImg,
     badge: 'bg-[#e7f4e9] text-[#1f5a2b]',
+    color: '#52965b',
+    glowColor: 'rgba(82, 150, 91, 0.45)',
+    aroma: 'Wild highland juniper, fresh lime peel, crushed coriander, aromatic angelica.',
+    palate: 'Zesty citrus entry, herbal pine richness, and delicate botanical warmth.',
+    finish: 'Crisp, lingering dry finish with subtle lime and cardamom blossoms.',
+    serving: 'Serve over clear ice with premium tonic water and fresh mint or lime wheel.',
   },
   {
     name: 'Desta Premium Vodka',
     category: 'Triple-Filtered Vodka',
     abv: '40% Vol.',
+    volume: '750ml',
     note: 'Smooth, crystal-clear grain spirit crafted with pure mountain water for a silky finish.',
     image: vodkaImg,
     badge: 'bg-[#e5f4f8] text-[#13495b]',
+    color: '#428ea4',
+    glowColor: 'rgba(66, 142, 164, 0.45)',
+    aroma: 'Neutral mineral crispness, light toasted grain, pure mountain spring water purity.',
+    palate: 'Ultra-silky and velvety mouthfeel with a gentle sweetness of highland grain.',
+    finish: 'Exceptionally smooth with clean gentle warmth and zero harsh edge.',
+    serving: 'Best ice-cold from the freezer, shaken into a classic Martini or fresh cocktail.',
   },
   {
     name: 'Desta Zebib',
     category: 'Heritage Dry Anise',
     abv: '43% Vol.',
+    volume: '750ml',
     note: 'Ethiopia’s iconic celebratory aperitif distilled with sun-cured grape spirit and aniseed.',
     image: zebibImg,
     badge: 'bg-[#faf0df] text-[#6d4111]',
+    color: '#c27d2c',
+    glowColor: 'rgba(194, 125, 44, 0.45)',
+    aroma: 'Sun-cured grape wine distillates, potent star anise, warm herbal bouquet.',
+    palate: 'Full-bodied spiced aniseed warmth with rich botanical depth.',
+    finish: 'Long, aromatic licorice finish traditionally enjoyed during holidays and toasts.',
+    serving: 'Enjoy neat alongside Ethiopian festive dining or poured over ice cubes with water.',
   },
 ]
+
+// Modal state
+const isModalOpen = ref(false)
+const selectedProduct = ref<ProductDetail | null>(null)
+
+function openProductModal(product: ProductDetail) {
+  selectedProduct.value = product
+  isModalOpen.value = true
+}
+
+function closeProductModal() {
+  isModalOpen.value = false
+  selectedProduct.value = null
+}
 
 // 5 Heritage Milestones with responsive column configuration
 const milestones = [
@@ -287,7 +323,7 @@ function submitInquiry() {
                 Crafted for your <em class="font-normal text-[#b8d7af]">ritual.</em>
               </h2>
               <p class="mt-2 text-sm text-[#c9dec8]">
-                Three of our most celebrated Ethiopian spirits.
+                Three of our most celebrated Ethiopian spirits. Click any card for detailed notes.
               </p>
             </div>
             <NuxtLink
@@ -298,12 +334,13 @@ function submitInquiry() {
             </NuxtLink>
           </div>
 
-          <!-- Exactly 3 Balanced Product Cards in a 3-column Grid -->
+          <!-- Exactly 3 Balanced Product Cards with Clickable Modal Trigger -->
           <div class="mt-12 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
             <article
               v-for="product in topProducts"
               :key="product.name"
-              class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#1d4533] p-7 transition duration-300 hover:-translate-y-1.5 hover:border-[#81ab71]/50 hover:shadow-2xl"
+              class="group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#1d4533] p-7 transition duration-300 hover:-translate-y-1.5 hover:border-[#81ab71]/50 hover:shadow-2xl"
+              @click="openProductModal(product)"
             >
               <div class="flex items-center justify-between">
                 <span class="rounded-full px-3 py-1 text-xs font-semibold" :class="product.badge">
@@ -326,22 +363,32 @@ function submitInquiry() {
               </div>
 
               <div>
-                <h3 class="font-serif text-2xl font-semibold text-white">{{ product.name }}</h3>
+                <div class="flex items-center justify-between">
+                  <h3 class="font-serif text-2xl font-semibold text-white">{{ product.name }}</h3>
+                  <span
+                    class="rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-[#c9e6c1] opacity-0 transition duration-300 group-hover:opacity-100"
+                  >
+                    View specs
+                  </span>
+                </div>
                 <p class="mt-2 text-sm leading-relaxed text-[#c9dec8]">{{ product.note }}</p>
 
                 <div class="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
                   <NuxtLink
                     :to="`/order?product=${encodeURIComponent(product.name)}`"
                     class="text-xs font-semibold text-[#c6dfbc] transition hover:text-white"
+                    @click.stop
                   >
                     Order bottle →
                   </NuxtLink>
-                  <NuxtLink
-                    to="/products"
-                    class="text-xs text-[#a2c29f] transition hover:text-white"
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1 text-xs text-[#a2c29f] transition hover:text-white"
+                    @click.stop="openProductModal(product)"
                   >
-                    View in portfolio ↗
-                  </NuxtLink>
+                    <span>Full notes</span>
+                    <span aria-hidden="true">↗</span>
+                  </button>
                 </div>
               </div>
             </article>
@@ -424,6 +471,13 @@ function submitInquiry() {
         </form>
       </section>
     </main>
+
+    <!-- Product Detail Modal -->
+    <ProductDetailModal
+      :is-open="isModalOpen"
+      :product="selectedProduct"
+      @close="closeProductModal"
+    />
 
     <SiteFooter />
   </div>
