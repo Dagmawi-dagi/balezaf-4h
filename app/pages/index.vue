@@ -285,45 +285,45 @@ function submitInquiry() {
           </div>
 
           <!-- Exactly 3 Balanced Product Cards with Clickable Modal Trigger -->
-          <div class="mt-12 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+          <div class="mt-10 grid gap-5 sm:grid-cols-2 md:grid-cols-3 sm:gap-6 lg:gap-8">
             <article
               v-for="product in topProducts"
               :key="product.name"
-              class="group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#1d4533] p-7 transition duration-300 hover:-translate-y-1.5 hover:border-[#81ab71]/50 hover:shadow-2xl"
+              class="group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#1d4533] p-5 transition duration-300 hover:-translate-y-1.5 hover:border-[#81ab71]/50 hover:shadow-2xl sm:rounded-3xl sm:p-6 lg:p-7"
               @click="openProductModal(product)"
             >
               <div class="flex items-center justify-between">
-                <span class="rounded-full px-3 py-1 text-xs font-semibold" :class="product.badge">
+                <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold sm:px-3 sm:py-1 sm:text-xs" :class="product.badge">
                   {{ product.category }}
                 </span>
                 <span class="text-xs font-medium text-[#c9e6c1]">{{ product.abv }}</span>
               </div>
 
               <!-- Product Bottle Image Showcase -->
-              <div class="relative my-6 flex h-64 items-center justify-center">
+              <div class="relative my-4 flex h-52 items-center justify-center sm:my-6 sm:h-60 lg:h-64">
                 <div
-                  class="absolute h-40 w-40 rounded-full bg-white/5 blur-2xl transition-all group-hover:scale-125 group-hover:bg-[#81ab71]/20"
+                  class="absolute h-36 w-36 rounded-full bg-white/5 blur-2xl transition-all group-hover:scale-125 group-hover:bg-[#81ab71]/20 sm:h-40 sm:w-40"
                 ></div>
                 <img
                   :src="product.image"
                   :alt="product.name"
-                  class="relative z-10 h-60 w-auto max-w-[155px] object-contain drop-shadow-2xl transition duration-500 group-hover:scale-105"
+                  class="relative z-10 h-48 w-auto max-w-[125px] object-contain drop-shadow-2xl transition duration-500 group-hover:scale-105 sm:h-56 sm:max-w-[145px] lg:h-60 lg:max-w-[155px]"
                   loading="lazy"
                 />
               </div>
 
               <div>
                 <div class="flex items-center justify-between">
-                  <h3 class="font-serif text-2xl font-semibold text-white">{{ product.name }}</h3>
+                  <h3 class="font-serif text-xl font-semibold text-white sm:text-2xl">{{ product.name }}</h3>
                   <span
                     class="rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-[#c9e6c1] opacity-0 transition duration-300 group-hover:opacity-100"
                   >
                     View specs
                   </span>
                 </div>
-                <p class="mt-2 text-sm leading-relaxed text-[#c9dec8]">{{ product.note }}</p>
+                <p class="mt-1.5 text-xs leading-relaxed text-[#c9dec8] sm:text-sm">{{ product.note }}</p>
 
-                <div class="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+                <div class="mt-5 flex items-center justify-between border-t border-white/10 pt-3.5 sm:mt-6 sm:pt-4">
                   <NuxtLink
                     :to="`/order?product=${encodeURIComponent(product.name)}`"
                     class="text-xs font-semibold text-[#c6dfbc] transition hover:text-white"
