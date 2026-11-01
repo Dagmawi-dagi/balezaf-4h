@@ -54,19 +54,21 @@ function closePost() {
     <SiteFooter />
 
     <div v-if="selectedPost" class="fixed inset-0 z-[60] flex items-center justify-center bg-[#173b2b]/70 p-4" role="presentation" @click.self="closePost">
-      <article class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-[#fffdf9] p-7 text-[#173b2b] shadow-2xl sm:p-10" role="dialog" aria-modal="true" :aria-labelledby="`post-${selectedPost.title}`">
+      <article class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-[#fffdf9] text-[#173b2b] shadow-2xl" role="dialog" aria-modal="true" :aria-labelledby="`post-${selectedPost.title}`">
         <button class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f0e4] text-xl text-[#173b2b]" type="button" aria-label="Close story" @click="closePost">×</button>
         <div
-          class="mb-8 h-48 rounded-2xl bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] bg-cover bg-center sm:h-60"
+          class="h-48 rounded-none bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] bg-cover bg-center sm:h-60"
           :style="selectedPost.image ? { backgroundImage: `url(${selectedPost.image})` } : undefined"
           role="img"
           :aria-label="`${selectedPost.title} image`"
         />
-        <p class="eyebrow pr-12">{{ selectedPost.category }}</p>
+        <div class="p-7 sm:p-10">
+          <p class="eyebrow pr-12">{{ selectedPost.category }}</p>
         <h2 :id="`post-${selectedPost.title}`" class="mt-5 pr-8 font-serif text-4xl leading-tight sm:text-5xl">{{ selectedPost.title }}</h2>
         <p class="mt-5 text-sm text-[#779277]">{{ selectedPost.date }}</p>
         <p v-if="selectedPost.kind === 'Event'" class="mt-3 text-sm font-semibold text-[#496a51]">{{ selectedPost.place }}</p>
         <div class="mt-8 space-y-5 text-lg leading-8 text-[#496a51]"><p>{{ selectedPost.text }}</p><p>At Balezaf, every bottle begins with a deep respect for place. We work with bright local botanicals, careful craft, and the people who make Ethiopia’s drinks culture so full of character.</p><p>Pour a glass, take your time, and discover the story behind the spirit.</p></div>
+        </div>
       </article>
     </div>
   </div>
