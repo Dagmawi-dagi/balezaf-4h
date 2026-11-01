@@ -1,0 +1,3 @@
+<template>
+  <footer class="bg-[#102e21] px-6 py-10 text-[#c8ddc4] lg:px-10"><div class="mx-auto flex max-w-7xl flex-col justify-between gap-7 border-b border-white/15 pb-8 sm:flex-row"><div><NuxtLink to="/" class="text-lg font-semibold tracking-[0.18em] text-white">DESTA</NuxtLink><p class="mt-2 max-w-xs text-sm text-[#a8c0a5]">Crafted in Ethiopia. Shared everywhere.</p></div><div class="flex gap-6 text-sm"><NuxtLink to="/events" class="hover:text-white">Events</NuxtLink><NuxtLink to="/blog" class="hover:text-white">Journal</NuxtLink><NuxtLink to="/careers" class="hover:text-white">Careers</NuxtLink></div></div><div class="mx-auto max-w-7xl pt-6 text-xs text-[#8daa8c]">© 2026 Desta Alcohol &amp; Liquor Factory PLC · Please enjoy responsibly.</div></footer>
+</template>

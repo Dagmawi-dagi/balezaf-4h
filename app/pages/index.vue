@@ -26,12 +26,12 @@ function submitInquiry() {
           <div class="leading-none"><span class="block text-lg font-semibold tracking-[0.18em]">DESTA</span><span class="mt-1 block text-[9px] uppercase tracking-[0.25em] text-[#d1e6ca]">Spirits &amp; Liqueurs</span></div>
         </a>
         <nav class="hidden items-center gap-8 text-sm font-medium lg:flex" aria-label="Main navigation">
-          <a class="text-[#b8d7af]" href="#top">Home</a><a class="transition hover:text-[#b8d7af]" href="#story">Our story</a><a class="transition hover:text-[#b8d7af]" href="#products">Products</a><a class="transition hover:text-[#b8d7af]" href="#contact">Contact</a>
+          <a class="text-[#b8d7af]" href="#top">Home</a><a class="transition hover:text-[#b8d7af]" href="#story">Our story</a><a class="transition hover:text-[#b8d7af]" href="#products">Products</a><a class="transition hover:text-[#b8d7af]" href="/events">Events</a><a class="transition hover:text-[#b8d7af]" href="/blog">Journal</a><a class="transition hover:text-[#b8d7af]" href="/careers">Careers</a><a class="transition hover:text-[#b8d7af]" href="#contact">Contact</a>
           <a href="#products" class="rounded-full border border-white/30 px-5 py-2.5 transition hover:bg-white hover:text-[#173b2b]">Browse collection <span aria-hidden="true">↗</span></a>
         </nav>
         <button class="rounded-full border border-white/30 px-3 py-2 lg:hidden" aria-label="Toggle menu" @click="mobileOpen = !mobileOpen">Menu</button>
       </div>
-      <nav v-if="mobileOpen" class="mx-6 rounded-2xl bg-[#143b29] p-5 lg:hidden" aria-label="Mobile navigation"><div class="flex flex-col gap-4"><a href="#story" @click="mobileOpen = false">Our story</a><a href="#products" @click="mobileOpen = false">Products</a><a href="#contact" @click="mobileOpen = false">Contact</a></div></nav>
+      <nav v-if="mobileOpen" class="mx-6 rounded-2xl bg-[#143b29] p-5 lg:hidden" aria-label="Mobile navigation"><div class="flex flex-col gap-4"><a href="#story" @click="mobileOpen = false">Our story</a><a href="#products" @click="mobileOpen = false">Products</a><a href="/events" @click="mobileOpen = false">Events</a><a href="/blog" @click="mobileOpen = false">Journal</a><a href="/careers" @click="mobileOpen = false">Careers</a><a href="#contact" @click="mobileOpen = false">Contact</a></div></nav>
     </header>
 
     <main id="top">
