@@ -1,4 +1,6 @@
 <script setup lang="ts">
+await navigateTo('/blog', { redirectCode: 301 })
+
 const events = [
   { date: '18 MAY 2026', title: 'Desta Tasting Table', place: 'Desta House · Addis Ababa', text: 'An intimate evening exploring our newest botanical spirits and seasonal serves.' },
   { date: '06 JUN 2026', title: 'Taste of Ethiopia', place: 'Millennium Hall · Addis Ababa', text: 'Meet our makers and discover the ingredients behind Ethiopia’s modern spirit.' },
