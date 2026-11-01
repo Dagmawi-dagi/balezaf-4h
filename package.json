@@ -5,9 +5,9 @@
   "type": "module",
   "packageManager": "pnpm@12.3.4",
   "scripts": {
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --host 0.0.0.0",
     "build": "nuxt build",
-    "preview": "nuxt preview",
+    "preview": "nuxt preview --host 0.0.0.0",
     "prepare": "nuxt prepare"
   },
   "dependencies": {
@@ -16,7 +16,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
-    "next": "16.4.3",
     "nuxt": "^4.6.3",
     "react": "^19",
     "react-dom": "^19",
@@ -30,6 +29,7 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "jiti": "^2.7.0",
     "postcss": "^8.5",
     "tailwindcss": "^4.3.3",
     "typescript": "5.7.3"

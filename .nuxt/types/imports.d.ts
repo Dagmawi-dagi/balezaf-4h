@@ -83,6 +83,7 @@ declare global {
   const refreshNuxtData: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/asyncData').refreshNuxtData
   const reloadNuxtApp: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/chunk').reloadNuxtApp
   const requestIdleCallback: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/compat/idle-callback').requestIdleCallback
+  const resolveBottleImage: typeof import('../../app/composables/useProducts').resolveBottleImage
   const resolveComponent: typeof import('../../node_modules/.pnpm/vue@3.5.44_typescript@5.7.3/node_modules/vue').resolveComponent
   const setInterval: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/compat/interval').setInterval
   const setPageLayout: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/router').setPageLayout
@@ -121,6 +122,7 @@ declare global {
   const useNuxtApp: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/nuxt').useNuxtApp
   const useNuxtData: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/asyncData').useNuxtData
   const usePreviewMode: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/preview').usePreviewMode
+  const useProducts: typeof import('../../app/composables/useProducts').useProducts
   const useRequestEvent: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/ssr').useRequestEvent
   const useRequestFetch: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/ssr').useRequestFetch
   const useRequestHeader: typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/ssr').useRequestHeader
@@ -206,6 +208,9 @@ declare global {
   // @ts-ignore
   export type { PageMeta } from '../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/pages'
   import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/pages')
+  // @ts-ignore
+  export type { ProductItem } from '../../app/composables/useProducts'
+  import('../../app/composables/useProducts')
 }
 // for vue template auto import
 import { UnwrapRef } from 'vue'
@@ -293,6 +298,7 @@ declare module 'vue' {
     readonly refreshNuxtData: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/asyncData')['refreshNuxtData']>
     readonly reloadNuxtApp: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/chunk')['reloadNuxtApp']>
     readonly requestIdleCallback: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/compat/idle-callback')['requestIdleCallback']>
+    readonly resolveBottleImage: UnwrapRef<typeof import('../../app/composables/useProducts')['resolveBottleImage']>
     readonly resolveComponent: UnwrapRef<typeof import('../../node_modules/.pnpm/vue@3.5.44_typescript@5.7.3/node_modules/vue')['resolveComponent']>
     readonly setInterval: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/compat/interval')['setInterval']>
     readonly setPageLayout: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/router')['setPageLayout']>
@@ -331,6 +337,7 @@ declare module 'vue' {
     readonly useNuxtApp: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/nuxt')['useNuxtApp']>
     readonly useNuxtData: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/asyncData')['useNuxtData']>
     readonly usePreviewMode: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/preview')['usePreviewMode']>
+    readonly useProducts: UnwrapRef<typeof import('../../app/composables/useProducts')['useProducts']>
     readonly useRequestEvent: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/ssr')['useRequestEvent']>
     readonly useRequestFetch: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/ssr')['useRequestFetch']>
     readonly useRequestHeader: UnwrapRef<typeof import('../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/composables/ssr')['useRequestHeader']>

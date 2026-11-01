@@ -23,9 +23,6 @@ importers:
       lucide-react:
         specifier: ^1.16.0
         version: 1.17.0(react@19.2.4)
-      next:
-        specifier: 16.4.3
-        version: 16.4.3(@babel/core@7.29.7(supports-color@10.2.2))(@types/node@24.10.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       nuxt:
         specifier: ^4.6.3
         version: 4.6.3(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@oxc-project/types@0.156.0)(@types/node@24.10.4)(@vue/compiler-sfc@3.5.44)(acorn@8.19.0)(confbox@0.3.2)(db0@0.3.4)(dotenv@17.4.2)(esbuild@0.28.2)(giget@3.3.1)(ioredis@5.11.1(supports-color@10.2.2))(lightningcss@1.33.0)(mlly@1.8.2)(rolldown@1.2.16)(rollup-plugin-visualizer@7.1.1(rolldown@1.2.16)(rollup@4.67.2))(rollup@4.67.2)(srvx@1.0.8)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.7.3)(vite@8.3.5(@types/node@24.10.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))
@@ -60,6 +57,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.14)
+      jiti:
+        specifier: ^2.7.0
+        version: 2.7.0
       postcss:
         specifier: ^8.5
         version: 8.5.6
@@ -4880,7 +4880,8 @@ snapshots:
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
 
-  '@next/env@16.4.3': {}
+  '@next/env@16.4.3':
+    optional: true
 
   '@next/swc-darwin-arm64@16.4.3':
     optional: true
@@ -5524,6 +5525,7 @@ snapshots:
   '@swc/helpers@0.5.23':
     dependencies:
       tslib: 2.8.1
+    optional: true
 
   '@tailwindcss/node@4.3.3':
     dependencies:
@@ -6107,7 +6109,8 @@ snapshots:
 
   clickable-path@0.1.1: {}
 
-  client-only@0.0.1: {}
+  client-only@0.0.1:
+    optional: true
 
   cliui@9.0.1:
     dependencies:
@@ -7154,6 +7157,7 @@ snapshots:
       - '@babel/core'
       - '@types/node'
       - babel-plugin-macros
+    optional: true
 
   nitropack@2.13.5(rolldown@1.2.16)(srvx@1.0.8)(supports-color@10.2.2)(vite@8.3.5(@types/node@24.10.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)):
     dependencies:
@@ -8120,6 +8124,7 @@ snapshots:
       react: 19.2.4
     optionalDependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
+    optional: true
 
   supports-color@10.2.2: {}
 
