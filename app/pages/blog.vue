@@ -33,15 +33,15 @@ function closePost() {
         <p class="mt-6 max-w-xl text-lg leading-8 text-[#66816b]">Notes from our distillery, our people, and the places where our bottles find their way.</p>
 
         <div class="mt-16 grid gap-x-7 gap-y-12 md:grid-cols-3">
-          <article v-for="item in journalItems" :key="item.title" class="flex h-full flex-col">
+          <article v-for="item in journalItems" :key="item.title" class="flex h-full flex-col overflow-hidden rounded-3xl bg-[#f1f6ee]">
             <div
-              class="flex h-52 items-end rounded-3xl bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] bg-cover bg-center p-6"
+              class="flex h-52 w-full items-end rounded-none bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] bg-cover bg-center p-6"
               :style="item.image ? { backgroundImage: `url(${item.image})` } : undefined"
             >
               <span class="rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold tracking-[.18em] text-[#173b2b]">{{ item.kind }}</span>
             </div>
-            <div class="flex flex-1 flex-col">
-              <p class="mt-6 text-sm font-semibold text-[#65975d]">{{ item.date }}</p>
+            <div class="flex flex-1 flex-col p-6">
+              <p class="text-sm font-semibold text-[#65975d]">{{ item.date }}</p>
               <h2 class="mt-2 font-serif text-3xl leading-tight">{{ item.title }}</h2>
               <p v-if="item.kind === 'Event'" class="mt-4 text-sm font-semibold text-[#496a51]">{{ item.place }}</p>
               <p class="mt-4 leading-7 text-[#66816b]">{{ item.text }}</p>
