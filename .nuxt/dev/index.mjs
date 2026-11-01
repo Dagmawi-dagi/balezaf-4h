@@ -1109,7 +1109,7 @@ const renderSSRHeadOptions = {"omitLineBreaks":true};
 
 const NUXT_PRERENDER_NO_SSR_ROUTES = ["/index.html","/200.html","/404.html"];
 const NUXT_NO_SCRIPTS_PATTERNS = [];
-const NUXT_PAGE_PATTERNS = ["/blog","/events","/"];
+const NUXT_PAGE_PATTERNS = ["/admin","/blog","/careers","/events","/"];
 const NUXT_SSR_STREAMING = false;
 const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"}],"link":[],"style":[],"script":[],"noscript":[],"htmlAttrs":{"lang":"en"}};
 const appRootTag = "div";
@@ -1423,23 +1423,6 @@ async function errorHandler(error, event) {
   }
   // H3 will handle fallback
 }
-
-const script = `
-if (!window.__NUXT_DEVTOOLS_TIME_METRIC__) {
-  Object.defineProperty(window, '__NUXT_DEVTOOLS_TIME_METRIC__', {
-    value: {},
-    enumerable: false,
-    configurable: true,
-  })
-}
-window.__NUXT_DEVTOOLS_TIME_METRIC__.appInit = Date.now()
-`;
-
-const _R1GvCSL0xgq85cEli5uRfpYGTtwRPlJwnuZmB8yldqA = (function(nitro) {
-  nitro.hooks.hook("render:html", (htmlContext) => {
-    htmlContext.head.push(`<script>${script}<\/script>`);
-  });
-});
 
 const decodeRoutePath = function decodeRoutePath(path) {
 	if (!path.includes("%")) return path;
@@ -2085,8 +2068,7 @@ function toLogLevel(logObject) {
 }
 
 const plugins = [
-  _R1GvCSL0xgq85cEli5uRfpYGTtwRPlJwnuZmB8yldqA,
-route_rules_default,
+  route_rules_default,
 dev_server_logs_default,
 _LuSQ20YzVhBJul_P9XYCz7TpZKovGRyGm489gQK9k,
 dev_errors_default,
