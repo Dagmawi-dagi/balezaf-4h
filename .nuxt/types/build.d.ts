@@ -32,8 +32,6 @@ declare module "#build/devtools/settings.mjs";
 declare module "#build/devtools/settings";
 declare module "#build/runtime.vue-devtools-client.L5fGIqZdVl.js";
 declare module "#build/runtime.vue-devtools-client.L5fGIqZdVl";
-declare module "#build/routes.mjs";
-declare module "#build/routes";
 declare module "#build/pages.mjs";
 declare module "#build/pages";
 declare module "#build/router.options.mjs";

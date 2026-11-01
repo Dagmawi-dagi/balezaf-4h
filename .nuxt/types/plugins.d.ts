@@ -9,19 +9,13 @@ type NuxtAppInjections =
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/revive-payload.client.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/head/runtime/plugins/unhead.server.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/head/runtime/plugins/unhead.client.js")> &
-  InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/pages/runtime/plugins/router.js")> &
+  InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/router.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/browser-devtools-timing.client.js")> &
-  InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/payload.client.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/dev-server-logs.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/dev-error-overlay.client.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/navigation-repaint.client.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/check-outdated-build.client.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/revive-payload.server.js")> &
-  InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/chunk-reload-crawler.client.js")> &
-  InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/chunk-reload.client.js")> &
-  InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/island-link-navigation.client.js")> &
-  InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/pages/runtime/plugins/prefetch.client.js")> &
-  InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/pages/runtime/plugins/check-if-page-unused.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/@nuxt+devtools@3.4.4_@nuxt+schema@4.6.3_confbox@0.3.2_db0@0.3.4_dotenv@17.4.2_giget@3.3_94dd5d7a8472b4236852a45adc0f4be2/node_modules/@nuxt/devtools/dist/runtime/plugins/devtools.server.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/@nuxt+devtools@3.4.4_@nuxt+schema@4.6.3_confbox@0.3.2_db0@0.3.4_dotenv@17.4.2_giget@3.3_94dd5d7a8472b4236852a45adc0f4be2/node_modules/@nuxt/devtools/dist/runtime/plugins/devtools.client.js")> &
   InjectionType<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/plugins/warn.dev.server.js")> &
@@ -31,7 +25,7 @@ declare module '#app' {
   interface NuxtApp extends NuxtAppInjections { }
 
   interface NuxtAppLiterals {
-    pluginName: 'vue-devtools-client' | 'nuxt:revive-payload:client' | 'nuxt:head' | 'nuxt:head' | 'nuxt:router' | 'nuxt:browser-devtools-timing' | 'nuxt:payload' | 'nuxt:dev-error-overlay' | 'nuxt:revive-payload:server' | 'nuxt:chunk-reload-crawler' | 'nuxt:chunk-reload' | 'nuxt:island-link-navigation' | 'nuxt:global-components' | 'nuxt:prefetch' | 'nuxt:checkIfPageUnused' | 'nuxt:checkIfLayoutUsed'
+    pluginName: 'vue-devtools-client' | 'nuxt:revive-payload:client' | 'nuxt:head' | 'nuxt:head' | 'nuxt:router' | 'nuxt:browser-devtools-timing' | 'nuxt:dev-error-overlay' | 'nuxt:revive-payload:server' | 'nuxt:global-components' | 'nuxt:checkIfLayoutUsed'
   }
 }
 

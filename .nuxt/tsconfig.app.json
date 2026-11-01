@@ -103,29 +103,8 @@
       "#imports": [
         "./imports"
       ],
-      "#app-manifest": [
-        "./manifest/meta/dev.json"
-      ],
       "#components": [
-        "./components.d.ts"
-      ],
-      "@nuxt/nitro-server/request-types": [
-        "../node_modules/.pnpm/@nuxt+nitro-server@4.6.3_63b88f62b2294753117459b832a8c1cb/node_modules/@nuxt/nitro-server/dist/request-types.d.mts"
-      ],
-      "nitropack/types": [
-        "../node_modules/.pnpm/nitropack@2.13.5_rolldown@1.2.16_srvx@1.0.8_supports-color@10.2.2_vite@8.3.5_@types+nod_142723b8509e03d83d1cac2dcb01e734/node_modules/nitropack/types.d.ts"
-      ],
-      "nitropack/runtime": [
-        "../node_modules/.pnpm/nitropack@2.13.5_rolldown@1.2.16_srvx@1.0.8_supports-color@10.2.2_vite@8.3.5_@types+nod_142723b8509e03d83d1cac2dcb01e734/node_modules/nitropack/runtime.d.ts"
-      ],
-      "nitropack": [
-        "../node_modules/.pnpm/nitropack@2.13.5_rolldown@1.2.16_srvx@1.0.8_supports-color@10.2.2_vite@8.3.5_@types+nod_142723b8509e03d83d1cac2dcb01e734/node_modules/nitropack"
-      ],
-      "h3": [
-        "../node_modules/.pnpm/h3@1.15.11/node_modules/h3"
-      ],
-      "crossws": [
-        "../node_modules/.pnpm/crossws@0.3.5/node_modules/crossws"
+        "./components"
       ],
       "#build": [
         "."
@@ -266,13 +245,6 @@
     "../node_modules/.pnpm/@nuxt+telemetry@2.9.1_@nuxt+kit@4.6.3_@nuxt+schema@4.6.3_confbox@0.3.2_dotenv@17.4.2_gi_0c248412ef3c213f052cb6ebec38fda3/node_modules/dist/*.cts",
     "../node_modules/.pnpm/@nuxt+telemetry@2.9.1_@nuxt+kit@4.6.3_@nuxt+schema@4.6.3_confbox@0.3.2_dotenv@17.4.2_gi_0c248412ef3c213f052cb6ebec38fda3/node_modules/dist/*.tsx",
     "../node_modules/.pnpm/@nuxt+telemetry@2.9.1_@nuxt+kit@4.6.3_@nuxt+schema@4.6.3_confbox@0.3.2_dotenv@17.4.2_gi_0c248412ef3c213f052cb6ebec38fda3/node_modules/dist/*.jsx",
-    "../node_modules/.pnpm/@nuxt+telemetry@2.9.1_@nuxt+kit@4.6.3_@nuxt+schema@4.6.3_confbox@0.3.2_dotenv@17.4.2_gi_0c248412ef3c213f052cb6ebec38fda3/node_modules/dist/*.vue",
-    "dev",
-    "../server"
-  ],
-  "vueCompilerOptions": {
-    "plugins": [
-      "vue-router/volar/sfc-route-blocks"
-    ]
-  }
+    "../node_modules/.pnpm/@nuxt+telemetry@2.9.1_@nuxt+kit@4.6.3_@nuxt+schema@4.6.3_confbox@0.3.2_dotenv@17.4.2_gi_0c248412ef3c213f052cb6ebec38fda3/node_modules/dist/*.vue"
+  ]
 }
