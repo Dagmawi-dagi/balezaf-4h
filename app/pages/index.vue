@@ -6,7 +6,6 @@ const products = [
 ]
 
 const inquirySent = ref(false)
-const mobileOpen = ref(false)
 const inquiry = reactive({ name: '', email: '', message: '' })
 
 function submitInquiry() {
@@ -19,20 +18,7 @@ function submitInquiry() {
 
 <template>
   <div class="min-h-screen bg-[#fffdf9] text-[#173b2b]">
-    <header class="absolute inset-x-0 top-0 z-20 text-white">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
-        <a href="#top" class="flex items-center gap-3" aria-label="Desta Spirits home">
-          <div class="flex h-11 w-11 items-center justify-center rounded-full border border-[#b8d7af]/60 bg-[#143b29] text-sm font-bold tracking-tight">D</div>
-          <div class="leading-none"><span class="block text-lg font-semibold tracking-[0.18em]">DESTA</span><span class="mt-1 block text-[9px] uppercase tracking-[0.25em] text-[#d1e6ca]">Spirits &amp; Liqueurs</span></div>
-        </a>
-        <nav class="hidden items-center gap-8 text-sm font-medium lg:flex" aria-label="Main navigation">
-          <a class="text-[#b8d7af]" href="#top">Home</a><a class="transition hover:text-[#b8d7af]" href="/about">About us</a><a class="transition hover:text-[#b8d7af]" href="#products">Products</a><a class="transition hover:text-[#b8d7af]" href="/events">Events</a><a class="transition hover:text-[#b8d7af]" href="/blog">Journal</a><a class="transition hover:text-[#b8d7af]" href="/careers">Careers</a><a class="transition hover:text-[#b8d7af]" href="#contact">Contact</a>
-          <a href="#products" class="rounded-full border border-white/30 px-5 py-2.5 transition hover:bg-white hover:text-[#173b2b]">Browse collection <span aria-hidden="true">↗</span></a>
-        </nav>
-        <button class="rounded-full border border-white/30 px-3 py-2 lg:hidden" aria-label="Toggle menu" @click="mobileOpen = !mobileOpen">Menu</button>
-      </div>
-      <nav v-if="mobileOpen" class="mx-6 rounded-2xl bg-[#143b29] p-5 lg:hidden" aria-label="Mobile navigation"><div class="flex flex-col gap-4"><a href="/about" @click="mobileOpen = false">About us</a><a href="#products" @click="mobileOpen = false">Products</a><a href="/events" @click="mobileOpen = false">Events</a><a href="/blog" @click="mobileOpen = false">Journal</a><a href="/careers" @click="mobileOpen = false">Careers</a><a href="#contact" @click="mobileOpen = false">Contact</a></div></nav>
-    </header>
+    <SiteHeader />
 
     <main id="top">
       <section class="relative overflow-hidden bg-[#123927] text-white">
