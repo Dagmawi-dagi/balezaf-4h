@@ -2,59 +2,9 @@
 import { reactive, ref } from 'vue'
 import HeroBottleArc from '~/components/HeroBottleArc.vue'
 import ProductDetailModal, { type ProductDetail } from '~/components/ProductDetailModal.vue'
+import { useProducts } from '~/composables/useProducts'
 
-import ginImg from '~/assets/gin.png'
-import vodkaImg from '~/assets/vodka.png'
-import zebibImg from '~/assets/zebib.png'
-
-// Top 3 flagship products for the home page showcase with rich tasting profiles
-const topProducts: ProductDetail[] = [
-  {
-    name: 'Desta Dry Gin',
-    category: 'Signature London Dry',
-    abv: '40% Vol.',
-    volume: '750ml',
-    note: 'Crisp botanical spirit with bright highland citrus, wild juniper, and angelica root.',
-    image: ginImg,
-    badge: 'bg-[#e7f4e9] text-[#1f5a2b]',
-    color: '#52965b',
-    glowColor: 'rgba(82, 150, 91, 0.45)',
-    aroma: 'Wild highland juniper, fresh lime peel, crushed coriander, aromatic angelica.',
-    palate: 'Zesty citrus entry, herbal pine richness, and delicate botanical warmth.',
-    finish: 'Crisp, lingering dry finish with subtle lime and cardamom blossoms.',
-    serving: 'Serve over clear ice with premium tonic water and fresh mint or lime wheel.',
-  },
-  {
-    name: 'Desta Premium Vodka',
-    category: 'Triple-Filtered Vodka',
-    abv: '40% Vol.',
-    volume: '750ml',
-    note: 'Smooth, crystal-clear grain spirit crafted with pure mountain water for a silky finish.',
-    image: vodkaImg,
-    badge: 'bg-[#e5f4f8] text-[#13495b]',
-    color: '#428ea4',
-    glowColor: 'rgba(66, 142, 164, 0.45)',
-    aroma: 'Neutral mineral crispness, light toasted grain, pure mountain spring water purity.',
-    palate: 'Ultra-silky and velvety mouthfeel with a gentle sweetness of highland grain.',
-    finish: 'Exceptionally smooth with clean gentle warmth and zero harsh edge.',
-    serving: 'Best ice-cold from the freezer, shaken into a classic Martini or fresh cocktail.',
-  },
-  {
-    name: 'Desta Zebib',
-    category: 'Heritage Dry Anise',
-    abv: '43% Vol.',
-    volume: '750ml',
-    note: 'Ethiopia’s iconic celebratory aperitif distilled with sun-cured grape spirit and aniseed.',
-    image: zebibImg,
-    badge: 'bg-[#faf0df] text-[#6d4111]',
-    color: '#c27d2c',
-    glowColor: 'rgba(194, 125, 44, 0.45)',
-    aroma: 'Sun-cured grape wine distillates, potent star anise, warm herbal bouquet.',
-    palate: 'Full-bodied spiced aniseed warmth with rich botanical depth.',
-    finish: 'Long, aromatic licorice finish traditionally enjoyed during holidays and toasts.',
-    serving: 'Enjoy neat alongside Ethiopian festive dining or poured over ice cubes with water.',
-  },
-]
+const { topProducts } = useProducts()
 
 // Modal state
 const isModalOpen = ref(false)

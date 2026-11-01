@@ -1,38 +1,209 @@
+<script setup lang="ts">
+import { useProducts } from '~/composables/useProducts'
+
+const { products } = useProducts()
+
+const exploreLinks = [
+  { label: 'Home', to: '/' },
+  { label: 'About Us', to: '/about' },
+  { label: 'Our Products', to: '/products' },
+  { label: 'Place an Order', to: '/order' },
+  { label: 'Journal & Stories', to: '/blog' },
+  { label: 'Events & Tastings', to: '/events' },
+  { label: 'Careers', to: '/careers' },
+  { label: 'Distributor Contact', to: '/contact' },
+  { label: 'Content Admin', to: '/admin' },
+]
+
+const socialLinks = [
+  {
+    name: 'TikTok',
+    href: '#',
+    svg: 'M15.2 3h3.1c.3 1.7 1.3 2.9 3 3.3v3.2a8.4 8.4 0 0 1-3-.8v6.2a6.1 6.1 0 1 1-6.1-6.1c.3 0 .7 0 1 .1v3.3a2.9 2.9 0 1 0 1.9 2.7V3Z',
+  },
+  {
+    name: 'Facebook',
+    href: '#',
+    svg: 'M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1V10H7.7v3h2.7v8h3.1Z',
+  },
+  {
+    name: 'YouTube',
+    href: '#',
+    svg: 'M21.6 7.2a2.8 2.8 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2C2 9 2 12 2 12s0 3 .4 4.8a2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2C22 15 22 12 22 12s0-3-.4-4.8ZM10 15.4V8.6l6 3.4-6 3.4Z',
+  },
+]
+</script>
+
 <template>
-  <footer class="overflow-hidden bg-[#102e21] px-4 py-10 text-[#c8ddc4] sm:px-6 lg:px-10">
-    <div class="mx-auto grid max-w-7xl gap-10 border-b border-white/15 pb-8 lg:grid-cols-[0.8fr_1.2fr]">
-      <div class="flex flex-col justify-between gap-7">
-        <div>
-          <NuxtLink to="/" class="flex items-center gap-3 text-white" aria-label="Balezaf Alcohol Liquors Factory PLC home">
-            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf%20alcohol%20liquors%20factory%20plc%20LOGO-qsQOjEqqCnEubCgRx3GHDzu11GaPo2.png" alt="Balezaf Alcohol Liquors Factory PLC logo" class="h-12 w-12 rounded-full object-cover" />
-            <span class="max-w-[240px] text-sm font-semibold uppercase tracking-[0.08em]">Balezaf Alcohol Liquors Factory PLC</span>
-          </NuxtLink>
-          <p class="mt-3 max-w-xs text-sm text-[#a8c0a5]">Crafted in Ethiopia. Shared everywhere.</p>
-        </div>
-        <div class="grid gap-8 sm:grid-cols-2">
-          <div>
-            <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">Explore</p>
-            <div class="flex flex-wrap gap-x-6 gap-y-3 text-sm">
-              <NuxtLink to="/products" class="hover:text-white">Products</NuxtLink>
-              <NuxtLink to="/events" class="hover:text-white">Events</NuxtLink>
-              <NuxtLink to="/blog" class="hover:text-white">Journal</NuxtLink>
-              <NuxtLink to="/careers" class="hover:text-white">Careers</NuxtLink>
-              <NuxtLink to="/contact" class="hover:text-white">Contact</NuxtLink>
+  <footer class="overflow-hidden bg-[#0d271c] text-[#c8ddc4]">
+    <!-- Main Footer Grid -->
+    <div class="mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-16 lg:px-10 lg:py-20">
+      <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Col 1: Brand & Identity -->
+        <div class="space-y-4 sm:col-span-2 lg:col-span-1">
+          <NuxtLink
+            to="/"
+            class="group inline-flex items-center gap-3 text-white transition"
+            aria-label="Balezaf Alcohol Liquors Factory PLC home"
+          >
+            <img
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf%20alcohol%20liquors%20factory%20plc%20LOGO-qsQOjEqqCnEubCgRx3GHDzu11GaPo2.png"
+              alt="Balezaf Alcohol Liquors Factory PLC logo"
+              class="h-12 w-12 rounded-full object-cover ring-2 ring-white/10 transition group-hover:ring-[#81ab71]"
+            />
+            <div>
+              <span class="block text-sm font-semibold tracking-wider text-white">BALEZAF</span>
+              <span class="block text-[10px] tracking-widest text-[#81ab71] uppercase">Alcohol & Liquor Factory</span>
             </div>
+          </NuxtLink>
+
+          <p class="max-w-xs text-xs leading-relaxed text-[#a8c0a5]">
+            Distilling authentic Ethiopian spirits, signature gins, vodkas, and craft liqueurs in Addis Ababa since 1996.
+          </p>
+
+          <!-- Direct Contact Strip with micro links -->
+          <div class="space-y-2 pt-2 text-xs text-[#d8e7d4]">
+            <a
+              href="tel:+251914300007"
+              class="group flex items-center gap-2.5 transition hover:text-[#c6dfbc]"
+            >
+              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[10px] text-[#81ab71] group-hover:bg-[#81ab71] group-hover:text-[#0d271c] transition">
+                📞
+              </span>
+              <span>+251 914 300 007</span>
+            </a>
+
+            <a
+              href="mailto:destaalcohol@gmail.com"
+              class="group flex items-center gap-2.5 transition hover:text-[#c6dfbc]"
+            >
+              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[10px] text-[#81ab71] group-hover:bg-[#81ab71] group-hover:text-[#0d271c] transition">
+                ✉
+              </span>
+              <span>destaalcohol@gmail.com</span>
+            </a>
+
+            <p class="flex items-center gap-2.5 text-xs text-[#a8c0a5]">
+              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[10px] text-[#81ab71]">
+                📍
+              </span>
+              <span>Addis Ababa, Ethiopia</span>
+            </p>
           </div>
-          <div>
-            <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">Products</p>
-            <ul class="space-y-2 text-sm text-[#c8ddc4]"><li><NuxtLink to="/products" class="hover:text-white">Blue Nile Gin</NuxtLink></li><li><NuxtLink to="/products" class="hover:text-white">Desta Whisky</NuxtLink></li><li><NuxtLink to="/products" class="hover:text-white">Highland Vodka</NuxtLink></li><li><NuxtLink to="/products" class="hover:text-white">Abay Aperitif</NuxtLink></li></ul>
+        </div>
+
+        <!-- Col 2: Spirits Portfolio Quick Links (Dynamic from JSON) -->
+        <div>
+          <p class="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
+            Our Spirits
+          </p>
+          <ul class="space-y-2.5">
+            <li v-for="product in products.slice(0, 6)" :key="product.id">
+              <NuxtLink
+                :to="`/products`"
+                class="group flex items-center justify-between text-xs text-[#c8ddc4] transition-all hover:translate-x-1 hover:text-white"
+              >
+                <span class="font-medium">{{ product.name }}</span>
+                <span class="text-[10px] text-[#71986e] opacity-0 transition-opacity group-hover:opacity-100">
+                  {{ product.abv }} →
+                </span>
+              </NuxtLink>
+            </li>
+          </ul>
+
+          <div class="mt-4 pt-3 border-t border-white/10">
+            <NuxtLink
+              to="/products"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#81ab71] transition hover:text-[#c6dfbc]"
+            >
+              <span>Explore all {{ products.length }} spirits</span>
+              <span aria-hidden="true">↗</span>
+            </NuxtLink>
+          </div>
+        </div>
+
+        <!-- Col 3: Company & Exploration Links -->
+        <div>
+          <p class="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
+            Explore
+          </p>
+          <ul class="space-y-2.5">
+            <li v-for="link in exploreLinks" :key="link.to">
+              <NuxtLink
+                :to="link.to"
+                class="group flex items-center justify-between text-xs text-[#c8ddc4] transition-all hover:translate-x-1 hover:text-white"
+              >
+                <span>{{ link.label }}</span>
+                <span class="text-[10px] text-[#81ab71] opacity-0 transition-opacity group-hover:opacity-100">
+                  ↗
+                </span>
+              </NuxtLink>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Location Map & Visiting Hours -->
+        <div>
+          <p class="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
+            Find Us in Addis Ababa
+          </p>
+          <div
+            class="overflow-hidden rounded-2xl border border-white/15 bg-[#143929] shadow-lg transition hover:border-[#81ab71]/40"
+          >
+            <iframe
+              title="Balezaf Alcohol Liquors Factory PLC location map"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=38.70%2C8.93%2C38.82%2C9.08&amp;layer=mapnik&amp;marker=9.00%2C38.76"
+              class="h-40 w-full border-0"
+              loading="lazy"
+            ></iframe>
+          </div>
+
+          <div class="mt-3.5 space-y-1 text-xs text-[#a8c0a5]">
+            <p><strong class="text-white">Distillery Hours:</strong> Mon – Sat: 8:30 AM – 6:00 PM</p>
+            <p>Guided visits and trade tastings by appointment.</p>
           </div>
         </div>
       </div>
-      <div>
-        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">Find Balezaf in Addis Ababa</p>
-        <div class="overflow-hidden rounded-2xl border border-white/15 bg-[#dfead9] shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
-          <iframe title="Balezaf Alcohol Liquors Factory PLC location map" src="https://www.openstreetmap.org/export/embed.html?bbox=38.70%2C8.93%2C38.82%2C9.08&amp;layer=mapnik&amp;marker=9.00%2C38.76" class="h-56 w-full border-0" loading="lazy"></iframe>
+
+      <!-- Bottom Bar: Social, Legal & Responsible Consumption -->
+      <div
+        class="mt-12 flex flex-col items-center justify-between gap-6 border-t border-white/15 pt-8 sm:flex-row"
+      >
+        <!-- Copyright & Responsibility note -->
+        <div class="space-y-1 text-center sm:text-left">
+          <p class="text-xs text-[#8daa8c]">
+            © 2026 Balezaf Alcohol &amp; Liquors Factory PLC · Addis Ababa, Ethiopia.
+          </p>
+          <p class="text-[11px] text-[#6d8a6e]">
+            Please enjoy responsibly. Strict adherence to legal drinking age laws.
+          </p>
+        </div>
+
+        <!-- Social Media Buttons -->
+        <div class="flex items-center gap-3" aria-label="Social media channels">
+          <a
+            v-for="social in socialLinks"
+            :key="social.name"
+            :href="social.href"
+            :aria-label="social.name"
+            class="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-[#c8ddc4] transition-all hover:scale-110 hover:border-[#81ab71] hover:bg-[#81ab71] hover:text-[#0d271c]"
+          >
+            <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
+              <path :d="social.svg" />
+            </svg>
+          </a>
+
+          <!-- Admin Portal Quick Shortcut -->
+          <NuxtLink
+            to="/admin"
+            class="ml-2 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20"
+            title="Open Content Admin"
+          >
+            <span>Admin</span>
+            <span aria-hidden="true">⚙</span>
+          </NuxtLink>
         </div>
       </div>
     </div>
-    <div class="mx-auto max-w-7xl pt-6 text-xs text-[#8daa8c]">© 2026 Desta Alcohol &amp; Liquor Factory PLC · Please enjoy responsibly.</div>
   </footer>
 </template>

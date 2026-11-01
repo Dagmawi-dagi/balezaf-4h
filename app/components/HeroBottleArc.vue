@@ -1,154 +1,38 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useProducts } from '~/composables/useProducts'
 
-import ananasImg from '~/assets/ananas.png'
-import appleImg from '~/assets/apple.png'
-import aprativeImg from '~/assets/aprative.png'
-import coffeeImg from '~/assets/coffee.png'
-import cognacImg from '~/assets/cognac.png'
-import ginImg from '~/assets/gin.png'
-import limeImg from '~/assets/lime.png'
-import uozoImg from '~/assets/uozo.png'
-import vodkaImg from '~/assets/vodka.png'
-import zebibImg from '~/assets/zebib.png'
-
-export interface BottleItem {
-  id: string
-  name: string
-  category: string
-  volume: string
-  abv: string
-  tagline: string
-  image: string
-  color: string
-  glowColor: string
-}
-
-const bottles: BottleItem[] = [
-  {
-    id: 'gin',
-    name: 'Desta Dry Gin',
-    category: 'London Dry Gin',
-    volume: '750ml',
-    abv: '40% Vol.',
-    tagline: 'Highland juniper botanicals with crisp citrus peel and angelica root.',
-    image: ginImg,
-    color: '#52965b',
-    glowColor: 'rgba(82, 150, 91, 0.4)',
-  },
-  {
-    id: 'vodka',
-    name: 'Desta Premium Vodka',
-    category: 'Triple-Filtered Vodka',
-    volume: '750ml',
-    abv: '40% Vol.',
-    tagline: 'Pure mountain spring water and selected grains for velvety smoothness.',
-    image: vodkaImg,
-    color: '#428ea4',
-    glowColor: 'rgba(66, 142, 164, 0.4)',
-  },
-  {
-    id: 'uozo',
-    name: 'Desta Ouzo',
-    category: 'Traditional Anise Spirit',
-    volume: '750ml',
-    abv: '41% Vol.',
-    tagline: 'Aromatic star anise and fennel seeds with a classic louche bloom.',
-    image: uozoImg,
-    color: '#2d6d93',
-    glowColor: 'rgba(45, 109, 147, 0.4)',
-  },
-  {
-    id: 'zebib',
-    name: 'Desta Zebib',
-    category: 'Heritage Dry Anise',
-    volume: '750ml',
-    abv: '43% Vol.',
-    tagline: 'Ethiopia’s iconic celebratory aperitif distilled with sun-cured grape spirit.',
-    image: zebibImg,
-    color: '#c27d2c',
-    glowColor: 'rgba(194, 125, 44, 0.4)',
-  },
-  {
-    id: 'cognac',
-    name: 'Desta Fine Brandy',
-    category: 'Oak-Aged Brandy',
-    volume: '750ml',
-    abv: '40% Vol.',
-    tagline: 'Patiently matured in French oak casks for deep dried fruit complexity.',
-    image: cognacImg,
-    color: '#aa4d28',
-    glowColor: 'rgba(170, 77, 40, 0.4)',
-  },
-  {
-    id: 'coffee',
-    name: 'Desta Coffee Liqueur',
-    category: 'Arabica Coffee Liqueur',
-    volume: '750ml',
-    abv: '24% Vol.',
-    tagline: 'Highland roasted Arabica beans infused with artisanal raw cane syrup.',
-    image: coffeeImg,
-    color: '#633924',
-    glowColor: 'rgba(99, 57, 36, 0.4)',
-  },
-  {
-    id: 'ananas',
-    name: 'Desta Ananas Liqueur',
-    category: 'Tropical Pineapple',
-    volume: '750ml',
-    abv: '24% Vol.',
-    tagline: 'Sun-drenched tropical pineapple spirit with vibrant natural sweetness.',
-    image: ananasImg,
-    color: '#c89617',
-    glowColor: 'rgba(200, 150, 23, 0.4)',
-  },
-  {
-    id: 'apple',
-    name: 'Desta Apple Liqueur',
-    category: 'Orchard Apple Liqueur',
-    volume: '750ml',
-    abv: '24% Vol.',
-    tagline: 'Crisp highland orchard apples pressed for refreshing natural fruit zest.',
-    image: appleImg,
-    color: '#b6483b',
-    glowColor: 'rgba(182, 72, 59, 0.4)',
-  },
-  {
-    id: 'lime',
-    name: 'Desta Lime Spirit',
-    category: 'Highland Lime Spirit',
-    volume: '750ml',
-    abv: '28% Vol.',
-    tagline: 'Zesty cold-pressed citrus oils with an invigorating aromatic finish.',
-    image: limeImg,
-    color: '#739f28',
-    glowColor: 'rgba(115, 159, 40, 0.4)',
-  },
-  {
-    id: 'aprative',
-    name: 'Desta Aperitif',
-    category: 'Botanical Aperitivo',
-    volume: '750ml',
-    abv: '20% Vol.',
-    tagline: 'Gentle bittersweet gentian root, bitter orange, and highland herbs.',
-    image: aprativeImg,
-    color: '#b03535',
-    glowColor: 'rgba(176, 53, 53, 0.4)',
-  },
-]
+const { products: bottles } = useProducts()
 
 const activeIndex = ref(0)
 const isAutoRotating = ref(true)
 let autoRotateTimer: any = null
 
-const activeBottle = computed(() => bottles[activeIndex.value])
+const activeBottle = computed(() => {
+  if (!bottles.value || bottles.value.length === 0) {
+    return {
+      id: 'default',
+      name: 'Desta Spirit',
+      category: 'Signature Spirit',
+      volume: '750ml',
+      abv: '40% Vol.',
+      tagline: 'Crafted in Ethiopia.',
+      image: '',
+      color: '#52965b',
+      glowColor: 'rgba(82, 150, 91, 0.4)',
+    }
+  }
+  return bottles.value[activeIndex.value % bottles.value.length]
+})
 
 function nextBottle() {
-  activeIndex.value = (activeIndex.value + 1) % bottles.length
+  if (bottles.value.length === 0) return
+  activeIndex.value = (activeIndex.value + 1) % bottles.value.length
 }
 
 function prevBottle() {
-  activeIndex.value = (activeIndex.value - 1 + bottles.length) % bottles.length
+  if (bottles.value.length === 0) return
+  activeIndex.value = (activeIndex.value - 1 + bottles.value.length) % bottles.value.length
 }
 
 function selectBottle(index: number) {
@@ -157,14 +41,14 @@ function selectBottle(index: number) {
 
 // Compact Arc geometric math for proportional viewport fit
 function getBottleTransform(index: number) {
-  const count = bottles.length
+  const count = bottles.value.length || 10
   let diff = (index - activeIndex.value) % count
   if (diff > count / 2) diff -= count
   if (diff < -count / 2) diff += count
 
   // Spacing angle along the circular arc
   const angle = diff * 0.48
-  // Horizontal spread: comfortable 210px max offset so bottles don't clip container
+  // Horizontal spread: comfortable 215px max offset so bottles don't clip container
   const x = Math.sin(angle) * 215
   // Curve downward as bottles recede to form the arc
   const y = (1 - Math.cos(angle)) * 38
@@ -252,7 +136,7 @@ onUnmounted(() => {
     <!-- Dynamic Ambient Glow behind the carousel (compact radius) -->
     <div
       class="pointer-events-none absolute left-1/2 top-28 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[80px] transition-colors duration-700 ease-out sm:h-72 sm:w-72"
-      :style="{ backgroundColor: activeBottle.glowColor }"
+      :style="{ backgroundColor: activeBottle.glowColor || 'rgba(82, 150, 91, 0.4)' }"
     ></div>
 
     <!-- Pedestal Spotlight Floor -->
@@ -281,7 +165,7 @@ onUnmounted(() => {
           <div
             v-if="index === activeIndex"
             class="absolute -bottom-2 h-6 w-20 rounded-full blur-md transition-all duration-500"
-            :style="{ backgroundColor: bottle.glowColor }"
+            :style="{ backgroundColor: bottle.glowColor || 'rgba(82, 150, 91, 0.4)' }"
           ></div>
 
           <!-- Product Bottle Image (Right-sized for zero scroll) -->
@@ -320,7 +204,7 @@ onUnmounted(() => {
       <p
         class="mx-auto mt-1 line-clamp-1 max-w-sm text-xs leading-normal text-[#d8e7d4] transition-all duration-300 sm:text-xs"
       >
-        {{ activeBottle.tagline }}
+        {{ activeBottle.tagline || activeBottle.note }}
       </p>
 
       <!-- Compact Unified Interactive Control Bar -->
