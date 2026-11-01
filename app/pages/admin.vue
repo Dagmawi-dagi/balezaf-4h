@@ -1,8 +1,133 @@
 <script setup lang="ts">
-const active = ref('Overview')
-const saved = ref(false)
-const tabs = ['Overview', 'Events', 'Blog posts', 'Job vacancies']
-const stats = [{ label: 'Published events', value: '08' }, { label: 'Journal posts', value: '14' }, { label: 'Open vacancies', value: '03' }]
-function saveDraft() { saved.value = true; setTimeout(() => saved.value = false, 2500) }
+const contentTypes = [
+  { key: 'blog', label: 'Blog post', eyebrow: 'Journal story' },
+  { key: 'event', label: 'Event', eyebrow: 'Upcoming event' },
+  { key: 'vacancy', label: 'Vacancy', eyebrow: 'Open role' },
+] as const
+
+type ContentType = (typeof contentTypes)[number]['key']
+
+type ContentItem = {
+  type: ContentType
+  title: string
+  category: string
+  date: string
+  location: string
+  summary: string
+}
+
+const activeType = ref<ContentType>('blog')
+const submittedItems = ref<ContentItem[]>([])
+const form = reactive({
+  title: '',
+  category: '',
+  date: '',
+  location: '',
+  summary: '',
+})
+
+const currentType = computed(() => contentTypes.find((item) => item.key === activeType.value) ?? contentTypes[0])
+
+function selectType(type: ContentType) {
+  activeType.value = type
+  form.title = ''
+  form.category = ''
+  form.date = ''
+  form.location = ''
+  form.summary = ''
+}
+
+function publishContent() {
+  submittedItems.value.unshift({ type: activeType.value, ...form })
+  form.title = ''
+  form.category = ''
+  form.date = ''
+  form.location = ''
+  form.summary = ''
+}
 </script>
-<template><div class="min-h-screen bg-[#f3f7ef] text-[#173b2b]"><div class="flex min-h-screen"><aside class="hidden w-64 shrink-0 bg-[#173b2b] p-7 text-white lg:block"><NuxtLink to="/" class="text-lg font-semibold tracking-[.18em]">DESTA</NuxtLink><p class="mt-2 text-xs text-[#9fc495]">Content studio</p><nav class="mt-14 space-y-2"><button v-for="tab in tabs" :key="tab" class="block w-full rounded-xl px-4 py-3 text-left text-sm transition" :class="active === tab ? 'bg-[#35653c] text-white' : 'text-[#c8ddc4] hover:bg-white/10'" @click="active = tab">{{ tab }}</button></nav><NuxtLink to="/" class="mt-10 block text-sm text-[#b8d7af]">← View website</NuxtLink></aside><main class="flex-1"><header class="flex items-center justify-between border-b border-[#dfe9da] bg-white px-6 py-5 lg:px-10"><div><p class="text-xs uppercase tracking-[.2em] text-[#65975d]">Admin workspace</p><h1 class="mt-1 font-serif text-3xl">{{ active }}</h1></div><div class="flex items-center gap-3"><span class="hidden text-sm text-[#66816b] sm:inline">Admin account</span><div class="flex h-9 w-9 items-center justify-center rounded-full bg-[#c6dfbc] text-sm font-bold">A</div></div></header><section class="mx-auto max-w-6xl px-6 py-8 lg:px-10"><div v-if="active === 'Overview'"><div class="grid gap-4 sm:grid-cols-3"><div v-for="stat in stats" :key="stat.label" class="rounded-2xl border border-[#dfe9da] bg-white p-6"><p class="text-sm text-[#66816b]">{{ stat.label }}</p><strong class="mt-3 block font-serif text-4xl">{{ stat.value }}</strong></div></div><div class="mt-8 grid gap-6 lg:grid-cols-[1.2fr_.8fr]"><div class="rounded-3xl border border-[#dfe9da] bg-white p-7"><div class="flex items-center justify-between"><h2 class="font-serif text-2xl">Recent activity</h2><button class="text-sm font-semibold text-[#4f8a56]" @click="active = 'Blog posts'">Manage all →</button></div><div class="mt-6 space-y-5 text-sm"><p class="flex justify-between border-b border-[#edf2e9] pb-4"><span>Published “The botanicals that make our gin…”</span><span class="text-[#779277]">Today</span></p><p class="flex justify-between border-b border-[#edf2e9] pb-4"><span>Added “Craft &amp; Culture” event</span><span class="text-[#779277]">Yesterday</span></p><p class="flex justify-between"><span>Updated Production Quality Lead vacancy</span><span class="text-[#779277]">3 days ago</span></p></div></div><div class="rounded-3xl bg-[#173b2b] p-7 text-white"><p class="eyebrow text-[#b8d7af]">Quick action</p><h2 class="mt-3 font-serif text-2xl">Keep the story moving.</h2><p class="mt-3 text-sm leading-6 text-[#c8ddc4]">Create an event, publish a journal post, or add a new opportunity.</p><button class="mt-7 rounded-full bg-[#c6dfbc] px-5 py-3 text-sm font-semibold text-[#173b2b]" @click="active = 'Blog posts'">Create content ↗</button></div></div></div><div v-else class="rounded-3xl border border-[#dfe9da] bg-white p-7"><div class="flex flex-wrap items-center justify-between gap-4"><div><p class="eyebrow">{{ active }}</p><h2 class="mt-2 font-serif text-3xl">Manage {{ active.toLowerCase() }}</h2></div><button class="rounded-full bg-[#173b2b] px-5 py-3 text-sm font-semibold text-white" @click="saveDraft">+ Create new</button></div><div class="mt-8 grid gap-4"><div v-for="i in 3" :key="i" class="flex items-center justify-between rounded-2xl border border-[#edf2e9] p-5"><div><h3 class="font-semibold">{{ active === 'Events' ? ['Desta Tasting Table', 'Taste of Ethiopia', 'Craft & Culture'][i - 1] : active === 'Blog posts' ? ['The botanicals that make our gin…', 'A better highball starts with patience', 'Inside the new generation of Addis…'][i - 1] : ['Brand & Partnerships Manager', 'Production Quality Lead', 'Trade Marketing Associate'][i - 1] }}</h3><p class="mt-1 text-sm text-[#779277]">Published · Last edited {{ i }} day<span v-if="i > 1">s</span> ago</p></div><button class="rounded-full border border-[#b8d7af] px-4 py-2 text-sm text-[#35653c]" @click="saveDraft">Edit</button></div></div><p v-if="saved" class="mt-5 rounded-xl bg-[#f1f6ed] p-4 text-sm text-[#35653c]">Draft saved successfully.</p></div></section></main></div></div></template>
+
+<template>
+  <div class="min-h-screen bg-[#fffdf9] text-[#173b2b]">
+    <SiteHeader />
+    <main>
+      <section class="bg-[#173b2b] px-6 py-16 text-white sm:py-20 lg:px-10">
+        <div class="mx-auto max-w-7xl">
+          <p class="eyebrow text-[#b8d7af]">Content studio</p>
+          <div class="mt-4 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <h1 class="max-w-3xl font-serif text-5xl leading-[0.98] tracking-[-0.04em] sm:text-7xl">Publish what&apos;s next.</h1>
+              <p class="mt-5 max-w-xl text-base leading-7 text-[#d8e7d4]">Create journal stories, events, and open roles for the Balezaf site.</p>
+            </div>
+            <span class="rounded-full border border-[#65975d] px-4 py-2 text-xs font-semibold uppercase tracking-[.16em] text-[#b8d7af]">Admin workspace</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto grid max-w-7xl gap-10 px-6 py-14 lg:grid-cols-[0.7fr_1.3fr] lg:px-10 lg:py-20">
+        <aside>
+          <p class="eyebrow">Create content</p>
+          <h2 class="mt-3 font-serif text-4xl leading-tight">Choose a format.</h2>
+          <div class="mt-7 space-y-3">
+            <button v-for="type in contentTypes" :key="type.key" type="button" class="flex w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition" :class="activeType === type.key ? 'border-[#17633a] bg-[#17633a] text-white' : 'border-[#d7e1d2] bg-white text-[#315a43] hover:border-[#9fc495]'" @click="selectType(type.key)">
+              <span>
+                <span class="block text-sm font-semibold">{{ type.label }}</span>
+                <span class="mt-1 block text-xs" :class="activeType === type.key ? 'text-[#d8e7d4]' : 'text-[#779277]'">{{ type.eyebrow }}</span>
+              </span>
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+          <div class="mt-8 rounded-2xl bg-[#f1f5ed] p-5 text-sm leading-6 text-[#53705c]">
+            <p class="font-semibold text-[#315a43]">Publishing note</p>
+            <p class="mt-2">New entries are added to this workspace preview. A database or email integration is needed to make them permanent across deployments.</p>
+          </div>
+        </aside>
+
+        <div class="rounded-3xl border border-[#d7e1d2] bg-white p-6 shadow-[0_12px_35px_rgba(23,59,43,0.06)] sm:p-9">
+          <div class="flex items-start justify-between gap-4 border-b border-[#edf1e9] pb-6">
+            <div>
+              <p class="eyebrow">{{ currentType.eyebrow }}</p>
+              <h2 class="mt-2 font-serif text-3xl">New {{ currentType.label.toLowerCase() }}</h2>
+            </div>
+            <span class="rounded-full bg-[#dcebd7] px-3 py-1 text-[10px] font-bold uppercase tracking-[.16em] text-[#35653c]">Draft</span>
+          </div>
+
+          <form class="mt-7 grid gap-5 sm:grid-cols-2" @submit.prevent="publishContent">
+            <label class="field-label sm:col-span-2">Title
+              <input v-model="form.title" class="field-input" type="text" placeholder="Give it a clear title" required />
+            </label>
+            <label class="field-label">Category
+              <input v-model="form.category" class="field-input" type="text" :placeholder="activeType === 'vacancy' ? 'e.g. Distillery' : 'e.g. People & place'" required />
+            </label>
+            <label class="field-label">{{ activeType === 'vacancy' ? 'Closing date' : 'Publish date' }}
+              <input v-model="form.date" class="field-input" type="date" required />
+            </label>
+            <label v-if="activeType !== 'blog'" class="field-label sm:col-span-2">{{ activeType === 'event' ? 'Location' : 'Team / workplace' }}
+              <input v-model="form.location" class="field-input" type="text" :placeholder="activeType === 'event' ? 'Venue · City' : 'Team · Addis Ababa'" required />
+            </label>
+            <label class="field-label sm:col-span-2">Description
+              <textarea v-model="form.summary" class="field-input min-h-40 resize-y" placeholder="Write the short description your audience will see." required />
+            </label>
+            <button class="sm:col-span-2 rounded-full bg-[#17633a] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#0f4d2b]" type="submit">Publish {{ currentType.label.toLowerCase() }} <span aria-hidden="true">↗</span></button>
+          </form>
+        </div>
+      </section>
+
+      <section v-if="submittedItems.length" class="mx-auto max-w-7xl px-6 pb-20 lg:px-10">
+        <div class="border-t border-[#d7e1d2] pt-10">
+          <p class="eyebrow">This session</p>
+          <h2 class="mt-3 font-serif text-4xl">Published previews</h2>
+          <div class="mt-7 grid gap-5 md:grid-cols-3">
+            <article v-for="item in submittedItems" :key="`${item.title}-${item.date}`" class="rounded-2xl bg-[#f1f5ed] p-6">
+              <span class="rounded-full bg-[#dcebd7] px-3 py-1 text-[10px] font-bold uppercase tracking-[.16em] text-[#35653c]">{{ item.type }}</span>
+              <h3 class="mt-5 font-serif text-2xl leading-tight">{{ item.title }}</h3>
+              <p class="mt-2 text-sm text-[#779277]">{{ item.date }}<span v-if="item.location"> · {{ item.location }}</span></p>
+              <p class="mt-4 text-sm leading-6 text-[#53705c]">{{ item.summary }}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+    <SiteFooter />
+  </div>
+</template>
