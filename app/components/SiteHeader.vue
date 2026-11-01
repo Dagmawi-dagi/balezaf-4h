@@ -34,7 +34,7 @@ const links = [
           <a href="mailto:destaalcohol@gmail.com" class="hidden truncate transition hover:text-[#b8d7af] sm:inline">destaalcohol@gmail.com</a>
         </div>
         <div class="flex items-center gap-4">
-          <span class="hidden whitespace-nowrap text-[#b8d7af] md:inline">Addis Ababa, Ethiopia</span>
+          <span class="hidden items-center gap-2 whitespace-nowrap text-[#b8d7af] md:inline-flex"><svg aria-hidden="true" class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2"/></svg><span>Addis Ababa, Ethiopia</span></span>
           <div class="flex items-center gap-3 border-l border-white/20 pl-4" aria-label="Social media links">
             <a href="#" aria-label="TikTok" class="transition hover:text-[#b8d7af]">
               <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 fill-current"><path d="M15.2 3h3.1c.3 1.7 1.3 2.9 3 3.3v3.2a8.4 8.4 0 0 1-3-.8v6.2a6.1 6.1 0 1 1-6.1-6.1c.3 0 .7 0 1 .1v3.3a2.9 2.9 0 1 0 1.9 2.7V3Z" /></svg>
