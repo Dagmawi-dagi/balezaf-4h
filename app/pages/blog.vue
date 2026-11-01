@@ -1,16 +1,17 @@
 <script setup lang="ts">
 const posts = [
-  { category: 'MAKING DESTA', title: 'The botanicals that make our gin unmistakably Ethiopian', date: '12 April 2026', text: 'From bright citrus to fragrant herbs, explore the local ingredients that shape our signature profile.' },
-  { category: 'SERVE NOTES', title: 'A better highball starts with patience', date: '28 March 2026', text: 'A simple ritual for a fresh, balanced serve that lets every note in the bottle breathe.' },
-  { category: 'PEOPLE & PLACE', title: 'Inside the new generation of Addis hospitality', date: '04 February 2026', text: 'The bartenders, chefs, and hosts building a more generous drinks culture in Ethiopia.' },
+  { kind: 'Blog', category: 'MAKING BALEZAF', title: 'The botanicals that make our gin unmistakably Ethiopian', date: '12 April 2026', text: 'From bright citrus to fragrant herbs, explore the local ingredients that shape our signature profile.' },
+  { kind: 'Blog', category: 'SERVE NOTES', title: 'A better highball starts with patience', date: '28 March 2026', text: 'A simple ritual for a fresh, balanced serve that lets every note in the bottle breathe.' },
+  { kind: 'Blog', category: 'PEOPLE & PLACE', title: 'Inside the new generation of Addis hospitality', date: '04 February 2026', text: 'The bartenders, chefs, and hosts building a more generous drinks culture in Ethiopia.' },
 ]
 
 const events = [
-  { date: '18 MAY 2026', title: 'Balezaf Tasting Table', place: 'Balezaf House · Addis Ababa', text: 'An intimate evening exploring our newest botanical spirits and seasonal serves.' },
-  { date: '06 JUN 2026', title: 'Taste of Ethiopia', place: 'Millennium Hall · Addis Ababa', text: 'Meet our makers and discover the ingredients behind Ethiopia’s modern spirit.' },
-  { date: '24 JUL 2026', title: 'Craft & Culture', place: 'The Skylight Garden · Addis Ababa', text: 'A creative gathering pairing local food, music, and considered cocktails.' },
+  { kind: 'Event', category: 'UPCOMING EVENT', title: 'Balezaf Tasting Table', date: '18 May 2026', place: 'Balezaf House · Addis Ababa', text: 'An intimate evening exploring our newest botanical spirits and seasonal serves.' },
+  { kind: 'Event', category: 'UPCOMING EVENT', title: 'Taste of Ethiopia', date: '06 June 2026', place: 'Millennium Hall · Addis Ababa', text: 'Meet our makers and discover the ingredients behind Ethiopia’s modern spirit.' },
+  { kind: 'Event', category: 'UPCOMING EVENT', title: 'Craft & Culture', date: '24 July 2026', place: 'The Skylight Garden · Addis Ababa', text: 'A creative gathering pairing local food, music, and considered cocktails.' },
 ]
 
+const journalItems = [...posts, ...events]
 const selectedPost = ref<(typeof posts)[number] | null>(null)
 
 function openPost(post: (typeof posts)[number]) {
@@ -21,4 +22,43 @@ function closePost() {
   selectedPost.value = null
 }
 </script>
-<template><div class="min-h-screen bg-[#fffdf9] text-[#173b2b]"><SiteHeader /><main><section class="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28"><p class="eyebrow">The Desta journal</p><h1 class="mt-5 max-w-3xl font-serif text-5xl leading-tight sm:text-7xl">Stories worth <em class="font-normal text-[#65975d]">savouring.</em></h1><p class="mt-6 max-w-xl text-lg leading-8 text-[#66816b]">Notes from our distillery, our people, and the places where our bottles find their way.</p><div class="mt-16 grid gap-x-7 gap-y-12 md:grid-cols-3"><article v-for="post in posts" :key="post.title"><div class="flex h-52 items-end rounded-3xl bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] p-6"><span class="rounded-full bg-white/85 px-3 py-1 text-[10px] font-bold tracking-[.18em] text-[#173b2b]">{{ post.category }}</span></div><p class="mt-6 text-sm text-[#779277]">{{ post.date }}</p><h2 class="mt-2 font-serif text-3xl leading-tight">{{ post.title }}</h2><p class="mt-4 leading-7 text-[#66816b]">{{ post.text }}</p><button class="mt-5 text-sm font-semibold text-[#4f8a56] transition-colors hover:text-[#173b2b]" type="button" @click="openPost(post)">Read More <span aria-hidden="true">→</span></button></article></div><div class="mt-28 border-t border-[#dfe9da] pt-16"><p class="eyebrow">Upcoming events</p><h2 class="mt-4 max-w-2xl font-serif text-4xl leading-tight sm:text-5xl">Meet us <em class="font-normal text-[#65975d]">in person.</em></h2><div class="mt-10 grid gap-5 md:grid-cols-3"><article v-for="event in events" :key="event.title" class="rounded-3xl border border-[#dfe9da] bg-[#f3f7ef] p-7"><p class="text-xs font-bold tracking-[.18em] text-[#65975d]">{{ event.date }}</p><h3 class="mt-10 font-serif text-3xl leading-tight">{{ event.title }}</h3><p class="mt-4 text-sm font-semibold text-[#496a51]">{{ event.place }}</p><p class="mt-5 leading-7 text-[#66816b]">{{ event.text }}</p><button class="mt-7 rounded-full bg-[#173b2b] px-5 py-3 text-sm font-semibold text-white">Reserve a place ↗</button></article></div></div></section></main><SiteFooter /><div v-if="selectedPost" class="fixed inset-0 z-[70] flex items-center justify-center bg-[#173b2b]/70 px-4 py-6 backdrop-blur-sm" role="presentation" @click.self="closePost"><article class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] bg-[#fffdf9] p-7 shadow-2xl sm:p-10" role="dialog" aria-modal="true" :aria-label="selectedPost.title"><button class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#edf4e9] text-xl text-[#173b2b] transition-colors hover:bg-[#dcebd7]" type="button" aria-label="Close story" @click="closePost">×</button><p class="eyebrow pr-12">{{ selectedPost.category }}</p><p class="mt-8 text-sm text-[#779277]">{{ selectedPost.date }}</p><h2 class="mt-3 max-w-xl pr-8 font-serif text-4xl leading-tight text-[#173b2b] sm:text-5xl">{{ selectedPost.title }}</h2><p class="mt-7 text-lg leading-8 text-[#66816b]">{{ selectedPost.text }}</p><p class="mt-5 leading-8 text-[#496a51]">Our team brings together locally inspired botanicals, thoughtful distilling, and a deep respect for the people and places that make every bottle distinctive. Discover the full story behind this journal entry and find a new way to savour it.</p><button class="mt-8 rounded-full bg-[#173b2b] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2b6040]" type="button" @click="closePost">Close story</button></article></div></div></template>
+
+<template>
+  <div class="min-h-screen bg-[#fffdf9] text-[#173b2b]">
+    <SiteHeader />
+    <main>
+      <section class="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28">
+        <p class="eyebrow">The Desta journal / Upcoming events</p>
+        <h1 class="mt-5 max-w-3xl font-serif text-5xl leading-tight sm:text-7xl">Stories worth <em class="font-normal text-[#65975d]">savouring.</em></h1>
+        <p class="mt-6 max-w-xl text-lg leading-8 text-[#66816b]">Notes from our distillery, our people, and the places where our bottles find their way.</p>
+
+        <div class="mt-16 grid gap-x-7 gap-y-12 md:grid-cols-3">
+          <article v-for="item in journalItems" :key="item.title" class="flex h-full flex-col">
+            <div class="flex h-52 items-end rounded-3xl bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] p-6">
+              <span class="rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold tracking-[.18em] text-[#173b2b]">{{ item.kind }}</span>
+            </div>
+            <div class="flex flex-1 flex-col">
+              <p class="mt-6 text-sm font-semibold text-[#65975d]">{{ item.date }}</p>
+              <h2 class="mt-2 font-serif text-3xl leading-tight">{{ item.title }}</h2>
+              <p v-if="item.kind === 'Event'" class="mt-4 text-sm font-semibold text-[#496a51]">{{ item.place }}</p>
+              <p class="mt-4 leading-7 text-[#66816b]">{{ item.text }}</p>
+              <button v-if="item.kind === 'Blog'" class="mt-auto pt-5 text-left text-sm font-semibold text-[#4f8a56] transition-colors hover:text-[#173b2b]" type="button" @click="openPost(item)">Read More <span aria-hidden="true">→</span></button>
+              <a v-else class="mt-auto pt-5 text-sm font-semibold text-[#4f8a56] transition-colors hover:text-[#173b2b]" href="/contact">Reserve your place <span aria-hidden="true">→</span></a>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+    <SiteFooter />
+
+    <div v-if="selectedPost" class="fixed inset-0 z-[60] flex items-center justify-center bg-[#173b2b]/70 p-4" role="presentation" @click.self="closePost">
+      <article class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-[#fffdf9] p-7 text-[#173b2b] shadow-2xl sm:p-10" role="dialog" aria-modal="true" :aria-labelledby="`post-${selectedPost.title}`">
+        <button class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f0e4] text-xl text-[#173b2b]" type="button" aria-label="Close story" @click="closePost">×</button>
+        <p class="eyebrow pr-12">{{ selectedPost.category }}</p>
+        <h2 :id="`post-${selectedPost.title}`" class="mt-5 pr-8 font-serif text-4xl leading-tight sm:text-5xl">{{ selectedPost.title }}</h2>
+        <p class="mt-5 text-sm text-[#779277]">{{ selectedPost.date }}</p>
+        <div class="mt-8 space-y-5 text-lg leading-8 text-[#496a51]"><p>{{ selectedPost.text }}</p><p>At Balezaf, every bottle begins with a deep respect for place. We work with bright local botanicals, careful craft, and the people who make Ethiopia’s drinks culture so full of character.</p><p>Pour a glass, take your time, and discover the story behind the spirit.</p></div>
+      </article>
+    </div>
+  </div>
+</template>
