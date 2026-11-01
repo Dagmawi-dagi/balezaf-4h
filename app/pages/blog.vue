@@ -12,9 +12,9 @@ const events = [
 ]
 
 const journalItems = [...posts, ...events]
-const selectedPost = ref<(typeof posts)[number] | null>(null)
+const selectedPost = ref<(typeof journalItems)[number] | null>(null)
 
-function openPost(post: (typeof posts)[number]) {
+function openPost(post: (typeof journalItems)[number]) {
   selectedPost.value = post
 }
 
@@ -42,8 +42,7 @@ function closePost() {
               <h2 class="mt-2 font-serif text-3xl leading-tight">{{ item.title }}</h2>
               <p v-if="item.kind === 'Event'" class="mt-4 text-sm font-semibold text-[#496a51]">{{ item.place }}</p>
               <p class="mt-4 leading-7 text-[#66816b]">{{ item.text }}</p>
-              <button v-if="item.kind === 'Blog'" class="mt-auto pt-5 text-left text-sm font-semibold text-[#4f8a56] transition-colors hover:text-[#173b2b]" type="button" @click="openPost(item)">Read More <span aria-hidden="true">→</span></button>
-              <a v-else class="mt-auto pt-5 text-sm font-semibold text-[#4f8a56] transition-colors hover:text-[#173b2b]" href="/contact">Reserve your place <span aria-hidden="true">→</span></a>
+              <button class="mt-auto pt-5 text-left text-sm font-semibold text-[#4f8a56] transition-colors hover:text-[#173b2b]" type="button" @click="openPost(item)">Read More <span aria-hidden="true">→</span></button>
             </div>
           </article>
         </div>
@@ -57,6 +56,7 @@ function closePost() {
         <p class="eyebrow pr-12">{{ selectedPost.category }}</p>
         <h2 :id="`post-${selectedPost.title}`" class="mt-5 pr-8 font-serif text-4xl leading-tight sm:text-5xl">{{ selectedPost.title }}</h2>
         <p class="mt-5 text-sm text-[#779277]">{{ selectedPost.date }}</p>
+        <p v-if="selectedPost.kind === 'Event'" class="mt-3 text-sm font-semibold text-[#496a51]">{{ selectedPost.place }}</p>
         <div class="mt-8 space-y-5 text-lg leading-8 text-[#496a51]"><p>{{ selectedPost.text }}</p><p>At Balezaf, every bottle begins with a deep respect for place. We work with bright local botanicals, careful craft, and the people who make Ethiopia’s drinks culture so full of character.</p><p>Pour a glass, take your time, and discover the story behind the spirit.</p></div>
       </article>
     </div>
