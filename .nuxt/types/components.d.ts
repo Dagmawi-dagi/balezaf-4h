@@ -14,7 +14,6 @@ type HydrationStrategies = {
 type LazyComponent<T> = DefineComponent<HydrationStrategies, {}, {}, {}, {}, {}, {}, { hydrated: () => void }> & T
 
 interface _GlobalComponents {
-  UiButton: typeof import("../../components/ui/button")['default']
   /**
    * Displays the welcome screen used by new Nuxt projects.
    *
@@ -93,7 +92,7 @@ interface _GlobalComponents {
    *
    * @see https://nuxt.com/docs/4.x/api/components/nuxt-page
    */
-  NuxtPage: typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/pages/runtime/page-placeholder")['default']
+  NuxtPage: typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/pages/runtime/page")['default']
   NoScript: typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/head/runtime/components")['NoScript']
   Link: typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/head/runtime/components")['Link']
   Base: typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/head/runtime/components")['Base']
@@ -109,7 +108,6 @@ interface _GlobalComponents {
    * @see https://nuxt.com/docs/4.x/api/components/nuxt-island
    */
   NuxtIsland: typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/app/components/nuxt-island")['default']
-  LazyUiButton: LazyComponent<typeof import("../../components/ui/button")['default']>
   /**
    * Lazy-loaded version of `<NuxtWelcome>`.
    *
@@ -214,7 +212,7 @@ interface _GlobalComponents {
    *
    * @see https://nuxt.com/docs/4.x/api/components/nuxt-page
    */
-  LazyNuxtPage: LazyComponent<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/pages/runtime/page-placeholder")['default']>
+  LazyNuxtPage: LazyComponent<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/pages/runtime/page")['default']>
   LazyNoScript: LazyComponent<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/head/runtime/components")['NoScript']>
   LazyLink: LazyComponent<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/head/runtime/components")['Link']>
   LazyBase: LazyComponent<typeof import("../../node_modules/.pnpm/nuxt@4.6.3_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7_supports-color@10.2.2___@_41611e9c8ada8de21f8eaa9831db213b/node_modules/nuxt/dist/head/runtime/components")['Base']>

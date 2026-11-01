@@ -9,11 +9,14 @@
 /// <reference types="nuxt/app" />
 /// <reference path="../node_modules/.pnpm/@nuxt+nitro-server@4.6.3_63b88f62b2294753117459b832a8c1cb/node_modules/@nuxt/nitro-server/dist/augments.d.mts" />
 /// <reference path="types/layouts.d.ts" />
+/// <reference types="vue-router" />
 /// <reference path="types/middleware.d.ts" />
+/// <reference path="types/nitro-middleware.d.ts" />
 /// <reference path="types/components.d.ts" />
 /// <reference path="imports.d.ts" />
 /// <reference path="types/imports.d.ts" />
 /// <reference path="schema/nuxt.schema.d.ts" />
 /// <reference path="types/nitro-internal-api.d.ts" />
+/// <reference path="types/nitro.d.ts" />
 
 export {}
