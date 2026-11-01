@@ -67,71 +67,70 @@ function submitInquiry() {
     <SiteHeader />
 
     <main id="top">
-      <!-- Hero Section with 3D Arc Bottle Carousel -->
+      <!-- Hero Section with Compact Viewport Fit -->
       <section class="relative overflow-hidden bg-[#123927] text-white">
         <div
-          class="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(129,171,113,.38),transparent_35%),linear-gradient(115deg,#123927_0%,#1d5539_56%,#467b55_100%)]"
+          class="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(129,171,113,.35),transparent_35%),linear-gradient(115deg,#123927_0%,#1d5539_56%,#467b55_100%)]"
         ></div>
 
         <div
-          class="relative mx-auto grid min-h-[720px] max-w-7xl items-center gap-12 px-6 pb-20 pt-36 lg:grid-cols-[0.9fr_1.1fr] lg:px-10 lg:pb-24"
+          class="relative mx-auto grid max-w-7xl items-center gap-8 px-6 py-8 sm:py-10 lg:grid-cols-[1fr_1fr] lg:gap-10 lg:px-10 lg:py-12"
         >
           <!-- Left: Hero Headline & Description -->
           <div class="max-w-xl">
             <p
-              class="mb-6 inline-flex items-center gap-2 rounded-full border border-[#81ab71]/40 bg-[#81ab71]/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-[#c9e6c1] backdrop-blur-sm"
+              class="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#c9e6c1]"
             >
-              <span class="h-1.5 w-1.5 rounded-full bg-[#c9e6c1]"></span>
               Made with patience · Bottled with purpose
             </p>
 
-            <h1 class="font-serif text-5xl leading-[1.02] tracking-[-.04em] sm:text-6xl lg:text-7xl">
+            <h1 class="font-serif text-4xl leading-[1.06] tracking-[-.03em] sm:text-5xl lg:text-6xl">
               The spirit of <em class="font-normal text-[#b8d7af]">good</em> making.
             </h1>
 
-            <p class="mt-6 max-w-lg text-base leading-relaxed text-[#d8e7d4] sm:text-lg">
+            <p class="mt-3.5 max-w-lg text-sm leading-relaxed text-[#d8e7d4] sm:text-base">
               Authentic Ethiopian spirits and craft liqueurs, distilled with local heritage and
               modern mastery. Explore the rotating collection below.
             </p>
 
-            <div class="mt-8 flex flex-wrap items-center gap-3.5">
+            <div class="mt-6 flex flex-wrap items-center gap-3">
               <NuxtLink
                 to="/order"
-                class="rounded-full bg-[#c6dfbc] px-7 py-3 text-sm font-semibold text-[#173b2b] shadow-lg transition-all hover:scale-105 hover:bg-white"
+                class="rounded-full bg-[#c6dfbc] px-6 py-2.5 text-xs font-semibold text-[#173b2b] shadow-md transition-all hover:bg-white"
               >
                 Place an order <span aria-hidden="true">↗</span>
               </NuxtLink>
 
               <NuxtLink
                 to="/products"
-                class="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20"
+                class="rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-xs font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20"
               >
-                Explore all 10 products
+                Explore 10 products
               </NuxtLink>
             </div>
 
             <!-- Highlights counter -->
             <div
-              class="mt-10 flex items-center gap-6 border-t border-white/15 pt-6 text-xs text-[#c9e6c1]"
+              class="mt-7 flex items-center gap-6 border-t border-white/15 pt-4 text-xs text-[#c9e6c1]"
             >
               <div>
-                <strong class="block font-serif text-2xl text-white">10+</strong>
+                <strong class="block font-serif text-xl text-white">10+</strong>
                 <span>Distinct Spirits</span>
               </div>
-              <div class="h-8 w-px bg-white/20"></div>
+              <div class="h-7 w-px bg-white/20"></div>
               <div>
-                <strong class="block font-serif text-2xl text-white">1996</strong>
+                <strong class="block font-serif text-xl text-white">1996</strong>
                 <span>Distillery Heritage</span>
               </div>
-              <div class="h-8 w-px bg-white/20"></div>
+              <div class="h-7 w-px bg-white/20"></div>
               <div>
-                <strong class="block font-serif text-2xl text-white">100%</strong>
+                <strong class="block font-serif text-xl text-white">100%</strong>
                 <span>Ethiopian Made</span>
               </div>
             </div>
           </div>
 
-          <!-- Right: Interactive 3D Arc Bottle Carousel -->
+          <!-- Right: Interactive 3D Arc Bottle Carousel (Fits completely above the fold) -->
           <div class="w-full">
             <HeroBottleArc />
           </div>
