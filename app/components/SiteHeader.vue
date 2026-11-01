@@ -33,7 +33,14 @@ const links = [
           <a href="tel:+251914705089" class="hidden whitespace-nowrap transition hover:text-[#b8d7af] sm:inline">+251 914 705 089</a>
           <a href="mailto:destaalcohol@gmail.com" class="hidden truncate transition hover:text-[#b8d7af] sm:inline">destaalcohol@gmail.com</a>
         </div>
-        <span class="hidden whitespace-nowrap text-[#b8d7af] md:inline">Addis Ababa, Ethiopia</span>
+        <div class="flex items-center gap-4">
+          <span class="hidden whitespace-nowrap text-[#b8d7af] md:inline">Addis Ababa, Ethiopia</span>
+          <div class="flex items-center gap-3 border-l border-white/20 pl-4" aria-label="Social media links">
+            <a href="#" aria-label="TikTok" class="transition hover:text-[#b8d7af]">TikTok</a>
+            <a href="#" aria-label="Facebook" class="transition hover:text-[#b8d7af]">Facebook</a>
+            <a href="#" aria-label="YouTube" class="transition hover:text-[#b8d7af]">YouTube</a>
+          </div>
+        </div>
       </div>
     </div>
     <div class="mx-auto flex max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
