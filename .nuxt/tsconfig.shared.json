@@ -104,7 +104,7 @@
         "./imports"
       ],
       "#app-manifest": [
-        "./manifest/meta/dev.json"
+        "./manifest/meta/888bc80e-e751-4700-9c96-f72ee41b82a0.json"
       ],
       "nitropack/types": [
         "../node_modules/.pnpm/nitropack@2.13.5_rolldown@1.2.16_srvx@1.0.8_supports-color@10.2.2_vite@8.3.5_@types+nod_142723b8509e03d83d1cac2dcb01e734/node_modules/nitropack/types.d.ts"
