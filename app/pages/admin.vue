@@ -30,6 +30,51 @@ function notify(msg: string) {
   }, 2800)
 }
 
+// Client-side image compression helper (max 960px width, 82% quality)
+// Ensures uploaded photos load instantly and fit comfortably in localStorage
+async function processImageFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (JPG, PNG, WebP).')
+      return reject(new Error('Invalid image file type'))
+    }
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const maxWidth = 960
+        const maxHeight = 720
+        let width = img.width
+        let height = img.height
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width)
+          width = maxWidth
+        }
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height)
+          height = maxHeight
+        }
+
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height)
+          resolve(canvas.toDataURL('image/jpeg', 0.82))
+        } else {
+          resolve(e.target?.result as string)
+        }
+      }
+      img.onerror = () => resolve(e.target?.result as string)
+      img.src = e.target?.result as string
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 // Filtered products based on search
 const filteredProducts = computed(() => {
   if (!searchQuery.value.trim()) return products.value
@@ -148,7 +193,7 @@ function toggleFlagship(prod: any) {
 }
 
 // ----------------------------------------------------
-// 2. EVENTS MANAGEMENT
+// 2. EVENTS MANAGEMENT (With Image Upload)
 // ----------------------------------------------------
 interface EventItem {
   id: string
@@ -157,6 +202,7 @@ interface EventItem {
   place: string
   category: string
   text: string
+  image?: string
   status: string
 }
 
@@ -167,6 +213,7 @@ const events = ref<EventItem[]>([
     date: '18 May 2026',
     place: 'Desta House · Addis Ababa',
     category: 'UPCOMING EVENT',
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf_blog_bg_green-VvU1YVwjlyPHJV2gYJlczTbYJ6iLwp.png',
     text: 'An intimate evening exploring our newest botanical spirits and seasonal serves with our master distillers.',
     status: 'Published',
   },
@@ -176,6 +223,7 @@ const events = ref<EventItem[]>([
     date: '06 June 2026',
     place: 'Millennium Hall · Addis Ababa',
     category: 'UPCOMING EVENT',
+    image: '',
     text: 'Meet our makers and discover the indigenous botanicals behind Ethiopia’s modern spirits.',
     status: 'Published',
   },
@@ -185,6 +233,7 @@ const events = ref<EventItem[]>([
     date: '24 July 2026',
     place: 'The Skylight Garden · Addis Ababa',
     category: 'UPCOMING EVENT',
+    image: '',
     text: 'A creative gathering pairing local culinary craft, live music, and considered cocktail pairings.',
     status: 'Published',
   },
@@ -193,6 +242,8 @@ const events = ref<EventItem[]>([
 const isEventModalOpen = ref(false)
 const isNewEvent = ref(false)
 const editingEventId = ref<string | null>(null)
+const eventFileInput = ref<HTMLInputElement | null>(null)
+const isUploadingEventImg = ref(false)
 
 const eventForm = reactive<EventItem>({
   id: '',
@@ -201,6 +252,7 @@ const eventForm = reactive<EventItem>({
   place: '',
   category: 'UPCOMING EVENT',
   text: '',
+  image: '',
   status: 'Published',
 })
 
@@ -214,6 +266,7 @@ function openEventCreateModal() {
     place: 'Balezaf House · Addis Ababa',
     category: 'UPCOMING EVENT',
     text: '',
+    image: '',
     status: 'Published',
   })
   isEventModalOpen.value = true
@@ -222,8 +275,33 @@ function openEventCreateModal() {
 function openEventEditModal(evt: EventItem) {
   isNewEvent.value = false
   editingEventId.value = evt.id
-  Object.assign(eventForm, { ...evt })
+  Object.assign(eventForm, {
+    ...evt,
+    image: evt.image || '',
+  })
   isEventModalOpen.value = true
+}
+
+async function handleEventImageUpload(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  isUploadingEventImg.value = true
+  try {
+    const dataUrl = await processImageFile(file)
+    eventForm.image = dataUrl
+    notify('Event photo attached!')
+  } catch (err) {
+    console.error(err)
+    alert('Failed to process uploaded image.')
+  } finally {
+    isUploadingEventImg.value = false
+    if (eventFileInput.value) eventFileInput.value.value = ''
+  }
+}
+
+function removeEventImage() {
+  eventForm.image = ''
+  if (eventFileInput.value) eventFileInput.value.value = ''
 }
 
 function saveEventChanges() {
@@ -257,7 +335,7 @@ function saveEventsToStorage() {
 }
 
 // ----------------------------------------------------
-// 3. BLOG POSTS MANAGEMENT
+// 3. BLOG POSTS MANAGEMENT (With Image Upload)
 // ----------------------------------------------------
 interface BlogPostItem {
   id: string
@@ -306,6 +384,8 @@ const blogPosts = ref<BlogPostItem[]>([
 const isBlogModalOpen = ref(false)
 const isNewBlog = ref(false)
 const editingBlogId = ref<string | null>(null)
+const blogFileInput = ref<HTMLInputElement | null>(null)
+const isUploadingBlogImg = ref(false)
 
 const blogForm = reactive<BlogPostItem>({
   id: '',
@@ -337,8 +417,33 @@ function openBlogCreateModal() {
 function openBlogEditModal(post: BlogPostItem) {
   isNewBlog.value = false
   editingBlogId.value = post.id
-  Object.assign(blogForm, { ...post })
+  Object.assign(blogForm, {
+    ...post,
+    image: post.image || '',
+  })
   isBlogModalOpen.value = true
+}
+
+async function handleBlogImageUpload(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  isUploadingBlogImg.value = true
+  try {
+    const dataUrl = await processImageFile(file)
+    blogForm.image = dataUrl
+    notify('Story cover photo attached!')
+  } catch (err) {
+    console.error(err)
+    alert('Failed to process uploaded image.')
+  } finally {
+    isUploadingBlogImg.value = false
+    if (blogFileInput.value) blogFileInput.value.value = ''
+  }
+}
+
+function removeBlogImage() {
+  blogForm.image = ''
+  if (blogFileInput.value) blogFileInput.value.value = ''
 }
 
 function saveBlogChanges() {
@@ -620,7 +725,6 @@ useSeoMeta({
         <!-- Compact Top App Bar -->
         <header class="flex h-14 items-center justify-between border-b border-[#dce8d7] bg-white px-5 sm:px-6">
           <div class="flex items-center gap-3">
-            <!-- Mobile tab switcher for small screens -->
             <select
               v-model="activeTab"
               class="md:hidden rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-medium text-[#173b2b]"
@@ -675,7 +779,6 @@ useSeoMeta({
 
               <!-- Action Controls -->
               <div class="flex flex-wrap items-center gap-2">
-                <!-- Table / Grid View Toggle -->
                 <div class="flex items-center rounded-md border border-[#cddfc9] bg-[#f8faf6] p-0.5">
                   <button
                     type="button"
@@ -724,7 +827,7 @@ useSeoMeta({
                 <button
                   type="button"
                   class="rounded-md border border-gray-200 px-2 py-1 text-[11px] text-gray-500 hover:bg-gray-100"
-                  title="Reset to products.json default factory data"
+                  title="Reset to default factory catalogue"
                   @click="handleResetDefaults"
                 >
                   Reset Factory
@@ -740,7 +843,7 @@ useSeoMeta({
               </div>
             </div>
 
-            <!-- Standard Compact Table View (Default: All fits on 1 screen) -->
+            <!-- Standard Compact Table View -->
             <div v-if="viewMode === 'table'" class="overflow-hidden rounded-xl border border-[#dce8d7] bg-white shadow-2xs">
               <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs border-collapse">
@@ -760,7 +863,6 @@ useSeoMeta({
                       :key="prod.id"
                       class="hover:bg-[#fbfdfa] transition-colors"
                     >
-                      <!-- Bottle Thumbnail -->
                       <td class="py-1.5 pl-4 pr-2 text-center">
                         <div class="mx-auto flex h-10 w-9 items-center justify-center rounded bg-[#f5f8f3] p-1">
                           <img
@@ -771,7 +873,6 @@ useSeoMeta({
                         </div>
                       </td>
 
-                      <!-- Name & Tasting summary -->
                       <td class="py-2 px-3">
                         <div class="font-semibold text-[#173b2b]">{{ prod.name }}</div>
                         <div class="text-[11px] text-[#69846d] line-clamp-1 max-w-sm">
@@ -779,19 +880,16 @@ useSeoMeta({
                         </div>
                       </td>
 
-                      <!-- Category -->
                       <td class="py-2 px-3">
                         <span class="inline-block rounded px-2 py-0.5 text-[11px] font-medium" :class="prod.badge || 'bg-gray-100 text-gray-700'">
                           {{ prod.category }}
                         </span>
                       </td>
 
-                      <!-- ABV & Volume -->
                       <td class="py-2 px-3 text-[#526f57] whitespace-nowrap">
                         {{ prod.abv }} · {{ prod.volume }}
                       </td>
 
-                      <!-- Home Page Flagship Toggle -->
                       <td class="py-2 px-3">
                         <button
                           type="button"
@@ -804,7 +902,6 @@ useSeoMeta({
                         </button>
                       </td>
 
-                      <!-- Actions -->
                       <td class="py-2 px-3 pr-4 text-right whitespace-nowrap space-x-1.5">
                         <button
                           type="button"
@@ -828,7 +925,7 @@ useSeoMeta({
               </div>
             </div>
 
-            <!-- Compact Grid View (Alternative) -->
+            <!-- Compact Grid View -->
             <div v-else class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <div
                 v-for="prod in filteredProducts"
@@ -889,7 +986,6 @@ useSeoMeta({
           <!-- 2. OVERVIEW TAB (Standard Metrics Dashboard)   -->
           <!-- ============================================== -->
           <div v-else-if="activeTab === 'Overview'" class="space-y-4">
-            <!-- 4 Metric Cards in 1 Row -->
             <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <div class="rounded-xl border border-[#dce8d7] bg-white p-4 shadow-2xs">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-[#6e8a72]">Spirits Catalogue</span>
@@ -971,7 +1067,7 @@ useSeoMeta({
           </div>
 
           <!-- ============================================== -->
-          <!-- 3. EVENTS TAB (Standard Compact Data List)     -->
+          <!-- 3. EVENTS TAB (With Image Thumbnail & Upload)  -->
           <!-- ============================================== -->
           <div v-else-if="activeTab === 'Events'" class="space-y-3.5">
             <div class="flex items-center justify-between rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs">
@@ -993,23 +1089,39 @@ useSeoMeta({
                 <div
                   v-for="evt in events"
                   :key="evt.id"
-                  class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-[#fbfdfa] transition gap-2"
+                  class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-[#fbfdfa] transition gap-3"
                 >
-                  <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2">
-                      <span class="rounded bg-[#edf4eb] px-2 py-0.5 text-[10px] font-semibold text-[#285736]">
-                        {{ evt.date }}
-                      </span>
-                      <span class="text-[11px] text-[#6d8a71]">· {{ evt.place }}</span>
-                      <span class="rounded bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">
-                        {{ evt.status }}
-                      </span>
+                  <div class="flex items-start gap-3 min-w-0 flex-1">
+                    <!-- Thumbnail preview if image attached -->
+                    <div
+                      v-if="evt.image"
+                      class="h-12 w-14 shrink-0 rounded-md overflow-hidden border border-[#dce8d7] bg-[#f8faf6]"
+                    >
+                      <img :src="evt.image" :alt="evt.title" class="h-full w-full object-cover" />
                     </div>
-                    <h3 class="mt-1 font-semibold text-xs text-[#173b2b]">{{ evt.title }}</h3>
-                    <p class="mt-0.5 text-[11px] text-[#55715a] line-clamp-1">{{ evt.text }}</p>
+                    <div
+                      v-else
+                      class="h-12 w-14 shrink-0 rounded-md flex items-center justify-center border border-[#dce8d7] bg-[#f8faf6] text-xs text-[#6e8a72]"
+                    >
+                      📅
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-2">
+                        <span class="rounded bg-[#edf4eb] px-2 py-0.5 text-[10px] font-semibold text-[#285736]">
+                          {{ evt.date }}
+                        </span>
+                        <span class="text-[11px] text-[#6d8a71]">· {{ evt.place }}</span>
+                        <span class="rounded bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">
+                          {{ evt.status }}
+                        </span>
+                      </div>
+                      <h3 class="mt-1 font-semibold text-xs text-[#173b2b]">{{ evt.title }}</h3>
+                      <p class="mt-0.5 text-[11px] text-[#55715a] line-clamp-1">{{ evt.text }}</p>
+                    </div>
                   </div>
 
-                  <div class="flex items-center gap-2 shrink-0">
+                  <div class="flex items-center gap-2 shrink-0 sm:self-center">
                     <button
                       type="button"
                       class="rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
@@ -1031,7 +1143,7 @@ useSeoMeta({
           </div>
 
           <!-- ============================================== -->
-          <!-- 4. BLOG POSTS TAB (Standard Compact Data List) -->
+          <!-- 4. BLOG POSTS TAB (With Image Thumbnail/Upload)-->
           <!-- ============================================== -->
           <div v-else-if="activeTab === 'Blog posts'" class="space-y-3.5">
             <div class="flex items-center justify-between rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs">
@@ -1053,21 +1165,37 @@ useSeoMeta({
                 <div
                   v-for="post in blogPosts"
                   :key="post.id"
-                  class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-[#fbfdfa] transition gap-2"
+                  class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-[#fbfdfa] transition gap-3"
                 >
-                  <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2">
-                      <span class="rounded bg-[#edf4eb] px-2 py-0.5 text-[10px] font-semibold text-[#285736]">
-                        {{ post.category }}
-                      </span>
-                      <span class="text-[11px] text-[#6d8a71]">· {{ post.date }}</span>
-                      <span class="text-[11px] text-[#6d8a71]">· {{ post.author }}</span>
+                  <div class="flex items-start gap-3 min-w-0 flex-1">
+                    <!-- Thumbnail preview if image attached -->
+                    <div
+                      v-if="post.image"
+                      class="h-12 w-14 shrink-0 rounded-md overflow-hidden border border-[#dce8d7] bg-[#f8faf6]"
+                    >
+                      <img :src="post.image" :alt="post.title" class="h-full w-full object-cover" />
                     </div>
-                    <h3 class="mt-1 font-semibold text-xs text-[#173b2b]">{{ post.title }}</h3>
-                    <p class="mt-0.5 text-[11px] text-[#55715a] line-clamp-1">{{ post.text }}</p>
+                    <div
+                      v-else
+                      class="h-12 w-14 shrink-0 rounded-md flex items-center justify-center border border-[#dce8d7] bg-[#f8faf6] text-xs text-[#6e8a72]"
+                    >
+                      📰
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-2">
+                        <span class="rounded bg-[#edf4eb] px-2 py-0.5 text-[10px] font-semibold text-[#285736]">
+                          {{ post.category }}
+                        </span>
+                        <span class="text-[11px] text-[#6d8a71]">· {{ post.date }}</span>
+                        <span class="text-[11px] text-[#6d8a71]">· {{ post.author }}</span>
+                      </div>
+                      <h3 class="mt-1 font-semibold text-xs text-[#173b2b]">{{ post.title }}</h3>
+                      <p class="mt-0.5 text-[11px] text-[#55715a] line-clamp-1">{{ post.text }}</p>
+                    </div>
                   </div>
 
-                  <div class="flex items-center gap-2 shrink-0">
+                  <div class="flex items-center gap-2 shrink-0 sm:self-center">
                     <button
                       type="button"
                       class="rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
@@ -1089,7 +1217,7 @@ useSeoMeta({
           </div>
 
           <!-- ============================================== -->
-          <!-- 5. JOB VACANCIES TAB (Standard Compact Data List)-->
+          <!-- 5. JOB VACANCIES TAB                           -->
           <!-- ============================================== -->
           <div v-else-if="activeTab === 'Job vacancies'" class="space-y-3.5">
             <div class="flex items-center justify-between rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs">
@@ -1155,8 +1283,7 @@ useSeoMeta({
     </div>
 
     <!-- ============================================== -->
-    <!-- STANDARD MODAL 1: PRODUCT CREATE / EDIT        -->
-    <!-- Compact layout fitting without excessive scroll -->
+    <!-- MODAL 1: PRODUCT CREATE / EDIT                 -->
     <!-- ============================================== -->
     <Teleport to="body">
       <div
@@ -1168,7 +1295,6 @@ useSeoMeta({
         <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="isProductModalOpen = false"></div>
 
         <div class="relative z-10 flex max-h-[88vh] w-full max-w-xl flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
-          <!-- Compact Header (Fixed) -->
           <div class="flex items-center justify-between border-b border-[#e5efe2] bg-[#f8faf6] px-5 py-3 shrink-0">
             <div>
               <p class="text-[10px] font-bold uppercase tracking-wider text-[#547959]">Product Catalogue</p>
@@ -1185,9 +1311,7 @@ useSeoMeta({
             </button>
           </div>
 
-          <!-- Body (Scrollable only if screen is tiny) -->
           <form class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs" @submit.prevent="saveProductChanges">
-            <!-- Row 1: Name & Category -->
             <div class="grid gap-3 sm:grid-cols-2">
               <div>
                 <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Spirit Name *</label>
@@ -1199,7 +1323,6 @@ useSeoMeta({
               </div>
             </div>
 
-            <!-- Row 2: ABV, Volume, Image Model -->
             <div class="grid gap-3 sm:grid-cols-3">
               <div>
                 <label class="block text-[11px] font-semibold text-[#284f37] mb-1">ABV (%) *</label>
@@ -1224,7 +1347,6 @@ useSeoMeta({
               </div>
             </div>
 
-            <!-- Row 3: Description -->
             <div>
               <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Card Note / Description *</label>
               <textarea
@@ -1236,7 +1358,6 @@ useSeoMeta({
               ></textarea>
             </div>
 
-            <!-- Tasting Profile (Compact 2x2 Grid) -->
             <div class="rounded-lg border border-[#dce8d7] bg-[#f8faf6] p-3 space-y-2">
               <span class="block text-[10px] font-bold uppercase tracking-wider text-[#3e6f47]">
                 Tasting Specs (Shown in Details Modal)
@@ -1265,7 +1386,6 @@ useSeoMeta({
               </div>
             </div>
 
-            <!-- Flagship Checkbox -->
             <div class="flex items-center gap-2 rounded-lg border border-[#e5efe2] bg-[#f8faf6] px-3 py-2">
               <input
                 id="flagship_toggle"
@@ -1278,11 +1398,9 @@ useSeoMeta({
               </label>
             </div>
 
-            <!-- Hidden submit button to allow Enter key to submit form -->
             <button type="submit" class="hidden"></button>
           </form>
 
-          <!-- Compact Footer (Fixed) -->
           <div class="flex items-center justify-end gap-2 border-t border-[#e5efe2] bg-[#f8faf6] px-5 py-2.5 shrink-0">
             <button
               type="button"
@@ -1304,7 +1422,7 @@ useSeoMeta({
     </Teleport>
 
     <!-- ============================================== -->
-    <!-- STANDARD MODAL 2: EVENT CREATE / EDIT          -->
+    <!-- MODAL 2: EVENT CREATE / EDIT (IMAGE UPLOAD)    -->
     <!-- ============================================== -->
     <Teleport to="body">
       <div
@@ -1315,7 +1433,7 @@ useSeoMeta({
       >
         <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="isEventModalOpen = false"></div>
 
-        <div class="relative z-10 flex max-h-[85vh] w-full max-w-md flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
+        <div class="relative z-10 flex max-h-[88vh] w-full max-w-md flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
           <div class="flex items-center justify-between border-b border-[#e5efe2] bg-[#f8faf6] px-5 py-3 shrink-0">
             <div>
               <p class="text-[10px] font-bold uppercase tracking-wider text-[#547959]">Events Studio</p>
@@ -1358,6 +1476,60 @@ useSeoMeta({
               <input v-model="eventForm.place" required class="admin-input" placeholder="e.g. Balezaf House · Addis Ababa" />
             </div>
 
+            <!-- Image Upload & Preview Section for Events -->
+            <div>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Event Banner / Image</label>
+              
+              <!-- Image Preview if available -->
+              <div v-if="eventForm.image" class="mb-2 relative rounded-lg border border-[#cddfc9] overflow-hidden bg-[#f4f7f2]">
+                <img :src="eventForm.image" alt="Event Preview" class="h-28 w-full object-cover" />
+                <div class="absolute top-1.5 right-1.5 flex items-center gap-1">
+                  <button
+                    type="button"
+                    class="rounded bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white hover:bg-black/80 transition"
+                    @click="eventFileInput?.click()"
+                  >
+                    Change
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded bg-red-600/80 px-2 py-0.5 text-[10px] font-medium text-white hover:bg-red-700 transition"
+                    @click="removeEventImage"
+                  >
+                    ✕ Remove
+                  </button>
+                </div>
+              </div>
+
+              <!-- Upload button & URL input -->
+              <div class="flex items-center gap-2">
+                <input
+                  ref="eventFileInput"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  @change="handleEventImageUpload"
+                />
+                <button
+                  type="button"
+                  :disabled="isUploadingEventImg"
+                  class="inline-flex items-center gap-1.5 rounded-md border border-[#cddfc9] bg-white px-3 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9] transition shrink-0"
+                  @click="eventFileInput?.click()"
+                >
+                  <svg class="h-3.5 w-3.5 text-[#35653c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>{{ isUploadingEventImg ? 'Processing...' : (eventForm.image ? 'Replace Photo' : 'Upload Image') }}</span>
+                </button>
+                <input
+                  v-model="eventForm.image"
+                  type="url"
+                  class="admin-input flex-1 !py-1 text-xs"
+                  placeholder="Or paste image URL (https://...)"
+                />
+              </div>
+            </div>
+
             <div>
               <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Event Description *</label>
               <textarea
@@ -1391,7 +1563,7 @@ useSeoMeta({
     </Teleport>
 
     <!-- ============================================== -->
-    <!-- STANDARD MODAL 3: BLOG POST CREATE / EDIT      -->
+    <!-- MODAL 3: BLOG POST CREATE / EDIT (IMAGE UPLOAD)-->
     <!-- ============================================== -->
     <Teleport to="body">
       <div
@@ -1402,7 +1574,7 @@ useSeoMeta({
       >
         <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="isBlogModalOpen = false"></div>
 
-        <div class="relative z-10 flex max-h-[85vh] w-full max-w-md flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
+        <div class="relative z-10 flex max-h-[88vh] w-full max-w-md flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
           <div class="flex items-center justify-between border-b border-[#e5efe2] bg-[#f8faf6] px-5 py-3 shrink-0">
             <div>
               <p class="text-[10px] font-bold uppercase tracking-wider text-[#547959]">Journal Studio</p>
@@ -1446,6 +1618,60 @@ useSeoMeta({
               <input v-model="blogForm.date" required class="admin-input" placeholder="e.g. 12 April 2026" />
             </div>
 
+            <!-- Image Upload & Preview Section for Blog Stories -->
+            <div>
+              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Story Cover Photo</label>
+              
+              <!-- Image Preview if available -->
+              <div v-if="blogForm.image" class="mb-2 relative rounded-lg border border-[#cddfc9] overflow-hidden bg-[#f4f7f2]">
+                <img :src="blogForm.image" alt="Story Preview" class="h-28 w-full object-cover" />
+                <div class="absolute top-1.5 right-1.5 flex items-center gap-1">
+                  <button
+                    type="button"
+                    class="rounded bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white hover:bg-black/80 transition"
+                    @click="blogFileInput?.click()"
+                  >
+                    Change
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded bg-red-600/80 px-2 py-0.5 text-[10px] font-medium text-white hover:bg-red-700 transition"
+                    @click="removeBlogImage"
+                  >
+                    ✕ Remove
+                  </button>
+                </div>
+              </div>
+
+              <!-- Upload button & URL input -->
+              <div class="flex items-center gap-2">
+                <input
+                  ref="blogFileInput"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  @change="handleBlogImageUpload"
+                />
+                <button
+                  type="button"
+                  :disabled="isUploadingBlogImg"
+                  class="inline-flex items-center gap-1.5 rounded-md border border-[#cddfc9] bg-white px-3 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9] transition shrink-0"
+                  @click="blogFileInput?.click()"
+                >
+                  <svg class="h-3.5 w-3.5 text-[#35653c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>{{ isUploadingBlogImg ? 'Processing...' : (blogForm.image ? 'Replace Photo' : 'Upload Image') }}</span>
+                </button>
+                <input
+                  v-model="blogForm.image"
+                  type="url"
+                  class="admin-input flex-1 !py-1 text-xs"
+                  placeholder="Or paste image URL (https://...)"
+                />
+              </div>
+            </div>
+
             <div>
               <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Story Excerpt / Content *</label>
               <textarea
@@ -1455,11 +1681,6 @@ useSeoMeta({
                 class="admin-input resize-y"
                 placeholder="Write the summary or article content..."
               ></textarea>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Cover Image URL (optional)</label>
-              <input v-model="blogForm.image" class="admin-input" placeholder="https://..." />
             </div>
           </form>
 
@@ -1484,7 +1705,7 @@ useSeoMeta({
     </Teleport>
 
     <!-- ============================================== -->
-    <!-- STANDARD MODAL 4: JOB VACANCY CREATE / EDIT    -->
+    <!-- MODAL 4: JOB VACANCY CREATE / EDIT             -->
     <!-- ============================================== -->
     <Teleport to="body">
       <div
@@ -1575,7 +1796,7 @@ useSeoMeta({
     </Teleport>
 
     <!-- ============================================== -->
-    <!-- STANDARD MODAL 5: IMPORT PRODUCTS JSON         -->
+    <!-- MODAL 5: IMPORT PRODUCTS JSON                  -->
     <!-- ============================================== -->
     <Teleport to="body">
       <div

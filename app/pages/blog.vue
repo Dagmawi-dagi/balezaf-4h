@@ -1,27 +1,62 @@
 <script setup lang="ts">
-const posts = [
-  { kind: 'Blog', category: 'MAKING BALEZAF', title: 'The botanicals that make our gin unmistakably Ethiopian', date: '12 April 2026', image: '', text: 'From bright citrus to fragrant herbs, explore the local ingredients that shape our signature profile.' },
+import { computed, onMounted, ref } from 'vue'
+
+const defaultPosts = [
+  { kind: 'Blog', category: 'MAKING BALEZAF', title: 'The botanicals that make our gin unmistakably Ethiopian', date: '12 April 2026', image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf_blog_bg_green-VvU1YVwjlyPHJV2gYJlczTbYJ6iLwp.png', text: 'From bright citrus to fragrant herbs, explore the local ingredients that shape our signature profile.' },
   { kind: 'Blog', category: 'SERVE NOTES', title: 'A better highball starts with patience', date: '28 March 2026', image: '', text: 'A simple ritual for a fresh, balanced serve that lets every note in the bottle breathe.' },
   { kind: 'Blog', category: 'PEOPLE & PLACE', title: 'Inside the new generation of Addis hospitality', date: '04 February 2026', image: '', text: 'The bartenders, chefs, and hosts building a more generous drinks culture in Ethiopia.' },
 ]
 
-const events = [
+const defaultEvents = [
   { kind: 'Event', category: 'UPCOMING EVENT', title: 'Balezaf Tasting Table', date: '18 May 2026', image: '', place: 'Balezaf House · Addis Ababa', text: 'An intimate evening exploring our newest botanical spirits and seasonal serves.' },
   { kind: 'Event', category: 'UPCOMING EVENT', title: 'Taste of Ethiopia', date: '06 June 2026', image: '', place: 'Millennium Hall · Addis Ababa', text: 'Meet our makers and discover the ingredients behind Ethiopia’s modern spirit.' },
   { kind: 'Event', category: 'UPCOMING EVENT', title: 'Craft & Culture', date: '24 July 2026', image: '', place: 'The Skylight Garden · Addis Ababa', text: 'A creative gathering pairing local food, music, and considered cocktails.' },
 ]
 
-const journalItems = [...posts, ...events]
-const fallbackImage = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf_blog_bg_green-VvU1YVwjlyPHJV2gYJlczTbYJ6iLwp.png'
-const selectedPost = ref<(typeof journalItems)[number] | null>(null)
+const posts = ref([...defaultPosts])
+const events = ref([...defaultEvents])
 
-function openPost(post: (typeof journalItems)[number]) {
+const journalItems = computed(() => [...posts.value, ...events.value])
+const fallbackImage = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf_blog_bg_green-VvU1YVwjlyPHJV2gYJlczTbYJ6iLwp.png'
+const selectedPost = ref<(typeof journalItems.value)[number] | null>(null)
+
+function openPost(post: (typeof journalItems.value)[number]) {
   selectedPost.value = post
 }
 
 function closePost() {
   selectedPost.value = null
 }
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    try {
+      const storedPosts = localStorage.getItem('balezaf_blog_posts')
+      if (storedPosts) {
+        const parsed = JSON.parse(storedPosts)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          posts.value = parsed.map((p: any) => ({
+            ...p,
+            kind: 'Blog',
+          }))
+        }
+      }
+
+      const storedEvents = localStorage.getItem('balezaf_events')
+      if (storedEvents) {
+        const parsed = JSON.parse(storedEvents)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          events.value = parsed.map((e: any) => ({
+            ...e,
+            kind: 'Event',
+          }))
+        }
+      }
+    } catch (e) {
+      console.warn('Could not hydrate journal items from localStorage', e)
+    }
+  }
+})
 </script>
 
 <template>
@@ -68,10 +103,14 @@ function closePost() {
             <span class="rounded-full bg-[#dcebd7] px-3 py-1 text-[10px] font-bold uppercase tracking-[.18em] text-[#35653c]">{{ selectedPost.kind }}</span>
             <span class="eyebrow">{{ selectedPost.category }}</span>
           </div>
-        <h2 :id="`post-${selectedPost.title}`" class="mt-5 pr-8 font-serif text-4xl leading-tight sm:text-5xl">{{ selectedPost.title }}</h2>
-        <p class="mt-5 text-sm text-[#779277]">{{ selectedPost.date }}</p>
-        <p v-if="selectedPost.kind === 'Event'" class="mt-3 text-sm font-semibold text-[#496a51]">{{ selectedPost.place }}</p>
-        <div class="mt-8 space-y-5 text-lg leading-8 text-[#496a51]"><p>{{ selectedPost.text }}</p><p>At Balezaf, every bottle begins with a deep respect for place. We work with bright local botanicals, careful craft, and the people who make Ethiopia’s drinks culture so full of character.</p><p>Pour a glass, take your time, and discover the story behind the spirit.</p></div>
+          <h2 :id="`post-${selectedPost.title}`" class="mt-5 pr-8 font-serif text-4xl leading-tight sm:text-5xl">{{ selectedPost.title }}</h2>
+          <p class="mt-5 text-sm text-[#779277]">{{ selectedPost.date }}</p>
+          <p v-if="selectedPost.kind === 'Event'" class="mt-3 text-sm font-semibold text-[#496a51]">{{ selectedPost.place }}</p>
+          <div class="mt-8 space-y-5 text-lg leading-8 text-[#496a51]">
+            <p>{{ selectedPost.text }}</p>
+            <p>At Balezaf, every bottle begins with a deep respect for place. We work with bright local botanicals, careful craft, and the people who make Ethiopia’s drinks culture so full of character.</p>
+            <p>Pour a glass, take your time, and discover the story behind the spirit.</p>
+          </div>
         </div>
       </article>
     </div>
