@@ -1,7 +1,7 @@
 <template>
   <main class="min-h-screen bg-[#fffdf9] text-[#183b2a]">
     <SiteHeader />
-    <section class="px-6 pb-12 pt-32 lg:px-10">
+    <section id="contact" class="px-6 pb-12 pt-32 lg:px-10">
       <div class="mx-auto max-w-7xl">
         <p class="text-xs font-semibold uppercase tracking-[0.28em] text-[#6d9b6b]">Get in touch</p>
         <h1 class="mt-4 max-w-3xl text-5xl font-semibold tracking-[-0.05em] text-[#183b2a] sm:text-7xl">Come visit the source.</h1>
