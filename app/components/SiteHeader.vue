@@ -2,6 +2,7 @@
 const mobileOpen = ref(false)
 const links = [
   { label: 'Home', to: '/' },
+  { label: 'About us', to: '/about' },
   { label: 'Products', to: '/#products' },
   { label: 'Events', to: '/events' },
   { label: 'Journal', to: '/blog' },
