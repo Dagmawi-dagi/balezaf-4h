@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-[#102e21] px-6 py-10 text-[#c8ddc4] lg:px-10">
+  <footer class="overflow-hidden bg-[#102e21] px-4 py-10 text-[#c8ddc4] sm:px-6 lg:px-10">
     <div class="mx-auto grid max-w-7xl gap-10 border-b border-white/15 pb-8 lg:grid-cols-[0.8fr_1.2fr]">
       <div class="flex flex-col justify-between gap-7">
         <div>

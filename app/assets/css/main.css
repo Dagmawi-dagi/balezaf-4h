@@ -2,8 +2,12 @@
 @import 'tailwindcss';
 
 :root { font-family: 'DM Sans', sans-serif; color: #173b2b; background: #fffdf9; }
-html { scroll-behavior: smooth; }
-body { margin: 0; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body { margin: 0; min-width: 0; overflow-x: hidden; }
+*, *::before, *::after { box-sizing: border-box; }
+img, iframe, video { max-width: 100%; }
+button, input, textarea, select { font: inherit; }
+
 .font-serif { font-family: 'Playfair Display', Georgia, serif; }
 .eyebrow { color: #65975d; font-size: .7rem; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; }
 .field { display: block; width: 100%; margin-top: .6rem; border: 1px solid #d0dfcb; border-radius: .8rem; background: #fff; padding: .85rem 1rem; color: #173b2b; outline: none; transition: border-color .2s, box-shadow .2s; }
