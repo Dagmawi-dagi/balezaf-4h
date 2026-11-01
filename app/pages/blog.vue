@@ -54,7 +54,7 @@ function closePost() {
     <SiteFooter />
 
     <div v-if="selectedPost" class="fixed inset-0 z-[60] flex items-center justify-center bg-[#173b2b]/70 p-4" role="presentation" @click.self="closePost">
-      <article class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-[#fffdf9] text-[#173b2b] shadow-2xl" role="dialog" aria-modal="true" :aria-labelledby="`post-${selectedPost.title}`">
+      <article class="blog-modal-scroll relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-[#fffdf9] text-[#173b2b] shadow-2xl" role="dialog" aria-modal="true" :aria-labelledby="`post-${selectedPost.title}`">
         <button class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f0e4] text-xl text-[#173b2b]" type="button" aria-label="Close story" @click="closePost">×</button>
         <div
           class="h-48 rounded-none bg-gradient-to-br from-[#dcebd7] via-[#93b889] to-[#35653c] bg-cover bg-center sm:h-60"
@@ -63,7 +63,10 @@ function closePost() {
           :aria-label="`${selectedPost.title} image`"
         />
         <div class="p-7 sm:p-10">
-          <p class="eyebrow pr-12">{{ selectedPost.category }}</p>
+          <div class="flex flex-wrap items-center gap-3 pr-12">
+            <span class="rounded-full bg-[#dcebd7] px-3 py-1 text-[10px] font-bold uppercase tracking-[.18em] text-[#35653c]">{{ selectedPost.kind }}</span>
+            <span class="eyebrow">{{ selectedPost.category }}</span>
+          </div>
         <h2 :id="`post-${selectedPost.title}`" class="mt-5 pr-8 font-serif text-4xl leading-tight sm:text-5xl">{{ selectedPost.title }}</h2>
         <p class="mt-5 text-sm text-[#779277]">{{ selectedPost.date }}</p>
         <p v-if="selectedPost.kind === 'Event'" class="mt-3 text-sm font-semibold text-[#496a51]">{{ selectedPost.place }}</p>
