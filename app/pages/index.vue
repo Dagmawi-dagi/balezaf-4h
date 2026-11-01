@@ -1,8 +1,117 @@
 <script setup lang="ts">
-const products = [
-  { name: 'Desta Dry Gin', category: 'Signature Gin', note: 'Crisp, botanical and clean', color: 'from-[#dcebd7] to-[#7caa72]', initials: 'DG' },
-  { name: 'Desta Premium Vodka', category: 'Premium Spirits', note: 'Smooth with a refined finish', color: 'from-[#edf4ea] to-[#b7d3ad]', initials: 'PV' },
-  { name: 'Golden Honey Liqueur', category: 'Craft Liqueur', note: 'Warm, rich and naturally sweet', color: 'from-[#ead7a5] to-[#bf8b39]', initials: 'GH' },
+import { reactive, ref } from 'vue'
+import HeroBottleArc from '~/components/HeroBottleArc.vue'
+import ProductDetailModal, { type ProductDetail } from '~/components/ProductDetailModal.vue'
+
+import ginImg from '~/assets/gin.png'
+import vodkaImg from '~/assets/vodka.png'
+import zebibImg from '~/assets/zebib.png'
+
+// Top 3 flagship products for the home page showcase with rich tasting profiles
+const topProducts: ProductDetail[] = [
+  {
+    name: 'Desta Dry Gin',
+    category: 'Signature London Dry',
+    abv: '40% Vol.',
+    volume: '750ml',
+    note: 'Crisp botanical spirit with bright highland citrus, wild juniper, and angelica root.',
+    image: ginImg,
+    badge: 'bg-[#e7f4e9] text-[#1f5a2b]',
+    color: '#52965b',
+    glowColor: 'rgba(82, 150, 91, 0.45)',
+    aroma: 'Wild highland juniper, fresh lime peel, crushed coriander, aromatic angelica.',
+    palate: 'Zesty citrus entry, herbal pine richness, and delicate botanical warmth.',
+    finish: 'Crisp, lingering dry finish with subtle lime and cardamom blossoms.',
+    serving: 'Serve over clear ice with premium tonic water and fresh mint or lime wheel.',
+  },
+  {
+    name: 'Desta Premium Vodka',
+    category: 'Triple-Filtered Vodka',
+    abv: '40% Vol.',
+    volume: '750ml',
+    note: 'Smooth, crystal-clear grain spirit crafted with pure mountain water for a silky finish.',
+    image: vodkaImg,
+    badge: 'bg-[#e5f4f8] text-[#13495b]',
+    color: '#428ea4',
+    glowColor: 'rgba(66, 142, 164, 0.45)',
+    aroma: 'Neutral mineral crispness, light toasted grain, pure mountain spring water purity.',
+    palate: 'Ultra-silky and velvety mouthfeel with a gentle sweetness of highland grain.',
+    finish: 'Exceptionally smooth with clean gentle warmth and zero harsh edge.',
+    serving: 'Best ice-cold from the freezer, shaken into a classic Martini or fresh cocktail.',
+  },
+  {
+    name: 'Desta Zebib',
+    category: 'Heritage Dry Anise',
+    abv: '43% Vol.',
+    volume: '750ml',
+    note: 'Ethiopia’s iconic celebratory aperitif distilled with sun-cured grape spirit and aniseed.',
+    image: zebibImg,
+    badge: 'bg-[#faf0df] text-[#6d4111]',
+    color: '#c27d2c',
+    glowColor: 'rgba(194, 125, 44, 0.45)',
+    aroma: 'Sun-cured grape wine distillates, potent star anise, warm herbal bouquet.',
+    palate: 'Full-bodied spiced aniseed warmth with rich botanical depth.',
+    finish: 'Long, aromatic licorice finish traditionally enjoyed during holidays and toasts.',
+    serving: 'Enjoy neat alongside Ethiopian festive dining or poured over ice cubes with water.',
+  },
+]
+
+// Modal state
+const isModalOpen = ref(false)
+const selectedProduct = ref<ProductDetail | null>(null)
+
+function openProductModal(product: ProductDetail) {
+  selectedProduct.value = product
+  isModalOpen.value = true
+}
+
+function closeProductModal() {
+  isModalOpen.value = false
+  selectedProduct.value = null
+}
+
+// 5 Heritage Milestones with responsive column configuration
+const milestones = [
+  {
+    value: '10',
+    label: 'Spirits & Liqueurs',
+    desc: 'Signature gins, vodkas, ouzo, zebib, and fruit liqueurs.',
+    mobileSpan: 'col-span-1',
+    tabletSpan: 'sm:col-span-2',
+    iconType: 'bottle',
+  },
+  {
+    value: '80+',
+    label: 'Team Members',
+    desc: 'Master distillers, botanists, bottlers, and distribution crew.',
+    mobileSpan: 'col-span-1',
+    tabletSpan: 'sm:col-span-2',
+    iconType: 'team',
+  },
+  {
+    value: '2012',
+    label: 'Modern Plant',
+    desc: 'Upgraded automated distillation and high-precision bottling lines.',
+    mobileSpan: 'col-span-1',
+    tabletSpan: 'sm:col-span-2',
+    iconType: 'plant',
+  },
+  {
+    value: '2',
+    label: 'Warehouses',
+    desc: 'Climate-controlled secure storage for batch purity.',
+    mobileSpan: 'col-span-1',
+    tabletSpan: 'sm:col-span-3',
+    iconType: 'warehouse',
+  },
+  {
+    value: '1',
+    label: 'Production Plant',
+    desc: 'Purpose-built Addis Ababa facilities for thoughtful Ethiopian craft.',
+    mobileSpan: 'col-span-2',
+    tabletSpan: 'sm:col-span-3',
+    iconType: 'factory',
+  },
 ]
 
 const inquirySent = ref(false)
@@ -21,20 +130,355 @@ function submitInquiry() {
     <SiteHeader />
 
     <main id="top">
+      <!-- Hero Section with Compact Viewport Fit -->
       <section class="relative overflow-hidden bg-[#123927] text-white">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(129,171,113,.38),transparent_28%),linear-gradient(115deg,#123927_0%,#1d5539_56%,#467b55_100%)]"></div>
-        <div class="relative mx-auto grid min-h-[660px] max-w-7xl items-end gap-12 px-6 pb-20 pt-36 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:pb-24">
-          <div class="max-w-2xl"><p class="mb-7 text-xs font-semibold uppercase tracking-[0.35em] text-[#c9e6c1]">Made with patience · Bottled with purpose</p><h1 class="max-w-xl font-serif text-5xl leading-[.98] tracking-[-.04em] sm:text-7xl">The spirit of <em class="font-normal text-[#b8d7af]">good</em> making.</h1><p class="mt-7 max-w-lg text-base leading-7 text-[#d8e7d4]">Premium Ethiopian spirits and liqueurs, distilled with local character and a modern point of view.</p><div class="mt-9 flex flex-wrap gap-3"><a href="#products" class="rounded-full bg-[#c6dfbc] px-6 py-3 text-sm font-semibold text-[#173b2b] transition hover:bg-white">Explore products <span aria-hidden="true">↗</span></a><a href="#story" class="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold transition hover:bg-white/10">Discover Desta</a></div></div>
-          <div class="relative mx-auto flex h-[350px] w-full max-w-[450px] items-end justify-center lg:h-[430px]"><div class="absolute bottom-0 h-52 w-72 rounded-full bg-[#9fc495]/20 blur-3xl"></div><div class="relative h-[300px] w-32 rounded-[26px_26px_18px_18px] border-2 border-white/25 bg-gradient-to-br from-[#d9ead2] via-[#779d6d] to-[#315c42] shadow-2xl rotate-[-7deg] lg:h-[360px] lg:w-40"><div class="absolute left-1/2 top-[-45px] h-16 w-14 -translate-x-1/2 rounded-t-lg rounded-b-sm bg-[#d4dec2] shadow-lg"></div><div class="absolute inset-x-3 top-1/3 rounded-sm bg-[#f6f0da] px-2 py-7 text-center text-[#245038] shadow-sm"><span class="block text-[10px] tracking-[.3em]">DESTA</span><span class="mt-2 block font-serif text-2xl">Gin</span><span class="mt-3 block text-[7px] uppercase tracking-widest">Botanical spirit</span></div></div><div class="absolute bottom-2 right-[10%] h-52 w-24 rounded-[20px_20px_14px_14px] border border-white/20 bg-gradient-to-br from-[#f1e3bc] via-[#c08b3e] to-[#744c21] shadow-xl rotate-[8deg] lg:h-64 lg:w-28"><div class="absolute left-1/2 top-[-35px] h-12 w-10 -translate-x-1/2] rounded-t-md bg-[#e1d4ae]"></div><div class="absolute inset-x-2 top-[37%] rounded-sm bg-[#f8efd2] px-1 py-4 text-center text-[#5a3d1b]"><span class="block text-[7px] tracking-[.25em]">DESTA</span><span class="mt-1 block font-serif text-lg">Honey</span></div></div></div>
+        <div
+          class="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(129,171,113,.35),transparent_35%),linear-gradient(115deg,#123927_0%,#1d5539_56%,#467b55_100%)]"
+        ></div>
+
+        <div
+          class="relative mx-auto grid max-w-7xl items-center gap-8 px-6 py-8 sm:py-10 lg:grid-cols-[1fr_1fr] lg:gap-10 lg:px-10 lg:py-12"
+        >
+          <!-- Left: Hero Headline & Description -->
+          <div class="max-w-xl">
+            <p
+              class="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#c9e6c1]"
+            >
+              Made with patience · Bottled with purpose
+            </p>
+
+            <h1 class="font-serif text-4xl leading-[1.06] tracking-[-.03em] sm:text-5xl lg:text-6xl">
+              The spirit of <em class="font-normal text-[#b8d7af]">good</em> making.
+            </h1>
+
+            <p class="mt-3.5 max-w-lg text-sm leading-relaxed text-[#d8e7d4] sm:text-base">
+              Authentic Ethiopian spirits and craft liqueurs, distilled with local heritage and
+              modern mastery. Explore the rotating collection below.
+            </p>
+
+            <div class="mt-6 flex flex-wrap items-center gap-3">
+              <NuxtLink
+                to="/order"
+                class="rounded-full bg-[#c6dfbc] px-6 py-2.5 text-xs font-semibold text-[#173b2b] shadow-md transition-all hover:bg-white"
+              >
+                Place an order <span aria-hidden="true">↗</span>
+              </NuxtLink>
+
+              <NuxtLink
+                to="/products"
+                class="rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-xs font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20"
+              >
+                Explore all 10 products
+              </NuxtLink>
+            </div>
+
+            <!-- Highlights counter -->
+            <div
+              class="mt-7 flex items-center gap-6 border-t border-white/15 pt-4 text-xs text-[#c9e6c1]"
+            >
+              <div>
+                <strong class="block font-serif text-xl text-white">10</strong>
+                <span>Distinct Spirits</span>
+              </div>
+              <div class="h-7 w-px bg-white/20"></div>
+              <div>
+                <strong class="block font-serif text-xl text-white">1996</strong>
+                <span>Distillery Heritage</span>
+              </div>
+              <div class="h-7 w-px bg-white/20"></div>
+              <div>
+                <strong class="block font-serif text-xl text-white">100%</strong>
+                <span>Ethiopian Made</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Interactive 3D Arc Bottle Carousel (Fits completely above the fold) -->
+          <div class="w-full">
+            <HeroBottleArc />
+          </div>
         </div>
       </section>
 
-      <section id="story" class="mx-auto block w-[80%] max-w-7xl px-6 pb-24 pt-4 lg:px-10 lg:pb-32 lg:pt-4"><div class="w-full"><div class="mt-10 grid grid-cols-2 gap-5 text-center sm:grid-cols-3 lg:grid-cols-4 [&>div:first-child]:mr-[50px]"><div class="flex flex-col items-center text-center"><div class="flex items-center justify-center gap-3"><svg class="h-12 w-12 text-[#4f8a56] drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3h12v18H6z"/><path d="M9 7h6M9 11h6M9 15h6M9 19h3"/></svg><strong class="block font-serif text-3xl text-[#173b2b]">12</strong></div><span class="block text-xs uppercase tracking-wider text-[#66816b]">Products</span><p class="mt-[9px] w-[141px] max-w-[141px] text-sm leading-6 text-[#0f2c14]">A growing collection of Ethiopian spirits and liqueurs.</p></div><div class="flex flex-col items-center text-center"><div class="flex items-center justify-center gap-3"><svg class="h-12 w-12 text-[#4f8a56] drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M3 20c.6-3.3 2.2-5 5-5s4.4 1.7 5 5M11 20c.6-3.3 2.2-5 5-5s4.4 1.7 5 5"/></svg><strong class="block font-serif text-3xl text-[#173b2b]">80+</strong></div><span class="block text-xs uppercase tracking-wider text-[#66816b]">Team members</span><p class="mt-[9px] w-[141px] max-w-[141px] text-sm leading-6 text-[#0f2c14]">People united by care, skill, and a love of making.</p></div><div class="flex flex-col items-center text-center"><div class="flex items-center justify-center gap-3"><svg class="h-12 w-12 text-[#4f8a56] drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 20V6l8-3 8 3v14"/><path d="M8 20v-5h8v5M8 9h.01M12 9h.01M16 9h.01"/></svg><strong class="block font-serif text-3xl text-[#173b2b]">2012</strong></div><span class="block text-xs uppercase tracking-wider text-[#66816b]">Established</span><p class="mt-[9px] w-[141px] max-w-[141px] text-sm leading-6 text-[#0f2c14]">A proud Ethiopian foundation for modern spirits.</p></div><div class="flex flex-col items-center text-center"><div class="flex items-center justify-center gap-3"><svg class="h-12 w-12 text-[#4f8a56] drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"/><path d="M7 21v-7h10v7M7 10h10M10 17h4"/></svg><strong class="block font-serif text-3xl text-[#173b2b]">2</strong></div><span class="block text-xs uppercase tracking-wider text-[#66816b]">Warehouses</span><p class="mt-[9px] w-[141px] max-w-[141px] text-sm leading-6 text-[#0f2c14]">Carefully managed spaces for every finished batch.</p></div><div class="flex flex-col items-center text-center"><div class="flex items-center justify-center gap-3"><svg class="h-12 w-12 text-[#4f8a56] drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 20h18M5 20V9l4-4 4 4v11M13 20v-7l3-3 3 3v7"/><path d="M8 12h2M8 16h2M16 14h.01M19 14h.01"/></svg><strong class="block font-serif text-3xl text-[#173b2b]">1</strong></div><span class="block text-xs uppercase tracking-wider text-[#66816b]">Production plant</span><p class="mt-[9px] w-[141px] max-w-[141px] text-sm leading-6 text-[#0f2c14]">Purpose-built facilities for consistent, thoughtful craft.</p></div></div></div></section>
+      <!-- Story / Heritage Milestones Section (Responsive Grid for all screen sizes) -->
+      <section id="story" class="mx-auto block w-full max-w-7xl px-5 pb-20 pt-16 sm:px-6 lg:px-10 lg:pb-28">
+        <div class="text-center">
+          <p class="eyebrow">Our heritage</p>
+          <h2 class="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+            Distilled with pride in Addis Ababa
+          </h2>
+          <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#54715a]">
+            Decades of craftsmanship and dedicated infrastructure behind every bottle.
+          </p>
+        </div>
 
-      <section id="products" class="bg-[#173b2b] px-6 py-24 text-white lg:px-10 lg:py-28"><div class="mx-auto max-w-7xl"><div class="flex flex-wrap items-end justify-between gap-6"><div><p class="eyebrow text-[#b8d7af]">The collection</p><h2 class="mt-4 font-serif text-4xl sm:text-5xl">Made for your <em class="font-normal text-[#b8d7af]">ritual.</em></h2></div><a href="#contact" class="rounded-full border border-white/30 px-5 py-3 text-sm transition hover:bg-white hover:text-[#173b2b]">Request a catalogue ↗</a></div><div class="mt-12 grid gap-5 md:grid-cols-3"> <article v-for="product in products" :key="product.name" class="group overflow-hidden rounded-2xl bg-[#f5f7ee] text-[#173b2b]"><div :class="['relative flex h-72 items-end justify-center overflow-hidden bg-gradient-to-br', product.color]"><div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,.75),transparent_45%)]"></div><div class="relative mb-[-12px] h-52 w-20 rounded-[18px_18px_10px_10px] border border-white/45 bg-gradient-to-r from-white/65 via-white/10 to-black/15 shadow-2xl transition duration-500 group-hover:-translate-y-3"><div class="absolute left-1/2 top-[-28px] h-9 w-8 -translate-x-1/2 rounded-t-md bg-[#e8e3c8]"></div><div class="absolute inset-x-1 top-[38%] rounded-sm bg-[#fffaf0] px-1 py-3 text-center"><span class="block text-[7px] font-semibold tracking-[.2em]">DESTA</span><span class="block font-serif text-base">{{ product.initials }}</span></div></div></div><div class="p-6"><p class="text-xs uppercase tracking-[.18em] text-[#779277]">{{ product.category }}</p><h3 class="mt-2 font-serif text-2xl">{{ product.name }}</h3><p class="mt-2 text-sm text-[#66816b]">{{ product.note }}</p><button class="mt-6 text-sm font-semibold text-[#4f8a56]">View product <span aria-hidden="true">→</span></button></div></article></div></div></section>
+        <!-- Fully Responsive Cards Grid -->
+        <div
+          class="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-6 sm:gap-5 lg:grid-cols-5 lg:gap-6"
+        >
+          <div
+            v-for="item in milestones"
+            :key="item.label"
+            class="group flex flex-col items-center justify-between rounded-2xl border border-[#dce8d7] bg-white p-5 text-center shadow-[0_4px_16px_rgba(23,59,43,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-[#65975d]/50 hover:shadow-[0_12px_28px_rgba(23,59,43,0.08)] sm:p-6"
+            :class="[item.mobileSpan, item.tabletSpan, 'lg:col-span-1']"
+          >
+            <!-- Card Header: Icon in soft circle badge -->
+            <div class="flex flex-col items-center">
+              <div
+                class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#edf5e9] text-[#3e7647] transition-colors group-hover:bg-[#3e7647] group-hover:text-white"
+              >
+                <!-- Bottle icon -->
+                <svg
+                  v-if="item.iconType === 'bottle'"
+                  class="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <path d="M6 3h12v18H6z" />
+                  <path d="M9 7h6M9 11h6M9 15h6M9 19h3" />
+                </svg>
 
-      <section id="contact" class="mx-auto grid max-w-7xl gap-12 px-6 py-24 lg:grid-cols-[.9fr_1.1fr] lg:px-10 lg:py-32"><div><p class="eyebrow">Let&apos;s talk</p><h2 class="mt-5 max-w-md font-serif text-4xl leading-tight sm:text-5xl">Bring a little more <em class="text-[#65975d]">spirit</em> to the table.</h2><p class="mt-6 max-w-md leading-7 text-[#66816b]">For wholesale orders, partnerships, or product questions, our team would love to hear from you.</p><div class="mt-10 space-y-4 text-sm text-[#355944]"><p><span class="mr-3 text-[#65975d]">✦</span> Addis Ababa, Ethiopia</p><p><span class="mr-3 text-[#65975d]">✦</span> +251 914 300 007</p><p><span class="mr-3 text-[#65975d]">✦</span> destaalcohol@gmail.com</p></div></div><form class="rounded-3xl bg-[#f1f6ed] p-7 sm:p-10" @submit.prevent="submitInquiry"><div v-if="inquirySent" class="mb-6 rounded-xl border border-[#b8d7af] bg-white p-4 text-sm text-[#35653c]">Thanks — your inquiry has been received. We&apos;ll be in touch soon.</div><div class="grid gap-5 sm:grid-cols-2"><label class="text-sm font-medium">Name<input v-model="inquiry.name" required class="field" placeholder="Your name" /></label><label class="text-sm font-medium">Email<input v-model="inquiry.email" required type="email" class="field" placeholder="you@company.com" /></label></div><label class="mt-5 block text-sm font-medium">How can we help?<textarea v-model="inquiry.message" required class="field min-h-32 resize-y" placeholder="Tell us about your order or partnership"></textarea></label><button class="mt-6 rounded-full bg-[#173b2b] px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-[#35653c]">Send inquiry <span aria-hidden="true">↗</span></button></form></section>
+                <!-- Team icon -->
+                <svg
+                  v-else-if="item.iconType === 'team'"
+                  class="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <circle cx="8" cy="8" r="3" />
+                  <circle cx="16" cy="8" r="3" />
+                  <path d="M3 20c.6-3.3 2.2-5 5-5s4.4 1.7 5 5M11 20c.6-3.3 2.2-5 5-5s4.4 1.7 5 5" />
+                </svg>
+
+                <!-- Modern Plant icon -->
+                <svg
+                  v-else-if="item.iconType === 'plant'"
+                  class="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <path d="M4 20V6l8-3 8 3v14" />
+                  <path d="M8 20v-5h8v5M8 9h.01M12 9h.01M16 9h.01" />
+                </svg>
+
+                <!-- Warehouse icon -->
+                <svg
+                  v-else-if="item.iconType === 'warehouse'"
+                  class="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <path d="M3 21V9l9-5 9 5v12" />
+                  <path d="M7 21v-7h10v7M7 10h10M10 17h4" />
+                </svg>
+
+                <!-- Factory / Production icon -->
+                <svg
+                  v-else
+                  class="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <path d="M3 20h18M5 20V9l4-4 4 4v11M13 20v-7l3-3 3 3v7" />
+                  <path d="M8 12h2M8 16h2M16 14h.01M19 14h.01" />
+                </svg>
+              </div>
+
+              <!-- Metric Stat Number -->
+              <strong class="mt-3.5 block font-serif text-3xl font-bold tracking-tight text-[#173b2b] sm:text-4xl">
+                {{ item.value }}
+              </strong>
+
+              <!-- Metric Label -->
+              <span class="mt-1 block text-xs font-semibold uppercase tracking-wider text-[#66816b]">
+                {{ item.label }}
+              </span>
+            </div>
+
+            <!-- Card Description -->
+            <p class="mt-2 text-xs leading-relaxed text-[#355944]">
+              {{ item.desc }}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Products Collection Section: Top 3 Most Popular Flagships -->
+      <section id="products" class="bg-[#173b2b] px-6 py-20 text-white lg:px-10 lg:py-24">
+        <div class="mx-auto max-w-7xl">
+          <div class="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p class="eyebrow text-[#b8d7af]">Top flagships</p>
+              <h2 class="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">
+                Crafted for your <em class="font-normal text-[#b8d7af]">ritual.</em>
+              </h2>
+              <p class="mt-2 text-sm text-[#c9dec8]">
+                Three of our most celebrated Ethiopian spirits. Click any card for detailed notes.
+              </p>
+            </div>
+            <NuxtLink
+              to="/products"
+              class="rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-semibold transition hover:bg-white hover:text-[#173b2b]"
+            >
+              View all 10 products ↗
+            </NuxtLink>
+          </div>
+
+          <!-- Exactly 3 Balanced Product Cards with Clickable Modal Trigger -->
+          <div class="mt-12 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+            <article
+              v-for="product in topProducts"
+              :key="product.name"
+              class="group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#1d4533] p-7 transition duration-300 hover:-translate-y-1.5 hover:border-[#81ab71]/50 hover:shadow-2xl"
+              @click="openProductModal(product)"
+            >
+              <div class="flex items-center justify-between">
+                <span class="rounded-full px-3 py-1 text-xs font-semibold" :class="product.badge">
+                  {{ product.category }}
+                </span>
+                <span class="text-xs font-medium text-[#c9e6c1]">{{ product.abv }}</span>
+              </div>
+
+              <!-- Product Bottle Image Showcase -->
+              <div class="relative my-6 flex h-64 items-center justify-center">
+                <div
+                  class="absolute h-40 w-40 rounded-full bg-white/5 blur-2xl transition-all group-hover:scale-125 group-hover:bg-[#81ab71]/20"
+                ></div>
+                <img
+                  :src="product.image"
+                  :alt="product.name"
+                  class="relative z-10 h-60 w-auto max-w-[155px] object-contain drop-shadow-2xl transition duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between">
+                  <h3 class="font-serif text-2xl font-semibold text-white">{{ product.name }}</h3>
+                  <span
+                    class="rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-[#c9e6c1] opacity-0 transition duration-300 group-hover:opacity-100"
+                  >
+                    View specs
+                  </span>
+                </div>
+                <p class="mt-2 text-sm leading-relaxed text-[#c9dec8]">{{ product.note }}</p>
+
+                <div class="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+                  <NuxtLink
+                    :to="`/order?product=${encodeURIComponent(product.name)}`"
+                    class="text-xs font-semibold text-[#c6dfbc] transition hover:text-white"
+                    @click.stop
+                  >
+                    Order bottle →
+                  </NuxtLink>
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1 text-xs text-[#a2c29f] transition hover:text-white"
+                    @click.stop="openProductModal(product)"
+                  >
+                    <span>Full notes</span>
+                    <span aria-hidden="true">↗</span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Inquiry / Contact Section -->
+      <section
+        id="contact"
+        class="mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[.9fr_1.1fr] lg:px-10 lg:py-28"
+      >
+        <div>
+          <p class="eyebrow">Let&apos;s talk</p>
+          <h2 class="mt-4 max-w-md font-serif text-3xl leading-tight sm:text-4xl lg:text-5xl">
+            Bring a little more <em class="text-[#65975d]">spirit</em> to the table.
+          </h2>
+          <p class="mt-4 max-w-md text-sm leading-relaxed text-[#66816b] sm:text-base">
+            For wholesale orders, retail distribution, partnerships, or bottle queries, our distillery
+            team is here for you.
+          </p>
+
+          <div class="mt-8 space-y-3 text-sm text-[#355944]">
+            <p class="flex items-center gap-3">
+              <span class="text-[#65975d]">✦</span> Addis Ababa, Ethiopia
+            </p>
+            <p class="flex items-center gap-3">
+              <span class="text-[#65975d]">✦</span> +251 914 300 007
+            </p>
+            <p class="flex items-center gap-3">
+              <span class="text-[#65975d]">✦</span> destaalcohol@gmail.com
+            </p>
+          </div>
+        </div>
+
+        <form
+          class="rounded-3xl border border-[#dce8d7] bg-[#f1f6ed] p-7 sm:p-10 shadow-sm"
+          @submit.prevent="submitInquiry"
+        >
+          <div
+            v-if="inquirySent"
+            class="mb-6 rounded-xl border border-[#b8d7af] bg-white p-4 text-sm text-[#35653c]"
+          >
+            Thanks — your inquiry has been received. We&apos;ll be in touch shortly.
+          </div>
+
+          <div class="grid gap-5 sm:grid-cols-2">
+            <label class="text-sm font-medium">
+              Name
+              <input v-model="inquiry.name" required class="field" placeholder="Your name" />
+            </label>
+            <label class="text-sm font-medium">
+              Email
+              <input
+                v-model="inquiry.email"
+                required
+                type="email"
+                class="field"
+                placeholder="you@company.com"
+              />
+            </label>
+          </div>
+
+          <label class="mt-5 block text-sm font-medium">
+            How can we help?
+            <textarea
+              v-model="inquiry.message"
+              required
+              class="field min-h-32 resize-y"
+              placeholder="Tell us about your order or partnership"
+            ></textarea>
+          </label>
+
+          <button
+            type="submit"
+            class="mt-6 rounded-full bg-[#173b2b] px-8 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#35653c]"
+          >
+            Send inquiry <span aria-hidden="true">↗</span>
+          </button>
+        </form>
+      </section>
     </main>
+
+    <!-- Product Detail Modal -->
+    <ProductDetailModal
+      :is-open="isModalOpen"
+      :product="selectedProduct"
+      @close="closeProductModal"
+    />
+
     <SiteFooter />
   </div>
 </template>
