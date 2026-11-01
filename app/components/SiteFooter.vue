@@ -36,11 +36,11 @@ const socialLinks = [
 
 <template>
   <footer class="overflow-hidden bg-[#0d271c] text-[#c8ddc4]">
-    <!-- Main Footer Grid -->
+    <!-- Main Footer Grid: 12-column layout giving maximum expansive width to the Map container -->
     <div class="mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-16 lg:px-10 lg:py-20">
-      <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-        <!-- Col 1: Brand & Identity -->
-        <div class="space-y-4 sm:col-span-2 lg:col-span-1">
+      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+        <!-- Col 1: Brand & Identity (3 of 12 columns) -->
+        <div class="space-y-4 sm:col-span-1 lg:col-span-3">
           <NuxtLink
             to="/"
             class="group inline-flex items-center gap-3 text-white transition"
@@ -53,16 +53,16 @@ const socialLinks = [
             />
             <div>
               <span class="block text-sm font-semibold tracking-wider text-white">BALEZAF</span>
-              <span class="block text-[10px] tracking-widest text-[#81ab71] uppercase">Alcohol & Liquor Factory</span>
+              <span class="block text-[10px] tracking-widest text-[#81ab71] uppercase">Alcohol &amp; Liquor Factory</span>
             </div>
           </NuxtLink>
 
           <p class="max-w-xs text-xs leading-relaxed text-[#a8c0a5]">
-            Distilling authentic Ethiopian spirits, signature gins, vodkas, and craft liqueurs in Addis Ababa since 1996.
+            Distilling authentic Ethiopian spirits, signature gins, vodkas, and craft fruit liqueurs in Addis Ababa since 1996.
           </p>
 
-          <!-- Direct Contact Strip with micro links -->
-          <div class="space-y-2 pt-2 text-xs text-[#d8e7d4]">
+          <!-- Direct Contact Strip -->
+          <div class="space-y-2 pt-1 text-xs text-[#d8e7d4]">
             <a
               href="tel:+251914300007"
               class="group flex items-center gap-2.5 transition hover:text-[#c6dfbc]"
@@ -92,43 +92,42 @@ const socialLinks = [
           </div>
         </div>
 
-        <!-- Col 2: Spirits Portfolio Quick Links (Dynamic from JSON) -->
-        <div>
-          <p class="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
+        <!-- Col 2: Spirits Portfolio Quick Links (2 of 12 columns) -->
+        <div class="sm:col-span-1 lg:col-span-2">
+          <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
             Our Spirits
           </p>
-          <ul class="space-y-2.5">
+          <ul class="space-y-2">
             <li v-for="product in products.slice(0, 6)" :key="product.id">
               <NuxtLink
-                :to="`/products`"
+                to="/products"
                 class="group flex items-center justify-between text-xs text-[#c8ddc4] transition-all hover:translate-x-1 hover:text-white"
               >
-                <span class="font-medium">{{ product.name }}</span>
+                <span class="truncate font-medium">{{ product.name }}</span>
                 <span class="text-[10px] text-[#71986e] opacity-0 transition-opacity group-hover:opacity-100">
-                  {{ product.abv }} →
+                  →
                 </span>
               </NuxtLink>
             </li>
           </ul>
 
-          <div class="mt-4 pt-3 border-t border-white/10">
+          <div class="mt-3.5 border-t border-white/10 pt-2.5">
             <NuxtLink
               to="/products"
-              class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#81ab71] transition hover:text-[#c6dfbc]"
+              class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#81ab71] transition hover:text-[#c6dfbc]"
             >
-              <span>Explore all {{ products.length }} spirits</span>
-              <span aria-hidden="true">↗</span>
+              <span>All 10 spirits ↗</span>
             </NuxtLink>
           </div>
         </div>
 
-        <!-- Col 3: Company & Exploration Links -->
-        <div>
-          <p class="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
+        <!-- Col 3: Exploration Links (2 of 12 columns) -->
+        <div class="sm:col-span-1 lg:col-span-2">
+          <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
             Explore
           </p>
-          <ul class="space-y-2.5">
-            <li v-for="link in exploreLinks" :key="link.to">
+          <ul class="space-y-2">
+            <li v-for="link in exploreLinks.slice(0, 6)" :key="link.to">
               <NuxtLink
                 :to="link.to"
                 class="group flex items-center justify-between text-xs text-[#c8ddc4] transition-all hover:translate-x-1 hover:text-white"
@@ -142,25 +141,47 @@ const socialLinks = [
           </ul>
         </div>
 
-        <!-- Col 4: Location Map & Visiting Hours -->
-        <div>
-          <p class="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
-            Find Us in Addis Ababa
-          </p>
+        <!-- Col 4: EXPANSIVE Location Map & Visiting Hours (5 of 12 columns - Widened significantly!) -->
+        <div class="sm:col-span-2 lg:col-span-5">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
+              Distillery Location in Addis Ababa
+            </p>
+            <a
+              href="https://www.openstreetmap.org/?mlat=9.00&amp;mlon=38.76#map=14/9.00/38.76"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-[11px] font-semibold text-[#81ab71] transition hover:text-[#c6dfbc]"
+            >
+              Full Screen Map ↗
+            </a>
+          </div>
+
+          <!-- Widened High-Definition Map Embed Container -->
           <div
-            class="overflow-hidden rounded-2xl border border-white/15 bg-[#143929] shadow-lg transition hover:border-[#81ab71]/40"
+            class="relative overflow-hidden rounded-2xl border border-white/20 bg-[#143929] shadow-xl transition-all duration-300 hover:border-[#81ab71]/50"
           >
             <iframe
               title="Balezaf Alcohol Liquors Factory PLC location map"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=38.70%2C8.93%2C38.82%2C9.08&amp;layer=mapnik&amp;marker=9.00%2C38.76"
-              class="h-40 w-full border-0"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=38.68%2C8.92%2C38.84%2C9.09&amp;layer=mapnik&amp;marker=9.00%2C38.76"
+              class="h-52 w-full border-0 sm:h-56"
               loading="lazy"
             ></iframe>
-          </div>
 
-          <div class="mt-3.5 space-y-1 text-xs text-[#a8c0a5]">
-            <p><strong class="text-white">Distillery Hours:</strong> Mon – Sat: 8:30 AM – 6:00 PM</p>
-            <p>Guided visits and trade tastings by appointment.</p>
+            <!-- Quick Map Info Floating Strip -->
+            <div
+              class="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 bg-[#0d271c]/95 px-4 py-2.5 text-[11px] text-[#d8e7d4] backdrop-blur-md"
+            >
+              <div class="flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-[#81ab71] animate-pulse"></span>
+                <span class="font-medium text-white">Factory &amp; Bottling Plant</span>
+                <span class="text-[#8daa8c]">· Addis Ababa</span>
+              </div>
+
+              <div class="text-[#a8c0a5]">
+                <span>Mon – Sat: 8:30 AM – 6:00 PM</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -179,7 +200,7 @@ const socialLinks = [
           </p>
         </div>
 
-        <!-- Social Media Buttons -->
+        <!-- Social Media Buttons & Admin -->
         <div class="flex items-center gap-3" aria-label="Social media channels">
           <a
             v-for="social in socialLinks"
