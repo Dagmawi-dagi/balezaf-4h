@@ -156,6 +156,37 @@ const sustainabilityMetrics = [
     desc: 'No artificial flavorings, high-fructose corn syrups, or synthetic coloring agents are ever introduced into our spirit formulas.',
   },
 ]
+
+// Master Craftspeople & Staff Testimonials
+const staffTeam = [
+  {
+    name: 'Dawit Tadesse',
+    role: 'Master Distiller & Head of Production',
+    tenure: '9 Years at Balezaf',
+    image: '/images/staff-distiller.jpg',
+    specialty: 'Fractional Distillation & Botanical Infusion',
+    quote: 'Distillation is both rigorous chemistry and sacred sensory intuition. When you stand next to the copper pot still at 6:00 AM, smelling the bright citrus and wild kosoret as the spirit vapors rise, you feel the soul of Ethiopia in every drop.',
+    highlights: ['Supervised 2,400+ distillation runs', 'Pioneered signature Desta recipes', 'Trained 18 young apprentices'],
+  },
+  {
+    name: 'Dr. Bethlehem Assefa',
+    role: 'Chief Quality Chemist & Laboratory Director',
+    tenure: '6 Years at Balezaf',
+    image: '/images/staff-chemist.jpg',
+    specialty: 'Gas Chromatography & Chemical Purity',
+    quote: 'Our laboratory never compromises. We hold every single batch to tighter tolerances than international benchmarks—testing for molecular clarity, volatile congeners, and absolute proof accuracy before a single bottle is cleared.',
+    highlights: ['M.Sc. Analytical Chemistry (AAU)', 'ECAE Quality Compliance Lead', '100% batch release verification'],
+  },
+  {
+    name: 'Henok Alemu',
+    role: 'Senior Packaging & Operations Supervisor',
+    tenure: '7 Years at Balezaf',
+    image: '/images/staff-packaging.jpg',
+    specialty: 'Automated Line Engineering & Logistics',
+    quote: 'I joined Balezaf as a junior maintenance technician in 2017 and grew into supervising the automated bottling hall. The culture here is like family: we take immense pride seeing our bottles celebrated at gatherings across Ethiopia.',
+    highlights: ['Promoted from vocational trainee', 'Maintains 99.4% line efficiency', 'Zero-breakage handling lead'],
+  },
+]
 </script>
 
 <template>
@@ -672,7 +703,109 @@ const sustainabilityMetrics = [
       </section>
 
       <!-- ============================================== -->
-      <!-- 7. MILESTONES: Timeline of Growth (2012–Now)   -->
+      <!-- 7. STAFF TESTIMONIALS & MASTER CRAFTSPEOPLE    -->
+      <!-- ============================================== -->
+      <section class="bg-white px-6 py-24 sm:py-32 lg:px-12 border-b border-[#dce8d7]">
+        <div class="mx-auto max-w-7xl">
+          <div class="max-w-3xl">
+            <p class="text-xs font-bold uppercase tracking-[0.25em] text-[#65975d]">The People of Balezaf</p>
+            <h2 class="mt-4 font-serif text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl text-[#173b2b]">
+              The master distillers &amp; engineers <em class="font-normal text-[#65975d]">behind every batch.</em>
+            </h2>
+            <p class="mt-6 text-base leading-relaxed text-[#43654e] sm:text-lg">
+              World-class spirits aren’t engineered by automated machinery alone. Meet the Ethiopian chemists, stillmasters, and line supervisors whose daily dedication, exacting standards, and pride shape every bottle leaving our factory.
+            </p>
+          </div>
+
+          <!-- Staff Cards Grid -->
+          <div class="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div
+              v-for="member in staffTeam"
+              :key="member.name"
+              class="group flex flex-col justify-between overflow-hidden rounded-3xl border border-[#dfe9da] bg-[#fffdfa] shadow-xs transition hover:shadow-xl hover:border-[#65975d]/50"
+            >
+              <div>
+                <!-- Staff Image Container -->
+                <div class="relative h-72 sm:h-80 w-full overflow-hidden bg-[#173b2b]">
+                  <img
+                    :src="member.image"
+                    :alt="member.name + ' - ' + member.role"
+                    class="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
+                  
+                  <div class="absolute bottom-4 left-5 right-5 flex items-end justify-between">
+                    <div>
+                      <span class="inline-block rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#173b2b] shadow-xs">
+                        {{ member.tenure }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Content & Quote -->
+                <div class="p-7 sm:p-8">
+                  <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#65975d]">
+                    <span>{{ member.specialty }}</span>
+                  </div>
+
+                  <h3 class="mt-2 font-serif text-2xl font-bold text-[#173b2b]">
+                    {{ member.name }}
+                  </h3>
+                  <p class="text-xs font-medium text-[#718e75]">
+                    {{ member.role }}
+                  </p>
+
+                  <div class="relative mt-5 border-l-2 border-[#b8d7af] pl-4">
+                    <p class="font-serif text-sm italic leading-relaxed text-[#2c5339]">
+                      “{{ member.quote }}”
+                    </p>
+                  </div>
+
+                  <!-- Highlights List -->
+                  <div class="mt-6 space-y-2 border-t border-[#edf3ea] pt-5">
+                    <div
+                      v-for="item in member.highlights"
+                      :key="item"
+                      class="flex items-center gap-2 text-xs text-[#55715a]"
+                    >
+                      <span class="text-[#285736] font-bold">✓</span>
+                      <span>{{ item }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Workplace Culture Callout -->
+          <div class="mt-14 rounded-3xl border border-[#dce8d7] bg-[#f8faf5] p-8 sm:p-10 lg:p-12">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div class="max-w-2xl">
+                <span class="text-xs font-bold uppercase tracking-[0.2em] text-[#65975d]">Workplace Excellence</span>
+                <h4 class="mt-2 font-serif text-2xl font-bold text-[#173b2b] sm:text-3xl">
+                  A culture of safety, continuous growth &amp; equal opportunity.
+                </h4>
+                <p class="mt-3 text-sm leading-relaxed text-[#55715a]">
+                  We believe industrial manufacturing should uplift the local workforce. We provide 100% employer-sponsored health coverage, comprehensive safety training, retirement benefits, and leadership development programs across every operational department.
+                </p>
+              </div>
+              <div class="flex flex-col gap-3 shrink-0 sm:flex-row">
+                <NuxtLink
+                  to="/#contact"
+                  class="inline-flex items-center justify-center rounded-full bg-[#173b2b] px-6 py-3 text-xs font-semibold text-white shadow-xs transition hover:bg-[#285736]"
+                >
+                  Join Our Team ↗
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- 8. MILESTONES: Timeline of Growth (2012–Now)   -->
       <!-- ============================================== -->
       <section class="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-12">
         <div class="text-center max-w-2xl mx-auto">
