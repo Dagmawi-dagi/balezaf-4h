@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import ScrollBottleSpread from '~/components/ScrollBottleSpread.vue'
 
 useSeoMeta({
   title: 'About Balezaf Biherawi | Modern Distillation & Ethiopian Craft',
@@ -487,6 +488,13 @@ const staffTeam = [
           </div>
         </div>
       </section>
+
+      <!-- ============================================== -->
+      <!-- SCROLL-DRIVEN GSAP BOTTLE SPREAD SHOWCASE     -->
+      <!-- ============================================== -->
+      <ClientOnly>
+        <ScrollBottleSpread />
+      </ClientOnly>
 
       <!-- ============================================== -->
       <!-- 4. QUALITY ASSURANCE & LABORATORY TESTING      -->

@@ -64,6 +64,44 @@ const milestones = [
   },
 ]
 
+// Customer & Hospitality Partner Testimonials
+const customerTestimonials = [
+  {
+    quote: 'Desta Gin has become the permanent crown jewel on our signature cocktail menu. The wild highland kosoret and citrus aroma profile astonishes international diplomats and guests who never realized Ethiopia was producing botanical spirits of this world-class caliber.',
+    author: 'Yared Mengistu',
+    title: 'Head Beverage Director',
+    establishment: 'The Skylight Luxury Hotel, Addis Ababa',
+    rating: 5,
+    badge: 'Luxury Hospitality Partner',
+    initials: 'YM',
+  },
+  {
+    quote: 'Their Zebib is without question the cleanest anise spirit I have ever poured. When crafting signature aperitifs, the silky mouthfeel and clean clouding louche effect are flawless. It bridges traditional Ethiopian banquets with modern craft mixology seamlessly.',
+    author: 'Samrawit Fekadu',
+    title: 'Lead Mixologist & Bar Manager',
+    establishment: 'Bole Sky Lounge & Cocktail Bar',
+    rating: 5,
+    badge: 'Craft Cocktail Bar',
+    initials: 'SF',
+  },
+  {
+    quote: 'From supply-chain reliability to zero bottle variance across pallet shipments, Balezaf is our most dependable domestic partner. Their packaging aesthetics and industrial quality control rival top European spirit imports.',
+    author: 'Tewodros Haile',
+    title: 'General Manager of Procurement',
+    establishment: 'Rift Valley Beverage Distributors',
+    rating: 5,
+    badge: 'National Distribution Partner',
+    initials: 'TH',
+  },
+]
+
+const partnerMetrics = [
+  { value: '450+', label: 'Hospitality Venues', desc: 'Hotels, bars, and resorts serving Balezaf nationwide' },
+  { value: '4.9 / 5', label: 'Average Quality Rating', desc: 'Across blind sommelier panels and bar managers' },
+  { value: '99.8%', label: 'On-Time Fulfillment', desc: 'Fulfillment accuracy across regional wholesale orders' },
+  { value: '100%', label: 'Ethiopian Terroir', desc: 'Locally sourced grains and wild mountain botanicals' },
+]
+
 const inquirySent = ref(false)
 
 const submitInquiry = async (FormD: any, form$: any) => {
@@ -343,6 +381,72 @@ const submitInquiry = async (FormD: any, form$: any) => {
                 </div>
               </div>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Customer & Hospitality Partner Testimonials Section -->
+      <section class="border-y border-[#dce8d7] bg-[#f8faf5] px-6 py-20 lg:px-10 lg:py-28">
+        <div class="mx-auto max-w-7xl">
+          <div class="max-w-3xl">
+            <p class="eyebrow text-[#65975d]">Partner &amp; Customer Voices</p>
+            <h2 class="mt-4 font-serif text-3xl sm:text-4xl lg:text-5xl text-[#173b2b]">
+              Trusted on Ethiopia’s <em class="font-normal text-[#65975d]">finest tables.</em>
+            </h2>
+            <p class="mt-4 text-sm sm:text-base leading-relaxed text-[#43654e]">
+              From five-star diplomatic hotel lounges in Addis Ababa to premier craft cocktail bars and regional wholesale distributors—hear how our spirits elevate hospitality rituals across Ethiopia.
+            </p>
+          </div>
+
+          <!-- Testimonial Cards Grid -->
+          <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div
+              v-for="item in customerTestimonials"
+              :key="item.author"
+              class="flex flex-col justify-between rounded-3xl border border-[#dfe9da] bg-white p-7 sm:p-8 shadow-xs transition hover:shadow-xl hover:border-[#65975d]/40"
+            >
+              <div>
+                <!-- Rating Stars & Badge -->
+                <div class="flex items-center justify-between">
+                  <div class="flex text-amber-500 text-sm tracking-wider" aria-label="5 out of 5 stars">
+                    ★★★★★
+                  </div>
+                  <span class="rounded-full bg-[#edf5e9] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#285736]">
+                    {{ item.badge }}
+                  </span>
+                </div>
+
+                <!-- Quote text -->
+                <blockquote class="mt-5 font-serif text-base italic leading-relaxed text-[#173b2b]">
+                  “{{ item.quote }}”
+                </blockquote>
+              </div>
+
+              <!-- Author Info -->
+              <div class="mt-8 flex items-center gap-3.5 border-t border-[#edf3ea] pt-5">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#173b2b] text-xs font-bold text-[#c6dfbc]">
+                  {{ item.initials }}
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-[#173b2b]">{{ item.author }}</h4>
+                  <p class="text-xs text-[#527359]">{{ item.title }}</p>
+                  <p class="text-[11px] font-semibold text-[#718e75]">{{ item.establishment }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Trust & Distribution Metrics -->
+          <div class="mt-12 grid grid-cols-2 gap-4 rounded-3xl border border-[#dce8d7] bg-white p-6 sm:grid-cols-4 sm:p-8">
+            <div
+              v-for="m in partnerMetrics"
+              :key="m.label"
+              class="text-center"
+            >
+              <strong class="font-serif text-2xl sm:text-3xl font-bold text-[#285736]">{{ m.value }}</strong>
+              <span class="mt-1 block text-xs font-bold uppercase tracking-wider text-[#173b2b]">{{ m.label }}</span>
+              <p class="mt-1 text-[11px] text-[#6b8970] hidden sm:block">{{ m.desc }}</p>
+            </div>
           </div>
         </div>
       </section>
