@@ -59,25 +59,26 @@ function getBottleTransform(index: number) {
   const absDiff = Math.abs(diff)
   const isCenter = absDiff < 0.1
 
-  // Dynamic spread and spacing based on screen size:
-  // On mobile (< 640px), keep bottles close together (spreadX = 118px) so ALL bottles stay visible inside viewport!
-  // On tablet: spreadX = 165px
-  // On desktop: spreadX = 210px
-  let spreadX = 210
-  let angleStep = 0.48
-  let dropY = 36
-  let depthZ = 55
+  // Dynamic spread and spacing:
+  // Desktop: Clustered tightly (spreadX = 138px, angleStep = 0.35) so bottles form a cohesive,
+  // elegant 3D arc without being far apart.
+  // Tablet: spreadX = 124px
+  // Mobile: spreadX = 104px
+  let spreadX = 138
+  let angleStep = 0.35
+  let dropY = 22
+  let depthZ = 45
 
   if (isMobile.value) {
-    spreadX = 118 // Tightly clustered on small screens
-    angleStep = 0.38 // Closer angular spacing
-    dropY = 22 // Shallower vertical curve
-    depthZ = 35 // Softer depth step
+    spreadX = 104 // Tightly clustered on small screens
+    angleStep = 0.33 // Closer angular spacing
+    dropY = 16 // Shallower vertical curve
+    depthZ = 28 // Soft depth step
   } else if (isTablet.value) {
-    spreadX = 165
-    angleStep = 0.44
-    dropY = 30
-    depthZ = 45
+    spreadX = 124
+    angleStep = 0.34
+    dropY = 19
+    depthZ = 36
   }
 
   const angle = diff * angleStep
@@ -85,22 +86,22 @@ function getBottleTransform(index: number) {
   const y = (1 - Math.cos(angle)) * dropY
   const z = Math.cos(angle) * depthZ
 
-  // Proportional scaling for mobile vs desktop
+  // Proportional scaling for smooth depth transition
   let scale = 1.0
   if (isMobile.value) {
-    scale = isCenter ? 1.15 : Math.max(0.68, 0.94 - absDiff * 0.12)
+    scale = isCenter ? 1.15 : Math.max(0.70, 0.94 - absDiff * 0.10)
   } else {
-    scale = isCenter ? 1.2 : Math.max(0.68, 0.98 - absDiff * 0.14)
+    scale = isCenter ? 1.22 : Math.max(0.72, 0.96 - absDiff * 0.09)
   }
 
   // Soft blur so bottles remain recognizable even behind the active bottle
-  const blur = isCenter ? 0 : Math.min(absDiff * (isMobile.value ? 1.4 : 2.2), isMobile.value ? 3.5 : 5.5)
+  const blur = isCenter ? 0 : Math.min(absDiff * (isMobile.value ? 1.2 : 1.6), isMobile.value ? 3.0 : 4.2)
 
-  // Opacity: high enough on mobile so all bottles are clearly seen rotating together
-  const opacity = isCenter ? 1 : Math.max(isMobile.value ? 0.45 : 0.26, 0.92 - absDiff * (isMobile.value ? 0.16 : 0.22))
+  // High opacity so all bottles are clearly seen rotating together in the cluster
+  const opacity = isCenter ? 1 : Math.max(isMobile.value ? 0.48 : 0.38, 0.94 - absDiff * (isMobile.value ? 0.14 : 0.18))
 
-  // Subtle tilt along the arc
-  const rotateDeg = diff * (isMobile.value ? 5.5 : 6.5)
+  // Gentle stately tilt along the arc
+  const rotateDeg = diff * (isMobile.value ? 3.8 : 4.4)
   const zIndex = Math.round(30 - absDiff * 5)
 
   return {
@@ -185,9 +186,9 @@ onUnmounted(() => {
       class="pointer-events-none absolute bottom-23 left-1/2 h-3.5 w-28 -translate-x-1/2 rounded-full border border-white/20 bg-white/10 blur-xs sm:bottom-25 sm:w-32"
     ></div>
 
-    <!-- 3D Arc Stage (Compact & Responsive: bottles clustered together on mobile) -->
+    <!-- 3D Arc Stage (Compact & Responsive: bottles gracefully clustered in 3D arc) -->
     <div
-      class="relative mx-auto flex h-[210px] w-full max-w-[360px] items-end justify-center overflow-visible pb-2 sm:h-[245px] sm:max-w-[460px] lg:h-[265px] lg:max-w-[490px]"
+      class="relative mx-auto flex h-[210px] w-full max-w-[340px] items-end justify-center overflow-visible pb-2 sm:h-[245px] sm:max-w-[400px] lg:h-[265px] lg:max-w-[430px]"
       style="perspective: 1000px"
     >
       <div
