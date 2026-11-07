@@ -28,7 +28,35 @@ function closePost() {
   selectedPost.value = null
 }
 
-onMounted(() => {
+function formatDate(isoString: string): string {
+  try {
+    const d = new Date(isoString)
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+  } catch {
+    return isoString
+  }
+}
+
+async function fetchBlogPosts() {
+  try {
+    const res: any = await $fetch('/api/blogs')
+    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+      posts.value = res.data.map((p: any) => ({
+        kind: 'Blog',
+        category: p.category || 'MAKING BALEZAF',
+        title: p.title,
+        date: formatDate(p.createdAt),
+        image: p.imageUrl || '',
+        text: p.excerpt || p.content?.slice(0, 140) + '...',
+        fullContent: p.content,
+      }))
+      return
+    }
+  } catch (err) {
+    console.warn('Could not fetch posts from API, falling back to local/default:', err)
+  }
+
+  // Fallback to localStorage if API wasn't available
   if (typeof window !== 'undefined') {
     try {
       const storedPosts = localStorage.getItem('balezaf_blog_posts')
@@ -41,7 +69,17 @@ onMounted(() => {
           }))
         }
       }
+    } catch (e) {
+      console.warn('Could not hydrate blog items from localStorage', e)
+    }
+  }
+}
 
+onMounted(() => {
+  fetchBlogPosts()
+
+  if (typeof window !== 'undefined') {
+    try {
       const storedEvents = localStorage.getItem('balezaf_events')
       if (storedEvents) {
         const parsed = JSON.parse(storedEvents)
@@ -53,7 +91,7 @@ onMounted(() => {
         }
       }
     } catch (e) {
-      console.warn('Could not hydrate journal items from localStorage', e)
+      console.warn('Could not hydrate events from localStorage', e)
     }
   }
 })
@@ -64,7 +102,7 @@ onMounted(() => {
     <SiteHeader />
     <main>
       <section class="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28">
-        <p class="eyebrow">The Desta journal / Upcoming events</p>
+        <p class="eyebrow">The Balezaf journal / Upcoming events</p>
         <h1 class="mt-5 max-w-3xl font-serif text-5xl leading-tight sm:text-7xl">Stories worth <em class="font-normal text-[#65975d]">savouring.</em></h1>
         <p class="mt-6 max-w-xl text-lg leading-8 text-[#66816b]">Notes from our distillery, our people, and the places where our bottles find their way.</p>
 
@@ -107,7 +145,8 @@ onMounted(() => {
           <p class="mt-5 text-sm text-[#779277]">{{ selectedPost.date }}</p>
           <p v-if="selectedPost.kind === 'Event'" class="mt-3 text-sm font-semibold text-[#496a51]">{{ selectedPost.place }}</p>
           <div class="mt-8 space-y-5 text-lg leading-8 text-[#496a51]">
-            <p>{{ selectedPost.text }}</p>
+            <p v-if="(selectedPost as any).fullContent" class="whitespace-pre-line">{{ (selectedPost as any).fullContent }}</p>
+            <p v-else>{{ selectedPost.text }}</p>
             <p>At Balezaf, every bottle begins with a deep respect for place. We work with bright local botanicals, careful craft, and the people who make Ethiopia’s drinks culture so full of character.</p>
             <p>Pour a glass, take your time, and discover the story behind the spirit.</p>
           </div>

@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  INTERVIEWED
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  fullName     String
+  role         Role       @default(ADMIN)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  blogPosts    BlogPost[]
+
+  @@map("users")
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  category    String   @default("MAKING BALEZAF")
+  excerpt     String?
+  content     String   @db.Text
+  imageUrl    String?
+  isPublished Boolean  @default(true)
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("blog_posts")
+}
+
+model Vacancy {
+  id           String               @id @default(cuid())
+  title        String
+  positionName String?
+  company      String               @default("Balezaf Alcohol & Liquors Factory PLC")
+  locations    String[]             @default(["Addis Ababa"])
+  deadline     DateTime?
+  salary       String?              @default("Competitive salary based on company scale")
+  team         String?              @default("Operations · Addis Ababa")
+  type         String               @default("Full-time")
+  location     String               @default("Addis Ababa")
+  description  String               @db.Text
+  requirements String?              @db.Text
+  status       JobStatus            @default(OPEN)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  applications VacancyApplication[]
+
+  @@map("vacancies")
+}
+
+model VacancyApplication {
+  id                        String            @id @default(cuid())
+  vacancyId                 String
+  vacancy                   Vacancy           @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  fullName                  String
+  email                     String?
+  phone                     String?
+  phoneNumber               String?
+  gender                    String?
+  workExperience            String?
+  languages                 String[]          @default([])
+  skills                    String[]          @default([])
+  workExperienceInformation Json?
+  uploadedFiles             String[]          @default([])
+  resumeUrl                 String?           @db.Text
+  coverLetter               String?           @db.Text
+  status                    ApplicationStatus @default(PENDING)
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+
+  @@map("vacancy_applications")
+}

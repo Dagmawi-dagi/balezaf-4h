@@ -1,30 +1,23 @@
 <script setup lang="ts">
-const form = reactive({
-  area: 'Local',
-  product: '',
-  quantity: '',
-  name: '',
-  company: '',
-  email: '',
-  phone: '',
-  message: '',
-})
-
-function submitOrder() {
-  const subject = encodeURIComponent(`Order inquiry from ${form.name || 'website visitor'}`)
+const submitOrder = async (FormD: any, form$: any) => {
+  const data = form$.data
+  const subject = encodeURIComponent(`Order inquiry from ${data.name || 'website visitor'}`)
   const body = encodeURIComponent([
-    `Order area: ${form.area}`,
-    `Product: ${form.product}`,
-    `Quantity: ${form.quantity}`,
-    `Name: ${form.name}`,
-    `Company: ${form.company || 'N/A'}`,
-    `Email: ${form.email}`,
-    `Phone: ${form.phone}`,
+    `Order area: ${data.area || 'Local'}`,
+    `Product: ${data.product || ''}`,
+    `Quantity: ${data.quantity || ''}`,
+    `Name: ${data.name || ''}`,
+    `Company: ${data.company || 'N/A'}`,
+    `Email: ${data.email || ''}`,
+    `Phone: ${data.phone || ''}`,
     '',
-    form.message,
+    data.message || '',
   ].join('\n'))
 
-  window.location.href = `mailto:destaalcohol@gmail.com?subject=${subject}&body=${body}`
+  frontEndErrorFeedback().success('Opening your email client to dispatch order inquiry...')
+  if (typeof window !== 'undefined') {
+    window.location.href = `mailto:destaalcohol@gmail.com?subject=${subject}&body=${body}`
+  }
 }
 </script>
 
@@ -60,48 +53,78 @@ function submitOrder() {
             </div>
           </div>
 
-          <form class="rounded-3xl bg-[#f1f5ed] p-6 sm:p-8 lg:p-10" @submit.prevent="submitOrder">
-            <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="Order area">
-              <button v-for="area in ['Local', 'Export']" :key="area" type="button" class="rounded-full border px-5 py-2 text-sm font-semibold transition-colors" :class="form.area === area ? 'border-[#17633a] bg-[#17633a] text-white' : 'border-[#b8cdb5] text-[#315a43] hover:border-[#17633a]'" @click="form.area = area">
-                {{ area }}
-              </button>
-            </div>
-
-            <div class="mt-8 grid gap-5 sm:grid-cols-2">
-              <label class="field-label sm:col-span-2">Product
-                <select v-model="form.product" class="field-input" required>
-                  <option value="" disabled>Select a product</option>
-                  <option>Tej</option>
-                  <option>Areki</option>
-                  <option>Gin</option>
-                  <option>Whisky</option>
-                  <option>Other product</option>
-                </select>
-              </label>
-              <label class="field-label">Quantity / volume
-                <input v-model="form.quantity" class="field-input" type="text" placeholder="e.g. 50 cases" required />
-              </label>
-              <label class="field-label">Your name
-                <input v-model="form.name" class="field-input" type="text" autocomplete="name" required />
-              </label>
-              <label class="field-label">Company
-                <input v-model="form.company" class="field-input" type="text" autocomplete="organization" />
-              </label>
-              <label class="field-label">Email
-                <input v-model="form.email" class="field-input" type="email" autocomplete="email" required />
-              </label>
-              <label class="field-label">Phone
-                <input v-model="form.phone" class="field-input" type="tel" autocomplete="tel" required />
-              </label>
-              <label class="field-label sm:col-span-2">Order details
-                <textarea v-model="form.message" class="field-input min-h-32 resize-y" placeholder="Tell us about delivery, timing, or any other requirements." required />
-              </label>
-            </div>
-
-            <button class="mt-7 w-full rounded-full bg-[#17633a] px-6 py-4 text-sm font-semibold text-white transition-colors hover:bg-[#0f4d2b]" type="submit">
-              Prepare order email
-            </button>
-          </form>
+          <div class="rounded-3xl bg-[#f1f5ed] p-6 sm:p-8 lg:p-10 shadow-sm">
+            <ClientOnly>
+              <Vueform :endpoint="submitOrder">
+                <RadiogroupElement
+                  name="area"
+                  view="tabs"
+                  :items="['Local', 'Export']"
+                  default="Local"
+                  size="sm"
+                />
+                <SelectElement
+                  name="product"
+                  label="Product"
+                  :items="['Tej', 'Areki', 'Gin', 'Whisky', 'Vodka', 'Other product']"
+                  placeholder="Select a product"
+                  :rules="['required']"
+                  :columns="{ container: 12 }"
+                />
+                <TextElement
+                  name="quantity"
+                  label="Quantity / volume"
+                  placeholder="e.g. 50 cases"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="name"
+                  label="Your name"
+                  placeholder="Your full name"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="company"
+                  label="Company"
+                  placeholder="Your business or hotel name"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="email"
+                  input-type="email"
+                  label="Email"
+                  placeholder="you@company.com"
+                  :rules="['required', 'email']"
+                  :columns="{ container: 6 }"
+                />
+                <PhoneElement
+                  name="phone"
+                  label="Phone"
+                  placeholder="+251 91 123 4567"
+                  :allow-incomplete="true"
+                  :unmask="true"
+                  :rules="['required']"
+                  :columns="{ container: 12 }"
+                />
+                <TextareaElement
+                  name="message"
+                  label="Order details"
+                  placeholder="Tell us about delivery, timing, or any other requirements."
+                  :rows="3"
+                  :rules="['required']"
+                  :columns="{ container: 12 }"
+                />
+                <ButtonElement
+                  name="submit"
+                  button-label="Prepare order email"
+                  :submits="true"
+                  :full="true"
+                />
+              </Vueform>
+            </ClientOnly>
+          </div>
         </div>
       </section>
     </main>

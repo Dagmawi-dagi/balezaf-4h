@@ -3,7 +3,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
   compatibilityDate: '2026-01-01',
   devtools: { enabled: false },
-  css: ['~/assets/css/main.css'],
+  modules: ['@vueform/nuxt'],
+  css: ['~/assets/css/main.css', '@vueform/vueform/dist/vueform.css'],
   vite: {
     plugins: [tailwindcss()],
     server: {

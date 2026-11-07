@@ -65,13 +65,14 @@ const milestones = [
 ]
 
 const inquirySent = ref(false)
-const inquiry = reactive({ name: '', email: '', message: '' })
 
-function submitInquiry() {
-  inquirySent.value = true
-  inquiry.name = ''
-  inquiry.email = ''
-  inquiry.message = ''
+const submitInquiry = async (FormD: any, form$: any) => {
+  try {
+    inquirySent.value = true
+    frontEndErrorFeedback().success('Thanks! Your inquiry has been received.')
+  } catch (error) {
+    frontEndErrorFeedback().err(error)
+  }
 }
 </script>
 
@@ -374,10 +375,7 @@ function submitInquiry() {
           </div>
         </div>
 
-        <form
-          class="rounded-3xl border border-[#dce8d7] bg-[#f1f6ed] p-7 sm:p-10 shadow-sm"
-          @submit.prevent="submitInquiry"
-        >
+        <div class="rounded-3xl border border-[#dce8d7] bg-[#f1f6ed] p-7 sm:p-10 shadow-sm">
           <div
             v-if="inquirySent"
             class="mb-6 rounded-xl border border-[#b8d7af] bg-white p-4 text-sm text-[#35653c]"
@@ -385,40 +383,38 @@ function submitInquiry() {
             Thanks — your inquiry has been received. We&apos;ll be in touch shortly.
           </div>
 
-          <div class="grid gap-5 sm:grid-cols-2">
-            <label class="text-sm font-medium">
-              Name
-              <input v-model="inquiry.name" required class="field" placeholder="Your name" />
-            </label>
-            <label class="text-sm font-medium">
-              Email
-              <input
-                v-model="inquiry.email"
-                required
-                type="email"
-                class="field"
-                placeholder="you@company.com"
+          <ClientOnly>
+            <Vueform :endpoint="submitInquiry">
+              <TextElement
+                name="name"
+                label="Name"
+                placeholder="Your name"
+                :columns="{ container: 6 }"
+                :rules="['required']"
               />
-            </label>
-          </div>
-
-          <label class="mt-5 block text-sm font-medium">
-            How can we help?
-            <textarea
-              v-model="inquiry.message"
-              required
-              class="field min-h-32 resize-y"
-              placeholder="Tell us about your order or partnership"
-            ></textarea>
-          </label>
-
-          <button
-            type="submit"
-            class="mt-6 rounded-full bg-[#173b2b] px-8 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#35653c]"
-          >
-            Send inquiry <span aria-hidden="true">↗</span>
-          </button>
-        </form>
+              <TextElement
+                name="email"
+                input-type="email"
+                label="Email"
+                placeholder="you@company.com"
+                :columns="{ container: 6 }"
+                :rules="['required', 'email']"
+              />
+              <TextareaElement
+                name="message"
+                label="How can we help?"
+                placeholder="Tell us about your order or partnership"
+                :rows="4"
+                :rules="['required']"
+              />
+              <ButtonElement
+                name="submit"
+                button-label="Send inquiry ↗"
+                :submits="true"
+              />
+            </Vueform>
+          </ClientOnly>
+        </div>
       </section>
     </main>
 

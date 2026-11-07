@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { type ProductItem, resolveBottleImage, useProducts } from '~/composables/useProducts'
+import { useAuth } from '~/composables/useAuth'
 
 const {
   products,
@@ -14,8 +15,49 @@ const {
   availableImageKeys,
 } = useProducts()
 
+const { user, loading: authLoading, initialized: authInitialized, fetchUser, login, logout } = useAuth()
+
+const loginForm = reactive({
+  email: 'admin@balezaf.et',
+  password: 'Admin@123456',
+})
+const loginError = ref('')
+const isLoggingIn = ref(false)
+
+async function handleAdminLogin() {
+  loginError.value = ''
+  isLoggingIn.value = true
+  const res = await login(loginForm.email, loginForm.password)
+  isLoggingIn.value = false
+  if (!res.success) {
+    loginError.value = res.error || 'Invalid credentials'
+  } else {
+    notify('Welcome back, Admin!')
+    await fetchBackendData()
+  }
+}
+
+async function handleAdminLoginVueform(FD: any, form$: any) {
+  loginError.value = ''
+  isLoggingIn.value = true
+  const res = await login(form$.data.email, form$.data.password)
+  isLoggingIn.value = false
+  if (!res.success) {
+    loginError.value = res.error || 'Invalid credentials'
+    frontEndErrorFeedback().err(loginError.value)
+  } else {
+    frontEndErrorFeedback().success('Welcome back, Admin!')
+    await fetchBackendData()
+  }
+}
+
+async function handleAdminLogout() {
+  await logout()
+  notify('Signed out successfully.')
+}
+
 const activeTab = ref('Products')
-const tabs = ['Products', 'Overview', 'Events', 'Blog posts', 'Job vacancies']
+const tabs = ['Products', 'Overview', 'Events', 'Blog posts', 'Job vacancies', 'Applications']
 const viewMode = ref<'table' | 'grid'>('table')
 const searchQuery = ref('')
 
@@ -171,6 +213,58 @@ function saveProductChanges() {
   isProductModalOpen.value = false
 }
 
+const productFormValues = computed(() => ({
+  name: productForm.name || '',
+  category: productForm.category || '',
+  abv: productForm.abv || '40% Vol.',
+  volume: productForm.volume || '750ml',
+  imageKey: productForm.imageKey || 'gin',
+  note: productForm.note || '',
+  aroma: productForm.aroma || '',
+  palate: productForm.palate || '',
+  finish: productForm.finish || '',
+  serving: productForm.serving || 'Serve chilled over ice.',
+  isTopFlagship: !!productForm.isTopFlagship,
+}))
+
+function saveProductChangesVueform(FD: any, form$: any) {
+  const d = form$.data
+  if (isNewProduct.value) {
+    addProduct({
+      ...productForm,
+      name: d.name,
+      category: d.category,
+      abv: d.abv,
+      volume: d.volume,
+      imageKey: d.imageKey,
+      note: d.note,
+      aroma: d.aroma,
+      palate: d.palate,
+      finish: d.finish,
+      serving: d.serving,
+      isTopFlagship: !!d.isTopFlagship,
+    })
+    frontEndErrorFeedback().success(`Created "${d.name}"!`)
+  } else if (editingProduct.value) {
+    updateProduct(editingProduct.value.id, {
+      ...productForm,
+      name: d.name,
+      category: d.category,
+      abv: d.abv,
+      volume: d.volume,
+      imageKey: d.imageKey,
+      note: d.note,
+      aroma: d.aroma,
+      palate: d.palate,
+      finish: d.finish,
+      serving: d.serving,
+      isTopFlagship: !!d.isTopFlagship,
+    })
+    frontEndErrorFeedback().success(`Updated "${d.name}"!`)
+  }
+  isProductModalOpen.value = false
+}
+
 function removeProduct(id: string, name: string) {
   if (confirm(`Delete "${name}" from catalogue?`)) {
     deleteProduct(id)
@@ -320,6 +414,42 @@ function saveEventChanges() {
   isEventModalOpen.value = false
 }
 
+const eventFormValues = computed(() => ({
+  title: eventForm.title || '',
+  date: eventForm.date || '',
+  status: eventForm.status || 'Published',
+  place: eventForm.place || '',
+}))
+
+function saveEventChangesVueform(FD: any, form$: any) {
+  const d = form$.data
+  if (isNewEvent.value) {
+    events.value.unshift({
+      ...eventForm,
+      title: d.title,
+      date: d.date,
+      status: d.status,
+      place: d.place,
+    })
+    frontEndErrorFeedback().success(`Created event "${d.title}"!`)
+  } else {
+    const idx = events.value.findIndex((e) => e.id === editingEventId.value)
+    if (idx !== -1) {
+      events.value[idx] = {
+        ...events.value[idx],
+        ...eventForm,
+        title: d.title,
+        date: d.date,
+        status: d.status,
+        place: d.place,
+      }
+      frontEndErrorFeedback().success(`Updated event "${d.title}"!`)
+    }
+  }
+  saveEventsToStorage()
+  isEventModalOpen.value = false
+}
+
 function removeEvent(id: string, title: string) {
   if (confirm(`Delete event "${title}"?`)) {
     events.value = events.value.filter((e) => e.id !== id)
@@ -446,8 +576,49 @@ function removeBlogImage() {
   if (blogFileInput.value) blogFileInput.value.value = ''
 }
 
-function saveBlogChanges() {
+async function saveBlogChanges() {
   if (!blogForm.title.trim()) return
+  try {
+    if (isNewBlog.value) {
+      const res: any = await $fetch('/api/blogs', {
+        method: 'POST',
+        body: {
+          title: blogForm.title,
+          category: blogForm.category,
+          content: blogForm.text,
+          imageUrl: blogForm.image,
+          isPublished: blogForm.status === 'Published',
+        },
+      })
+      if (res && res.success) {
+        notify(`Created story "${blogForm.title}"!`)
+        await fetchBackendData()
+        isBlogModalOpen.value = false
+        return
+      }
+    } else {
+      const res: any = await $fetch(`/api/blogs/${editingBlogId.value}`, {
+        method: 'PUT',
+        body: {
+          title: blogForm.title,
+          category: blogForm.category,
+          content: blogForm.text,
+          imageUrl: blogForm.image,
+          isPublished: blogForm.status === 'Published',
+        },
+      })
+      if (res && res.success) {
+        notify(`Updated story "${blogForm.title}"!`)
+        await fetchBackendData()
+        isBlogModalOpen.value = false
+        return
+      }
+    }
+  } catch (err: any) {
+    console.warn('API error when saving blog, falling back to local:', err)
+  }
+
+  // Fallback to local
   if (isNewBlog.value) {
     blogPosts.value.unshift({ ...blogForm })
     notify(`Created story "${blogForm.title}"!`)
@@ -462,8 +633,16 @@ function saveBlogChanges() {
   isBlogModalOpen.value = false
 }
 
-function removeBlogPost(id: string, title: string) {
+async function removeBlogPost(id: string, title: string) {
   if (confirm(`Delete post "${title}"?`)) {
+    try {
+      await $fetch(`/api/blogs/${id}`, { method: 'DELETE' })
+      notify(`Deleted post "${title}".`)
+      await fetchBackendData()
+      return
+    } catch (err) {
+      console.warn('API delete error, falling back to local:', err)
+    }
     blogPosts.value = blogPosts.value.filter((p) => p.id !== id)
     saveBlogToStorage()
     notify(`Deleted post "${title}".`)
@@ -482,38 +661,18 @@ function saveBlogToStorage() {
 interface JobItem {
   id: string
   title: string
+  company: string
+  locations: string
+  deadline: string
+  salary: string
   team: string
   type: string
   description: string
+  requirements: string
   status: string
 }
 
-const jobVacancies = ref<JobItem[]>([
-  {
-    id: 'job-1',
-    title: 'Brand & Partnerships Manager',
-    team: 'Growth · Addis Ababa',
-    type: 'Full-time',
-    description: 'Lead brand collaborations with top hospitality venues, cultural festivals, and creative partners.',
-    status: 'Open',
-  },
-  {
-    id: 'job-2',
-    title: 'Production Quality Lead',
-    team: 'Distillery · Addis Ababa',
-    type: 'Full-time',
-    description: 'Ensure international spirits quality standards across botanical extraction, distillation, and bottling.',
-    status: 'Open',
-  },
-  {
-    id: 'job-3',
-    title: 'Trade Marketing Associate',
-    team: 'Commercial · Addis Ababa',
-    type: 'Full-time',
-    description: 'Execute retail and on-premise promotional programs across Addis Ababa and regional distribution hubs.',
-    status: 'Open',
-  },
-])
+const jobVacancies = ref<JobItem[]>([])
 
 const isJobModalOpen = ref(false)
 const isNewJob = ref(false)
@@ -522,9 +681,14 @@ const editingJobId = ref<string | null>(null)
 const jobForm = reactive<JobItem>({
   id: '',
   title: '',
+  company: 'BALEZAF ALCOHOL & LIQUORS FACTORY PLC',
+  locations: 'Addis Ababa',
+  deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  salary: 'based in the company scale',
   team: 'Distillery · Addis Ababa',
   type: 'Full-time',
   description: '',
+  requirements: '',
   status: 'Open',
 })
 
@@ -534,23 +698,139 @@ function openJobCreateModal() {
   Object.assign(jobForm, {
     id: 'job_' + Date.now().toString(36),
     title: '',
+    company: 'BALEZAF ALCOHOL & LIQUORS FACTORY PLC',
+    locations: 'Addis Ababa',
+    deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    salary: 'based in the company scale',
     team: 'Operations · Addis Ababa',
     type: 'Full-time',
     description: '',
+    requirements: '<p>Proven experience and dedicated work ethic.</p>',
     status: 'Open',
   })
   isJobModalOpen.value = true
 }
 
-function openJobEditModal(job: JobItem) {
+function openJobEditModal(job: any) {
   isNewJob.value = false
   editingJobId.value = job.id
-  Object.assign(jobForm, { ...job })
+  Object.assign(jobForm, {
+    ...job,
+    company: job.company || 'BALEZAF ALCOHOL & LIQUORS FACTORY PLC',
+    locations: Array.isArray(job.locations) ? job.locations.join(', ') : (job.locations || 'Addis Ababa'),
+    deadline: job.deadline ? new Date(job.deadline).toISOString().split('T')[0] : '',
+    salary: job.salary || 'based in the company scale',
+    requirements: job.requirements || '',
+  })
   isJobModalOpen.value = true
 }
 
-function saveJobChanges() {
+const vacancyFormValues = computed(() => {
+  if (isNewJob.value || !editingJobId.value) {
+    return {
+      position_name: '',
+      company: 'BALEZAF ALCOHOL & LIQUORS FACTORY PLC',
+      salary: 'based in the company scale',
+      locations: ['Addis Ababa'],
+      description: '',
+      requirements: '<p>Proven experience and dedicated work ethic.</p>',
+      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    }
+  }
+  const job = jobVacancies.value.find((j) => j.id === editingJobId.value) || jobForm
+  const locs = Array.isArray(job.locations)
+    ? job.locations
+    : (typeof job.locations === 'string'
+        ? job.locations.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : ['Addis Ababa'])
+
+  return {
+    position_name: job.title || (job as any).position_name || '',
+    company: job.company || 'BALEZAF ALCOHOL & LIQUORS FACTORY PLC',
+    salary: job.salary || 'based in the company scale',
+    locations: locs.length > 0 ? locs : ['Addis Ababa'],
+    description: job.description || '',
+    requirements: job.requirements || '',
+    deadline: job.deadline ? new Date(job.deadline).toISOString().split('T')[0] : '',
+  }
+})
+
+const postNewVacancy = async (FormD: any, form$: any) => {
+  try {
+    const isEdit = !isNewJob.value && editingJobId.value
+    const url = isEdit ? `/api/vacancies/${editingJobId.value}` : '/api/vacancy'
+    const method = isEdit ? 'PUT' : 'POST'
+
+    await $fetch(url, {
+      method,
+      body: form$.data,
+      headers: {
+        apiref: '/api/vacancy/POST',
+      },
+    })
+    frontEndErrorFeedback().success(isEdit ? 'Vacancy updated successfully' : 'New vacancy posted successfully')
+    await fetchBackendData()
+    isJobModalOpen.value = false
+  } catch (error: any) {
+    frontEndErrorFeedback().err(error)
+  }
+}
+
+async function saveJobChanges() {
   if (!jobForm.title.trim()) return
+  const locationsArray = jobForm.locations.split(',').map((l) => l.trim()).filter(Boolean)
+
+  try {
+    if (isNewJob.value) {
+      const res: any = await $fetch('/api/vacancies', {
+        method: 'POST',
+        body: {
+          title: jobForm.title,
+          company: jobForm.company,
+          locations: locationsArray,
+          deadline: jobForm.deadline ? new Date(jobForm.deadline).toISOString() : null,
+          salary: jobForm.salary,
+          team: jobForm.team,
+          type: jobForm.type,
+          description: jobForm.description,
+          requirements: jobForm.requirements,
+          status: jobForm.status === 'Open' ? 'OPEN' : 'CLOSED',
+        },
+      })
+      if (res && res.success) {
+        notify(`Created vacancy "${jobForm.title}"!`)
+        await fetchBackendData()
+        isJobModalOpen.value = false
+        return
+      }
+    } else {
+      const res: any = await $fetch(`/api/vacancies/${editingJobId.value}`, {
+        method: 'PUT',
+        body: {
+          title: jobForm.title,
+          company: jobForm.company,
+          locations: locationsArray,
+          deadline: jobForm.deadline ? new Date(jobForm.deadline).toISOString() : null,
+          salary: jobForm.salary,
+          team: jobForm.team,
+          type: jobForm.type,
+          description: jobForm.description,
+          requirements: jobForm.requirements,
+          status: jobForm.status === 'Open' ? 'OPEN' : 'CLOSED',
+        },
+      })
+      if (res && res.success) {
+        notify(`Updated vacancy "${jobForm.title}"!`)
+        await fetchBackendData()
+        isJobModalOpen.value = false
+        return
+      }
+    }
+  } catch (err) {
+    console.warn('API error saving vacancy, falling back to local:', err)
+  }
+
+  // Fallback
   if (isNewJob.value) {
     jobVacancies.value.unshift({ ...jobForm })
     notify(`Created vacancy "${jobForm.title}"!`)
@@ -565,8 +845,16 @@ function saveJobChanges() {
   isJobModalOpen.value = false
 }
 
-function removeJob(id: string, title: string) {
+async function removeJob(id: string, title: string) {
   if (confirm(`Delete vacancy "${title}"?`)) {
+    try {
+      await $fetch(`/api/vacancies/${id}`, { method: 'DELETE' })
+      notify(`Deleted vacancy "${title}".`)
+      await fetchBackendData()
+      return
+    } catch (err) {
+      console.warn('API error deleting vacancy, falling back to local:', err)
+    }
     jobVacancies.value = jobVacancies.value.filter((j) => j.id !== id)
     saveJobsToStorage()
     notify(`Deleted vacancy "${title}".`)
@@ -576,6 +864,118 @@ function removeJob(id: string, title: string) {
 function saveJobsToStorage() {
   if (typeof window !== 'undefined') {
     localStorage.setItem('balezaf_jobs', JSON.stringify(jobVacancies.value))
+  }
+}
+
+// ----------------------------------------------------
+// 5. APPLICATIONS MANAGEMENT
+// ----------------------------------------------------
+interface ApplicationItem {
+  id: string
+  vacancyId: string
+  fullName: string
+  email?: string
+  phone?: string
+  phoneNumber?: string
+  gender?: string
+  workExperience?: string
+  languages?: string[]
+  skills?: string[]
+  workExperienceInformation?: any[]
+  uploadedFiles?: string[]
+  resumeUrl?: string
+  coverLetter?: string
+  status: string
+  createdAt: string
+  vacancy?: {
+    id: string
+    title: string
+    team: string
+    company?: string
+  }
+}
+
+const applications = ref<ApplicationItem[]>([])
+const selectedApp = ref<ApplicationItem | null>(null)
+const appFilterStatus = ref('ALL')
+
+const filteredApplications = computed(() => {
+  if (appFilterStatus.value === 'ALL') return applications.value
+  return applications.value.filter((a) => a.status === appFilterStatus.value)
+})
+
+async function updateApplicationStatus(id: string, newStatus: string) {
+  try {
+    await $fetch(`/api/applications/${id}/status`, {
+      method: 'PATCH',
+      body: { status: newStatus },
+    })
+    const app = applications.value.find((a) => a.id === id)
+    if (app) app.status = newStatus
+    notify(`Application status updated to ${newStatus}`)
+  } catch (err: any) {
+    alert(err?.data?.statusMessage || 'Failed to update status.')
+  }
+}
+
+async function removeApplication(id: string, name: string) {
+  if (confirm(`Remove application from "${name}"?`)) {
+    try {
+      await $fetch(`/api/applications/${id}`, { method: 'DELETE' })
+      applications.value = applications.value.filter((a) => a.id !== id)
+      if (selectedApp.value?.id === id) selectedApp.value = null
+      notify(`Removed application for ${name}.`)
+    } catch (err: any) {
+      alert(err?.data?.statusMessage || 'Failed to delete application.')
+    }
+  }
+}
+
+// ----------------------------------------------------
+// 6. BACKEND DATA SYNC
+// ----------------------------------------------------
+async function fetchBackendData() {
+  try {
+    // 1. Fetch live Blog posts
+    const blogRes: any = await $fetch('/api/blogs?all=true')
+    if (blogRes && blogRes.success && Array.isArray(blogRes.data)) {
+      blogPosts.value = blogRes.data.map((b: any) => ({
+        id: b.id,
+        title: b.title,
+        category: b.category,
+        date: new Date(b.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+        author: b.author?.fullName || 'Distillery Team',
+        image: b.imageUrl || '',
+        text: b.content || b.excerpt || '',
+        status: b.isPublished ? 'Published' : 'Draft',
+      }))
+    }
+
+    // 2. Fetch live Vacancies
+    const vacRes: any = await $fetch('/api/vacancies?all=true')
+    if (vacRes && vacRes.success && Array.isArray(vacRes.data)) {
+      jobVacancies.value = vacRes.data.map((v: any) => ({
+        id: v.id,
+        title: v.title,
+        company: v.company || 'BALEZAF ALCOHOL & LIQUORS FACTORY PLC',
+        locations: Array.isArray(v.locations) ? v.locations.join(', ') : (v.locations || 'Addis Ababa'),
+        deadline: v.deadline ? new Date(v.deadline).toISOString().split('T')[0] : '',
+        salary: v.salary || 'based in the company scale',
+        team: v.team || 'Operations · Addis Ababa',
+        type: v.type || 'Full-time',
+        description: v.description,
+        requirements: v.requirements || '',
+        status: v.status === 'OPEN' ? 'Open' : 'Closed',
+      }))
+    }
+
+    // 3. Fetch live Applications
+    const appRes: any = await $fetch('/api/applications')
+    if (appRes && appRes.success && Array.isArray(appRes.data)) {
+      applications.value = appRes.data
+    }
+  } catch (err) {
+    console.warn('Could not sync with backend API, using cached:', err)
   }
 }
 
@@ -623,16 +1023,21 @@ function handleResetDefaults() {
   }
 }
 
-// Hydrate from localStorage on mounted
-onMounted(() => {
+// Hydrate and authenticate on mounted
+onMounted(async () => {
+  await fetchUser()
+  if (user.value) {
+    await fetchBackendData()
+  }
+
   if (typeof window !== 'undefined') {
     try {
       const storedEvt = localStorage.getItem('balezaf_events')
       if (storedEvt) events.value = JSON.parse(storedEvt)
       const storedBlog = localStorage.getItem('balezaf_blog_posts')
-      if (storedBlog) blogPosts.value = JSON.parse(storedBlog)
+      if (storedBlog && (!blogPosts.value || blogPosts.value.length === 0)) blogPosts.value = JSON.parse(storedBlog)
       const storedJobs = localStorage.getItem('balezaf_jobs')
-      if (storedJobs) jobVacancies.value = JSON.parse(storedJobs)
+      if (storedJobs && (!jobVacancies.value || jobVacancies.value.length === 0)) jobVacancies.value = JSON.parse(storedJobs)
     } catch (e) {
       console.warn('Could not load custom content from localStorage', e)
     }
@@ -656,7 +1061,67 @@ useSeoMeta({
       <span>{{ toastMessage }}</span>
     </div>
 
-    <div class="flex min-h-screen">
+    <!-- 1. Loading state -->
+    <div v-if="!authInitialized" class="flex min-h-screen items-center justify-center">
+      <div class="flex items-center gap-2 text-sm font-semibold text-[#173b2b]">
+        <div class="h-4 w-4 animate-spin rounded-full border-2 border-[#35653c] border-t-transparent"></div>
+        <span>Connecting to Balezaf Workspace...</span>
+      </div>
+    </div>
+
+    <!-- 2. Authentication Login Screen -->
+    <div v-else-if="!user" class="flex min-h-screen items-center justify-center bg-[#173b2b] p-4">
+      <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+        <div class="text-center">
+          <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#c6dfbc] font-serif text-xl font-bold text-[#173b2b]">
+            B
+          </div>
+          <h1 class="mt-4 font-serif text-2xl font-bold text-[#173b2b]">Balezaf Portal</h1>
+          <p class="mt-1 text-xs text-[#6e8a72]">Sign in with your administrative credentials</p>
+        </div>
+
+        <div v-if="loginError" class="mt-4 rounded-lg bg-red-50 p-3 text-xs text-red-700">
+          {{ loginError }}
+        </div>
+
+        <div class="mt-6">
+          <ClientOnly>
+            <Vueform
+              :endpoint="handleAdminLoginVueform"
+              :default-values="{ email: 'admin@balezaf.et', password: 'Admin@123456' }"
+            >
+              <TextElement
+                name="email"
+                input-type="email"
+                label="Email Address"
+                placeholder="admin@balezaf.et"
+                :rules="['required', 'email']"
+              />
+              <TextElement
+                name="password"
+                input-type="password"
+                label="Password"
+                placeholder="••••••••"
+                :rules="['required']"
+              />
+              <ButtonElement
+                name="submit"
+                button-label="Sign In to Workspace"
+                :submits="true"
+                :full="true"
+              />
+            </Vueform>
+          </ClientOnly>
+
+          <p class="mt-4 text-center text-[11px] text-gray-400">
+            Default credentials: <span class="font-mono text-[#173b2b]">admin@balezaf.et</span> / <span class="font-mono text-[#173b2b]">Admin@123456</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Authenticated Admin Workspace -->
+    <div v-else class="flex min-h-screen">
       <!-- Admin Compact Sidebar -->
       <aside class="hidden w-56 shrink-0 flex-col justify-between border-r border-[#1e4835] bg-[#173b2b] p-4 text-white md:flex">
         <div>
@@ -706,6 +1171,12 @@ useSeoMeta({
               >
                 {{ jobVacancies.length }}
               </span>
+              <span
+                v-else-if="tab === 'Applications'"
+                class="rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold"
+              >
+                {{ applications.length }}
+              </span>
             </button>
           </nav>
         </div>
@@ -746,8 +1217,17 @@ useSeoMeta({
               <span>Live Site</span>
               <span class="text-[10px] text-gray-500">↗</span>
             </NuxtLink>
-            <div class="flex h-7 w-7 items-center justify-center rounded-md bg-[#dcebd8] text-[11px] font-bold text-[#173b2b]">
-              AD
+            <div class="flex items-center gap-2">
+              <div class="flex h-7 px-2.5 items-center justify-center rounded-md bg-[#dcebd8] text-[11px] font-bold text-[#173b2b]">
+                {{ user?.fullName || 'Admin' }}
+              </div>
+              <button
+                type="button"
+                class="rounded-md border border-red-200 px-2.5 py-1 text-[11px] font-semibold text-red-600 hover:bg-red-50 transition"
+                @click="handleAdminLogout"
+              >
+                Sign Out
+              </button>
             </div>
           </div>
         </header>
@@ -1255,7 +1735,12 @@ useSeoMeta({
                       </span>
                     </div>
                     <h3 class="mt-1 font-semibold text-xs text-[#173b2b]">{{ job.title }}</h3>
-                    <p class="mt-0.5 text-[11px] text-[#55715a] line-clamp-1">{{ job.description }}</p>
+                    <div class="mt-1 flex flex-wrap items-center gap-2.5 text-[10px] text-gray-500">
+                      <span v-if="job.locations" class="inline-flex items-center gap-1 bg-gray-100 px-1.5 py-0.5 rounded text-gray-700">📍 {{ job.locations }}</span>
+                      <span v-if="job.deadline" class="inline-flex items-center gap-1 bg-amber-50 px-1.5 py-0.5 rounded text-amber-800">⏳ Deadline: {{ job.deadline }}</span>
+                      <span v-if="job.salary" class="inline-flex items-center gap-1 bg-emerald-50 px-1.5 py-0.5 rounded text-emerald-800">💵 {{ job.salary }}</span>
+                    </div>
+                    <p class="mt-1.5 text-[11px] text-[#55715a] line-clamp-1">{{ job.description }}</p>
                   </div>
 
                   <div class="flex items-center gap-2 shrink-0">
@@ -1278,9 +1763,258 @@ useSeoMeta({
               </div>
             </div>
           </div>
+
+          <!-- ============================================== -->
+          <!-- 6. APPLICATIONS TAB                           -->
+          <!-- ============================================== -->
+          <div v-else-if="activeTab === 'Applications'" class="space-y-3.5">
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs">
+              <div>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-[#547959]">Candidate Applications</h2>
+                <p class="text-[11px] text-[#6e8a72]">Review resumes and progress candidates through hiring stages.</p>
+              </div>
+
+              <!-- Filter by status -->
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-semibold text-[#547959]">Status:</span>
+                <select v-model="appFilterStatus" class="admin-input !py-1 text-xs">
+                  <option value="ALL">All Applications ({{ applications.length }})</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="REVIEWING">Reviewing</option>
+                  <option value="INTERVIEWED">Interviewed</option>
+                  <option value="ACCEPTED">Accepted</option>
+                  <option value="REJECTED">Rejected</option>
+                </select>
+              </div>
+            </div>
+
+            <div v-if="filteredApplications.length === 0" class="rounded-xl border border-[#dce8d7] bg-white p-12 text-center text-gray-500">
+              <p class="font-medium">No applications found.</p>
+              <p class="mt-1 text-xs text-gray-400">Applications submitted from the Careers page will appear here.</p>
+            </div>
+
+            <div v-else class="overflow-hidden rounded-xl border border-[#dce8d7] bg-white shadow-2xs">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead class="border-b border-[#e6efe3] bg-[#f9fbf8] text-[10px] font-bold uppercase tracking-wider text-[#55775b]">
+                    <tr>
+                      <th class="py-3 px-4">Applicant</th>
+                      <th class="py-3 px-4">Position</th>
+                      <th class="py-3 px-4">Applied Date</th>
+                      <th class="py-3 px-4">Stage</th>
+                      <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[#edf3eb]">
+                    <tr v-for="app in filteredApplications" :key="app.id" class="hover:bg-[#fbfcfb]">
+                      <td class="py-3 px-4">
+                        <div class="font-semibold text-[#173b2b]">{{ app.fullName }}</div>
+                        <div class="text-[11px] text-gray-500">{{ app.email }} · {{ app.phone || 'No phone' }}</div>
+                      </td>
+                      <td class="py-3 px-4">
+                        <span class="font-medium text-[#2d5939]">{{ app.vacancy?.title || 'General / Unknown' }}</span>
+                      </td>
+                      <td class="py-3 px-4 text-gray-500 text-[11px]">
+                        {{ new Date(app.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) }}
+                      </td>
+                      <td class="py-3 px-4">
+                        <select
+                          :value="app.status"
+                          @change="updateApplicationStatus(app.id, ($event.target as HTMLSelectElement).value)"
+                          class="rounded-md border border-[#cddfc9] bg-white px-2 py-1 text-[11px] font-semibold"
+                          :class="{
+                            'text-amber-700 bg-amber-50': app.status === 'PENDING',
+                            'text-blue-700 bg-blue-50': app.status === 'REVIEWING',
+                            'text-purple-700 bg-purple-50': app.status === 'INTERVIEWED',
+                            'text-emerald-700 bg-emerald-50': app.status === 'ACCEPTED',
+                            'text-rose-700 bg-rose-50': app.status === 'REJECTED',
+                          }"
+                        >
+                          <option value="PENDING">PENDING</option>
+                          <option value="REVIEWING">REVIEWING</option>
+                          <option value="INTERVIEWED">INTERVIEWED</option>
+                          <option value="ACCEPTED">ACCEPTED</option>
+                          <option value="REJECTED">REJECTED</option>
+                        </select>
+                      </td>
+                      <td class="py-3 px-4 text-right space-x-2">
+                        <button
+                          type="button"
+                          class="rounded border border-[#cddfc9] px-2.5 py-1 text-[11px] font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
+                          @click="selectedApp = app"
+                        >
+                          View Details
+                        </button>
+                        <button
+                          type="button"
+                          class="rounded px-2 py-1 text-[11px] text-red-600 hover:bg-red-50"
+                          @click="removeApplication(app.id, app.fullName)"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: APPLICATION DETAILS                     -->
+    <!-- ============================================== -->
+    <Teleport to="body">
+      <div
+        v-if="selectedApp"
+        class="fixed inset-0 z-[160] flex items-center justify-center p-4"
+      >
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="selectedApp = null"></div>
+        <div class="relative z-10 w-full max-w-xl max-h-[88vh] overflow-y-auto rounded-xl border border-[#cddfc9] bg-white p-6 shadow-2xl text-xs">
+          <div class="flex items-start justify-between border-b border-[#edf3eb] pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-serif text-lg font-bold text-[#173b2b]">{{ selectedApp.fullName }}</h3>
+                <span
+                  v-if="selectedApp.gender"
+                  class="rounded-full bg-[#f1f6ed] px-2 py-0.5 text-[10px] font-bold uppercase text-[#35653c]"
+                >
+                  {{ selectedApp.gender }}
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 mt-0.5">
+                {{ selectedApp.email || 'No email' }} · {{ selectedApp.phone || selectedApp.phoneNumber || 'No phone' }}
+              </p>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600 text-sm font-bold" @click="selectedApp = null">✕</button>
+          </div>
+
+          <div class="mt-4 space-y-4">
+            <div class="grid grid-cols-2 gap-3 bg-[#fcfdfb] p-3 rounded-lg border border-[#edf3eb]">
+              <div>
+                <span class="block text-[10px] font-bold uppercase text-[#547959]">Applied Role</span>
+                <p class="text-xs font-semibold text-[#173b2b] mt-0.5">{{ selectedApp.vacancy?.title }}</p>
+              </div>
+              <div>
+                <span class="block text-[10px] font-bold uppercase text-[#547959]">Work Experience</span>
+                <p class="text-xs font-semibold text-[#173b2b] mt-0.5">{{ selectedApp.workExperience || 'Not specified' }}</p>
+              </div>
+            </div>
+
+            <!-- Languages -->
+            <div v-if="selectedApp.languages && selectedApp.languages.length > 0">
+              <span class="block text-[10px] font-bold uppercase text-[#547959] mb-1.5">Languages</span>
+              <div class="flex flex-wrap gap-1.5">
+                <span
+                  v-for="l in selectedApp.languages"
+                  :key="l"
+                  class="rounded-full bg-[#ebf4e8] px-2.5 py-0.5 text-[11px] font-semibold text-[#173b2b]"
+                >
+                  {{ l }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Skills -->
+            <div v-if="selectedApp.skills && selectedApp.skills.length > 0">
+              <span class="block text-[10px] font-bold uppercase text-[#547959] mb-1.5">Skills</span>
+              <div class="flex flex-wrap gap-1.5">
+                <span
+                  v-for="s in selectedApp.skills"
+                  :key="s"
+                  class="rounded-full bg-blue-50 border border-blue-100 px-2.5 py-0.5 text-[11px] font-semibold text-blue-900"
+                >
+                  {{ s }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Past Work Experience History -->
+            <div v-if="selectedApp.workExperienceInformation && Array.isArray(selectedApp.workExperienceInformation) && selectedApp.workExperienceInformation.length > 0">
+              <span class="block text-[10px] font-bold uppercase text-[#547959] mb-2">Previous Employment History</span>
+              <div class="space-y-2.5">
+                <div
+                  v-for="(hist, hIdx) in selectedApp.workExperienceInformation"
+                  :key="hIdx"
+                  class="rounded-lg border border-[#e4ede1] bg-[#fafcf9] p-3 text-xs space-y-1.5"
+                >
+                  <div class="flex items-baseline justify-between font-bold text-[#173b2b]">
+                    <span>{{ hist.position || 'Position' }}</span>
+                    <span class="text-[11px] font-medium text-[#547959]">{{ hist.employerName || hist['company/employerName'] }}</span>
+                  </div>
+                  <p class="text-[11px] text-[#4d6a54] leading-relaxed">
+                    {{ hist.dutiesDescription }}
+                  </p>
+                  <p v-if="hist.employerContact || hist['company/employerContact']" class="text-[10px] text-gray-500">
+                    HR/Manager contact: {{ hist.employerContact || hist['company/employerContact'] }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- File Attachments / Resume -->
+            <div v-if="(selectedApp.uploadedFiles && selectedApp.uploadedFiles.length > 0) || selectedApp.resumeUrl">
+              <span class="block text-[10px] font-bold uppercase text-[#547959] mb-1.5">File Attachments / Resume</span>
+              <div class="space-y-1">
+                <a
+                  v-if="selectedApp.resumeUrl"
+                  :href="selectedApp.resumeUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 text-blue-600 underline font-semibold text-xs hover:text-blue-800"
+                >
+                  <span>Open Attached Link / Resume</span>
+                  <span>↗</span>
+                </a>
+                <div
+                  v-for="(fn, fIdx) in selectedApp.uploadedFiles"
+                  :key="fIdx"
+                  class="flex items-center gap-2 rounded bg-gray-50 border border-gray-200 px-3 py-1.5 text-xs text-gray-800"
+                >
+                  <span>📄</span>
+                  <span class="font-medium truncate">{{ fn }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cover Note -->
+            <div v-if="selectedApp.coverLetter">
+              <span class="block text-[10px] font-bold uppercase text-[#547959]">Cover Note / Remarks</span>
+              <div class="mt-1 max-h-32 overflow-y-auto rounded-lg bg-gray-50 p-2.5 text-gray-700 whitespace-pre-line leading-relaxed">
+                {{ selectedApp.coverLetter }}
+              </div>
+            </div>
+
+            <!-- Stage Selector -->
+            <div>
+              <span class="block text-[10px] font-bold uppercase text-[#547959]">Hiring Pipeline Stage</span>
+              <select
+                :value="selectedApp.status"
+                @change="updateApplicationStatus(selectedApp.id, ($event.target as HTMLSelectElement).value)"
+                class="mt-1 rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-semibold"
+              >
+                <option value="PENDING">PENDING</option>
+                <option value="REVIEWING">REVIEWING</option>
+                <option value="INTERVIEWED">INTERVIEWED</option>
+                <option value="ACCEPTED">ACCEPTED</option>
+                <option value="REJECTED">REJECTED</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-6 flex justify-end gap-2 border-t border-gray-100 pt-3">
+            <button
+              class="rounded-md bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#2b593a]"
+              @click="selectedApp = null"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- ============================================== -->
     <!-- MODAL 1: PRODUCT CREATE / EDIT                 -->
@@ -1311,111 +2045,92 @@ useSeoMeta({
             </button>
           </div>
 
-          <form class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs" @submit.prevent="saveProductChanges">
-            <div class="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Spirit Name *</label>
-                <input v-model="productForm.name" required class="admin-input" placeholder="e.g. Desta Dry Gin" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Category *</label>
-                <input v-model="productForm.category" required class="admin-input" placeholder="e.g. London Dry Gin" />
-              </div>
-            </div>
-
-            <div class="grid gap-3 sm:grid-cols-3">
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">ABV (%) *</label>
-                <input v-model="productForm.abv" required class="admin-input" placeholder="e.g. 40% Vol." />
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Volume *</label>
-                <input v-model="productForm.volume" required class="admin-input" placeholder="e.g. 750ml" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Bottle Image</label>
-                <div class="flex items-center gap-1.5">
-                  <select v-model="productForm.imageKey" class="admin-input flex-1">
-                    <option v-for="key in availableImageKeys" :key="key" :value="key">
-                      {{ key.toUpperCase() }}
-                    </option>
-                  </select>
-                  <div class="flex h-8 w-7 items-center justify-center rounded border border-[#cddfc9] bg-[#f8faf6] shrink-0 p-0.5">
-                    <img :src="resolveBottleImage(productForm.imageKey)" alt="Preview" class="max-h-7 max-w-full object-contain" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Card Note / Description *</label>
-              <textarea
-                v-model="productForm.note"
-                required
-                rows="2"
-                class="admin-input resize-y"
-                placeholder="Distinctive tasting summary for catalogue cards..."
-              ></textarea>
-            </div>
-
-            <div class="rounded-lg border border-[#dce8d7] bg-[#f8faf6] p-3 space-y-2">
-              <span class="block text-[10px] font-bold uppercase tracking-wider text-[#3e6f47]">
-                Tasting Specs (Shown in Details Modal)
-              </span>
-
-              <div class="grid gap-2.5 sm:grid-cols-2">
-                <div>
-                  <label class="block text-[10px] font-medium text-[#284f37] mb-0.5">Aroma (Nose)</label>
-                  <input v-model="productForm.aroma" class="admin-input !py-1 text-xs" placeholder="Wild juniper, fresh lime..." />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-medium text-[#284f37] mb-0.5">Palate (Taste)</label>
-                  <input v-model="productForm.palate" class="admin-input !py-1 text-xs" placeholder="Zesty citrus, herbal pine..." />
-                </div>
-              </div>
-
-              <div class="grid gap-2.5 sm:grid-cols-2">
-                <div>
-                  <label class="block text-[10px] font-medium text-[#284f37] mb-0.5">Finish</label>
-                  <input v-model="productForm.finish" class="admin-input !py-1 text-xs" placeholder="Crisp, lingering dry finish..." />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-medium text-[#284f37] mb-0.5">Perfect Serve</label>
-                  <input v-model="productForm.serving" class="admin-input !py-1 text-xs" placeholder="Serve over ice with tonic..." />
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 rounded-lg border border-[#e5efe2] bg-[#f8faf6] px-3 py-2">
-              <input
-                id="flagship_toggle"
-                v-model="productForm.isTopFlagship"
-                type="checkbox"
-                class="h-3.5 w-3.5 rounded border-gray-300 text-[#173b2b] focus:ring-[#35653c]"
-              />
-              <label for="flagship_toggle" class="cursor-pointer select-none text-[11px] font-semibold text-[#173b2b]">
-                Feature as one of Top 3 Flagships on Home Page
-              </label>
-            </div>
-
-            <button type="submit" class="hidden"></button>
-          </form>
-
-          <div class="flex items-center justify-end gap-2 border-t border-[#e5efe2] bg-[#f8faf6] px-5 py-2.5 shrink-0">
-            <button
-              type="button"
-              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-              @click="isProductModalOpen = false"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="rounded-md bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#2b593a]"
-              @click="saveProductChanges"
-            >
-              {{ isNewProduct ? 'Create Product' : 'Save Changes' }}
-            </button>
+          <div class="flex-1 overflow-y-auto p-4 sm:p-5 text-xs">
+            <ClientOnly>
+              <Vueform :endpoint="saveProductChangesVueform" :default-values="productFormValues" :key="editingProduct?.id || 'new-prod'">
+                <TextElement
+                  name="name"
+                  label="Spirit Name *"
+                  placeholder="e.g. Desta Dry Gin"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="category"
+                  label="Category *"
+                  placeholder="e.g. London Dry Gin"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="abv"
+                  label="ABV (%) *"
+                  placeholder="e.g. 40% Vol."
+                  :rules="['required']"
+                  :columns="{ container: 4 }"
+                />
+                <TextElement
+                  name="volume"
+                  label="Volume *"
+                  placeholder="e.g. 750ml"
+                  :rules="['required']"
+                  :columns="{ container: 4 }"
+                />
+                <SelectElement
+                  name="imageKey"
+                  label="Bottle Image"
+                  :items="availableImageKeys.map(k => ({ value: k, label: k.toUpperCase() }))"
+                  :columns="{ container: 4 }"
+                />
+                <TextareaElement
+                  name="note"
+                  label="Card Note / Description *"
+                  placeholder="Distinctive tasting summary for catalogue cards..."
+                  :rows="2"
+                  :rules="['required']"
+                />
+                <StaticElement
+                  name="tasting_heading"
+                  tag="h4"
+                  content="Tasting Specs"
+                  size="sm"
+                />
+                <TextElement
+                  name="aroma"
+                  label="Aroma (Nose)"
+                  placeholder="Wild juniper, fresh lime..."
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="palate"
+                  label="Palate (Taste)"
+                  placeholder="Zesty citrus, herbal pine..."
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="finish"
+                  label="Finish"
+                  placeholder="Crisp, lingering dry finish..."
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="serving"
+                  label="Perfect Serve"
+                  placeholder="Serve over ice with tonic..."
+                  :columns="{ container: 6 }"
+                />
+                <CheckboxElement
+                  name="isTopFlagship"
+                  text="Feature as one of Top 3 Flagships on Home Page"
+                />
+                <ButtonElement
+                  name="submit"
+                  :button-label="isNewProduct ? 'Create Product' : 'Save Changes'"
+                  :submits="true"
+                  :full="true"
+                />
+              </Vueform>
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -1450,37 +2165,9 @@ useSeoMeta({
             </button>
           </div>
 
-          <form class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs" @submit.prevent="saveEventChanges">
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Event Title *</label>
-              <input v-model="eventForm.title" required class="admin-input" placeholder="e.g. Balezaf Tasting Table" />
-            </div>
-
-            <div class="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Date *</label>
-                <input v-model="eventForm.date" required class="admin-input" placeholder="e.g. 18 May 2026" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Status</label>
-                <select v-model="eventForm.status" class="admin-input">
-                  <option value="Published">Published</option>
-                  <option value="Draft">Draft</option>
-                  <option value="Archived">Archived</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Location / Venue *</label>
-              <input v-model="eventForm.place" required class="admin-input" placeholder="e.g. Balezaf House · Addis Ababa" />
-            </div>
-
-            <!-- Image Upload & Preview Section for Events -->
+          <div class="flex-1 overflow-y-auto p-4 sm:p-5 text-xs space-y-3">
             <div>
               <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Event Banner / Image</label>
-              
-              <!-- Image Preview if available -->
               <div v-if="eventForm.image" class="mb-2 relative rounded-lg border border-[#cddfc9] overflow-hidden bg-[#f4f7f2]">
                 <img :src="eventForm.image" alt="Event Preview" class="h-28 w-full object-cover" />
                 <div class="absolute top-1.5 right-1.5 flex items-center gap-1">
@@ -1496,67 +2183,63 @@ useSeoMeta({
                     class="rounded bg-red-600/80 px-2 py-0.5 text-[10px] font-medium text-white hover:bg-red-700 transition"
                     @click="removeEventImage"
                   >
-                    ✕ Remove
+                    Remove
                   </button>
                 </div>
               </div>
-
-              <!-- Upload button & URL input -->
-              <div class="flex items-center gap-2">
-                <input
-                  ref="eventFileInput"
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  @change="handleEventImageUpload"
-                />
+              <div v-else class="mb-2 flex items-center gap-2">
                 <button
                   type="button"
-                  :disabled="isUploadingEventImg"
-                  class="inline-flex items-center gap-1.5 rounded-md border border-[#cddfc9] bg-white px-3 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9] transition shrink-0"
+                  class="rounded-lg border border-dashed border-[#cddfc9] bg-[#f8faf6] px-3 py-2 text-xs font-medium text-[#284f37] hover:bg-[#edf5e9] transition flex items-center gap-1.5"
                   @click="eventFileInput?.click()"
                 >
-                  <svg class="h-3.5 w-3.5 text-[#35653c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>{{ isUploadingEventImg ? 'Processing...' : (eventForm.image ? 'Replace Photo' : 'Upload Image') }}</span>
+                  📷 Upload Banner Photo
                 </button>
-                <input
-                  v-model="eventForm.image"
-                  type="url"
-                  class="admin-input flex-1 !py-1 text-xs"
-                  placeholder="Or paste image URL (https://...)"
-                />
               </div>
+              <input
+                ref="eventFileInput"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handleEventImageUpload"
+              />
             </div>
 
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Event Description *</label>
-              <textarea
-                v-model="eventForm.text"
-                required
-                rows="3"
-                class="admin-input resize-y"
-                placeholder="What can guests expect at this gathering?"
-              ></textarea>
-            </div>
-          </form>
-
-          <div class="flex items-center justify-end gap-2 border-t border-[#e5efe2] bg-[#f8faf6] px-5 py-2.5 shrink-0">
-            <button
-              type="button"
-              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-              @click="isEventModalOpen = false"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="rounded-md bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#2b593a]"
-              @click="saveEventChanges"
-            >
-              {{ isNewEvent ? 'Create Event' : 'Save Changes' }}
-            </button>
+            <ClientOnly>
+              <Vueform :endpoint="saveEventChangesVueform" :default-values="eventFormValues" :key="editingEventId || 'new-evt'">
+                <TextElement
+                  name="title"
+                  label="Event Title *"
+                  placeholder="e.g. Balezaf Tasting Table"
+                  :rules="['required']"
+                />
+                <TextElement
+                  name="date"
+                  label="Date *"
+                  placeholder="e.g. 18 May 2026"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <SelectElement
+                  name="status"
+                  label="Status"
+                  :items="['Published', 'Draft', 'Archived']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="place"
+                  label="Location / Venue *"
+                  placeholder="e.g. Balezaf House · Addis Ababa"
+                  :rules="['required']"
+                />
+                <ButtonElement
+                  name="submit"
+                  :button-label="isNewEvent ? 'Publish Event' : 'Save Changes'"
+                  :submits="true"
+                  :full="true"
+                />
+              </Vueform>
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -1591,38 +2274,9 @@ useSeoMeta({
             </button>
           </div>
 
-          <form class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs" @submit.prevent="saveBlogChanges">
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Story Title *</label>
-              <input v-model="blogForm.title" required class="admin-input" placeholder="e.g. Highland Botanicals..." />
-            </div>
-
-            <div class="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Category</label>
-                <select v-model="blogForm.category" class="admin-input">
-                  <option value="MAKING BALEZAF">MAKING BALEZAF</option>
-                  <option value="SERVE NOTES">SERVE NOTES</option>
-                  <option value="PEOPLE &amp; PLACE">PEOPLE &amp; PLACE</option>
-                  <option value="HERITAGE">HERITAGE</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Author</label>
-                <input v-model="blogForm.author" required class="admin-input" placeholder="e.g. Master Distiller" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Publication Date *</label>
-              <input v-model="blogForm.date" required class="admin-input" placeholder="e.g. 12 April 2026" />
-            </div>
-
-            <!-- Image Upload & Preview Section for Blog Stories -->
+          <div class="flex-1 overflow-y-auto p-4 sm:p-5 text-xs space-y-3">
             <div>
               <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Story Cover Photo</label>
-              
-              <!-- Image Preview if available -->
               <div v-if="blogForm.image" class="mb-2 relative rounded-lg border border-[#cddfc9] overflow-hidden bg-[#f4f7f2]">
                 <img :src="blogForm.image" alt="Story Preview" class="h-28 w-full object-cover" />
                 <div class="absolute top-1.5 right-1.5 flex items-center gap-1">
@@ -1638,67 +2292,69 @@ useSeoMeta({
                     class="rounded bg-red-600/80 px-2 py-0.5 text-[10px] font-medium text-white hover:bg-red-700 transition"
                     @click="removeBlogImage"
                   >
-                    ✕ Remove
+                    Remove
                   </button>
                 </div>
               </div>
-
-              <!-- Upload button & URL input -->
-              <div class="flex items-center gap-2">
-                <input
-                  ref="blogFileInput"
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  @change="handleBlogImageUpload"
-                />
+              <div v-else class="mb-2 flex items-center gap-2">
                 <button
                   type="button"
-                  :disabled="isUploadingBlogImg"
-                  class="inline-flex items-center gap-1.5 rounded-md border border-[#cddfc9] bg-white px-3 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9] transition shrink-0"
+                  class="rounded-lg border border-dashed border-[#cddfc9] bg-[#f8faf6] px-3 py-2 text-xs font-medium text-[#284f37] hover:bg-[#edf5e9] transition flex items-center gap-1.5"
                   @click="blogFileInput?.click()"
                 >
-                  <svg class="h-3.5 w-3.5 text-[#35653c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>{{ isUploadingBlogImg ? 'Processing...' : (blogForm.image ? 'Replace Photo' : 'Upload Image') }}</span>
+                  📷 Upload Cover Photo
                 </button>
-                <input
-                  v-model="blogForm.image"
-                  type="url"
-                  class="admin-input flex-1 !py-1 text-xs"
-                  placeholder="Or paste image URL (https://...)"
-                />
               </div>
+              <input
+                ref="blogFileInput"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handleBlogImageUpload"
+              />
             </div>
 
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Story Excerpt / Content *</label>
-              <textarea
-                v-model="blogForm.text"
-                required
-                rows="3"
-                class="admin-input resize-y"
-                placeholder="Write the summary or article content..."
-              ></textarea>
-            </div>
-          </form>
-
-          <div class="flex items-center justify-end gap-2 border-t border-[#e5efe2] bg-[#f8faf6] px-5 py-2.5 shrink-0">
-            <button
-              type="button"
-              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-              @click="isBlogModalOpen = false"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="rounded-md bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#2b593a]"
-              @click="saveBlogChanges"
-            >
-              {{ isNewBlog ? 'Publish Story' : 'Save Changes' }}
-            </button>
+            <ClientOnly>
+              <Vueform :endpoint="saveBlogChangesVueform" :default-values="blogFormValues" :key="editingBlogId || 'new-blog'">
+                <TextElement
+                  name="title"
+                  label="Story Title *"
+                  placeholder="e.g. Highland Botanicals..."
+                  :rules="['required']"
+                />
+                <SelectElement
+                  name="category"
+                  label="Category"
+                  :items="['MAKING BALEZAF', 'SERVE NOTES', 'PEOPLE & PLACE', 'HERITAGE']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="author"
+                  label="Author"
+                  placeholder="e.g. Master Distiller"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="date"
+                  label="Publication Date *"
+                  placeholder="e.g. 12 April 2026"
+                  :rules="['required']"
+                />
+                <TextareaElement
+                  name="text"
+                  label="Story Content / Excerpt *"
+                  placeholder="Write the journal story content here..."
+                  :rows="4"
+                  :rules="['required']"
+                />
+                <ButtonElement
+                  name="submit"
+                  :button-label="isNewBlog ? 'Publish Story' : 'Save Changes'"
+                  :submits="true"
+                  :full="true"
+                />
+              </Vueform>
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -1716,12 +2372,12 @@ useSeoMeta({
       >
         <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="isJobModalOpen = false"></div>
 
-        <div class="relative z-10 flex max-h-[85vh] w-full max-w-md flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
+        <div class="relative z-10 flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
           <div class="flex items-center justify-between border-b border-[#e5efe2] bg-[#f8faf6] px-5 py-3 shrink-0">
             <div>
               <p class="text-[10px] font-bold uppercase tracking-wider text-[#547959]">Careers Studio</p>
               <h2 class="text-sm font-bold text-[#173b2b]">
-                {{ isNewJob ? 'Post Vacancy' : 'Edit Vacancy' }}
+                {{ isNewJob ? 'Post New Vacancy' : 'Edit Vacancy' }}
               </h2>
             </div>
             <button
@@ -1733,63 +2389,156 @@ useSeoMeta({
             </button>
           </div>
 
-          <form class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs" @submit.prevent="saveJobChanges">
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Role Title *</label>
-              <input v-model="jobForm.title" required class="admin-input" placeholder="e.g. Brand & Partnerships Manager" />
-            </div>
-
-            <div class="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Team &amp; Location *</label>
-                <input v-model="jobForm.team" required class="admin-input" placeholder="e.g. Commercial · Addis Ababa" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Type</label>
-                <select v-model="jobForm.type" class="admin-input">
-                  <option value="Full-time">Full-time</option>
-                  <option value="Part-time">Part-time</option>
-                  <option value="Contract">Contract</option>
-                  <option value="Internship">Internship</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Role Overview / Description *</label>
-              <textarea
-                v-model="jobForm.description"
-                required
-                rows="3"
-                class="admin-input resize-y"
-                placeholder="Key responsibilities and qualifications..."
-              ></textarea>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-semibold text-[#284f37] mb-1">Status</label>
-              <select v-model="jobForm.status" class="admin-input">
-                <option value="Open">Open</option>
-                <option value="Closed / Filled">Closed / Filled</option>
-              </select>
-            </div>
-          </form>
-
-          <div class="flex items-center justify-end gap-2 border-t border-[#e5efe2] bg-[#f8faf6] px-5 py-2.5 shrink-0">
-            <button
-              type="button"
-              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-              @click="isJobModalOpen = false"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="rounded-md bg-[#173b2b] px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#2b593a]"
-              @click="saveJobChanges"
-            >
-              {{ isNewJob ? 'Post Vacancy' : 'Save Changes' }}
-            </button>
+          <div class="flex-1 overflow-y-auto p-4 sm:p-6 text-xs">
+            <ClientOnly>
+              <Vueform :endpoint="postNewVacancy" :default-values="vacancyFormValues" :key="editingJobId || 'new'">
+                <StaticElement
+                  name="h3"
+                  tag="h3"
+                  :content="isNewJob ? 'Post New Vacancy' : 'Edit Vacancy'"
+                  style="color: #1492E6;"
+                  bottom="2"
+                />
+                <StaticElement
+                  name="p"
+                  tag="p"
+                  content="<div>position name</div>"
+                  :columns="{
+                    container: 2,
+                  }"
+                />
+                <TextElement
+                  name="position_name"
+                  :columns="{
+                    container: 10,
+                  }"
+                  :rules="[
+                    'required',
+                  ]"
+                />
+                <StaticElement
+                  name="p_1"
+                  tag="p"
+                  content="<div>company</div>"
+                  :columns="{
+                    container: 2,
+                  }"
+                />
+                <TextElement
+                  name="company"
+                  :columns="{
+                    container: 10,
+                  }"
+                  :rules="[
+                    'required',
+                  ]"
+                />
+                <StaticElement
+                  name="p_3"
+                  tag="p"
+                  content="<div>salary</div>"
+                  :columns="{
+                    container: 2,
+                  }"
+                />
+                <TextElement
+                  name="salary"
+                  :columns="{
+                    container: 10,
+                  }"
+                  :rules="[
+                    'required',
+                  ]"
+                />
+                <StaticElement
+                  name="p_2"
+                  tag="p"
+                  content="<div>location</div>"
+                  :columns="{
+                    container: 2,
+                  }"
+                />
+                <TagsElement
+                  name="locations"
+                  :close-on-select="false"
+                  :search="true"
+                  :items="[
+                    {
+                      value: 'Addis Ababa',
+                      label: 'Addis Ababa',
+                    },
+                    {
+                      value: 'Hawassa',
+                      label: 'Hawassa',
+                    },
+                    {
+                      value: 'Bahir Dar',
+                      label: 'Bahir Dar',
+                    },
+                    {
+                      value: 'mekelle',
+                      label: 'mekelle',
+                    },
+                    {
+                      value: 'quiha',
+                      label: 'quiha',
+                    },
+                    {
+                      value: 'ayder',
+                      label: 'ayder',
+                    },
+                  ]"
+                  input-type="search"
+                  autocomplete="off"
+                  :columns="{
+                    container: 10,
+                  }"
+                  :create="true"
+                  :add-option-on="[
+                    'enter',
+                    ',',
+                  ]"
+                  :rules="[
+                    'required',
+                  ]"
+                />
+                <TextareaElement
+                  name="description"
+                  label="description"
+                  :rules="[
+                    'required',
+                  ]"
+                />
+                <EditorElement
+                  name="requirements"
+                  label="requirements"
+                  :rules="[
+                    'required',
+                  ]"
+                />
+                <DateElement
+                  name="deadline"
+                  label="deadline"
+                  size="sm"
+                  :rules="[
+                    'required',
+                  ]"
+                  :columns="{
+                    container: 4,
+                  }"
+                />
+                <ButtonElement
+                  name="post"
+                  :button-label="isNewJob ? 'Post New Vacancy' : 'Save Changes'"
+                  :submits="true"
+                  align="center"
+                  size="sm"
+                  :columns="{
+                    container: 10,
+                  }"
+                />
+              </Vueform>
+            </ClientOnly>
           </div>
         </div>
       </div>
