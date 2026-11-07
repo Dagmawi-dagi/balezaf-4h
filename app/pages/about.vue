@@ -529,7 +529,150 @@ const sustainabilityMetrics = [
       </section>
 
       <!-- ============================================== -->
-      <!-- 6. MILESTONES: Timeline of Growth (2012–Now)   -->
+      <!-- 6. COMMUNITY WORK & SOCIAL RESPONSIBILITY     -->
+      <!-- ============================================== -->
+      <section class="bg-[#f8faf5] px-6 py-24 sm:py-32 lg:px-12 border-y border-[#dce8d7]">
+        <div class="mx-auto max-w-7xl">
+          <div class="max-w-3xl">
+            <p class="text-xs font-bold uppercase tracking-[0.25em] text-[#65975d]">Community &amp; Social Responsibility</p>
+            <h2 class="mt-4 font-serif text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl text-[#173b2b]">
+              Rooted in the soil. <em class="font-normal text-[#65975d]">Invested in our people.</em>
+            </h2>
+            <p class="mt-6 text-base leading-relaxed text-[#43654e] sm:text-lg">
+              As an Ethiopian manufacturer, our responsibility extends far beyond the factory gates. We actively partner with regional farming communities, invest in watershed reforestation, fund rural clean water access, and provide technical career pathways for Ethiopian youth.
+            </p>
+          </div>
+
+          <!-- Featured Visual Photo Stories -->
+          <div class="mt-16 grid gap-10 lg:grid-cols-2">
+            <!-- Story 1: Highland Reforestation -->
+            <div class="group flex flex-col overflow-hidden rounded-3xl border border-[#dce8d7] bg-white shadow-sm transition hover:shadow-xl hover:border-[#65975d]/40">
+              <div class="relative h-72 sm:h-84 w-full overflow-hidden bg-[#173b2b]">
+                <img
+                  src="/images/reforestation.jpg"
+                  alt="Ethiopian community members planting trees in highland reforestation initiative"
+                  class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                <div class="absolute bottom-5 left-6 right-6 flex items-end justify-between">
+                  <span class="rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#173b2b] backdrop-blur-xs">
+                    Green Canopy Project
+                  </span>
+                  <span class="text-xs font-semibold text-white/90">Oromia &amp; Rift Valley Highlands</span>
+                </div>
+              </div>
+
+              <div class="flex flex-1 flex-col justify-between p-7 sm:p-9">
+                <div>
+                  <h3 class="font-serif text-2xl font-bold text-[#173b2b] sm:text-3xl">
+                    Highland Watershed &amp; Tree Planting Initiative
+                  </h3>
+                  <p class="mt-4 text-sm leading-relaxed text-[#55715a]">
+                    Named after <em>Balezaf</em> (ባህር ዛፍ)—the iconic trees that shade Ethiopia’s highland terrain—we lead annual community tree planting drives alongside agricultural cooperatives and local youth. Over <strong>60,000+ native acacia, wild juniper, and eucalyptus seedlings</strong> have been planted across vulnerable hillside watersheds to curb soil erosion, restore tree cover, and naturally safeguard mountain aquifer springs.
+                  </p>
+                </div>
+
+                <div class="mt-8 grid grid-cols-3 gap-3 border-t border-[#edf3ea] pt-6 text-center">
+                  <div>
+                    <strong class="font-serif text-2xl font-bold text-[#285736] sm:text-3xl">60,000+</strong>
+                    <span class="mt-0.5 block text-[11px] text-[#718e75] uppercase tracking-wider">Seedlings Planted</span>
+                  </div>
+                  <div>
+                    <strong class="font-serif text-2xl font-bold text-[#285736] sm:text-3xl">150+</strong>
+                    <span class="mt-0.5 block text-[11px] text-[#718e75] uppercase tracking-wider">Hectares Protected</span>
+                  </div>
+                  <div>
+                    <strong class="font-serif text-2xl font-bold text-[#285736] sm:text-3xl">12</strong>
+                    <span class="mt-0.5 block text-[11px] text-[#718e75] uppercase tracking-wider">Highland Co-ops</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Story 2: Clean Water Access -->
+            <div class="group flex flex-col overflow-hidden rounded-3xl border border-[#dce8d7] bg-white shadow-sm transition hover:shadow-xl hover:border-[#65975d]/40">
+              <div class="relative h-72 sm:h-84 w-full overflow-hidden bg-[#173b2b]">
+                <img
+                  src="/images/clean-water.jpg"
+                  alt="Ethiopian rural community collecting potable water from modern tap stations"
+                  class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                <div class="absolute bottom-5 left-6 right-6 flex items-end justify-between">
+                  <span class="rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#173b2b] backdrop-blur-xs">
+                    Clean Water Access
+                  </span>
+                  <span class="text-xs font-semibold text-white/90">Peri-Urban &amp; Rural Woredas</span>
+                </div>
+              </div>
+
+              <div class="flex flex-1 flex-col justify-between p-7 sm:p-9">
+                <div>
+                  <h3 class="font-serif text-2xl font-bold text-[#173b2b] sm:text-3xl">
+                    Solar-Powered Community Water Stations
+                  </h3>
+                  <p class="mt-4 text-sm leading-relaxed text-[#55715a]">
+                    Water is the heart of distillation and the essential lifeline of human dignity. We leveraged our water-treatment engineering expertise to finance, drill, and construct <strong>4 deep-aquifer solar-pumped public water tap stations</strong> in neighboring rural communities. Today, more than 8,500 residents, mothers, and school children access clean, certified drinking water daily, eliminating hours of hazardous daily collection treks.
+                  </p>
+                </div>
+
+                <div class="mt-8 grid grid-cols-3 gap-3 border-t border-[#edf3ea] pt-6 text-center">
+                  <div>
+                    <strong class="font-serif text-2xl font-bold text-[#285736] sm:text-3xl">4</strong>
+                    <span class="mt-0.5 block text-[11px] text-[#718e75] uppercase tracking-wider">Well Stations Built</span>
+                  </div>
+                  <div>
+                    <strong class="font-serif text-2xl font-bold text-[#285736] sm:text-3xl">8,500+</strong>
+                    <span class="mt-0.5 block text-[11px] text-[#718e75] uppercase tracking-wider">Villagers Served</span>
+                  </div>
+                  <div>
+                    <strong class="font-serif text-2xl font-bold text-[#285736] sm:text-3xl">Zero</strong>
+                    <span class="mt-0.5 block text-[11px] text-[#718e75] uppercase tracking-wider">Cost to Families</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Community Pillars: Farmers & Youth Apprenticeships -->
+          <div class="mt-10 grid gap-6 sm:grid-cols-2">
+            <div class="rounded-3xl border border-[#dce8d7] bg-white p-7 sm:p-8 shadow-2xs">
+              <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#edf5e9] text-[#285736] font-bold">
+                  🌱
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-[#65975d]">Direct Fair-Trade</span>
+                  <h4 class="text-base font-bold text-[#173b2b]">Highland Farming Family Partnership</h4>
+                </div>
+              </div>
+              <p class="mt-4 text-xs leading-relaxed text-[#55715a]">
+                We buy raw ingredients directly from over 120 smallholder Ethiopian farming households cultivating kosoret, wild gesho, ginger, and citrus rinds. By eliminating predatory middlemen and establishing multi-year harvest contracts with guaranteed above-market pricing, we provide predictable economic stability for rural families while securing the purest aromatic crops.
+              </p>
+            </div>
+
+            <div class="rounded-3xl border border-[#dce8d7] bg-white p-7 sm:p-8 shadow-2xs">
+              <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#edf5e9] text-[#285736] font-bold">
+                  ⚙️
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-[#65975d]">Youth Development</span>
+                  <h4 class="text-base font-bold text-[#173b2b]">Distillery Engineering Apprenticeships</h4>
+                </div>
+              </div>
+              <p class="mt-4 text-xs leading-relaxed text-[#55715a]">
+                Our annual technical apprenticeship program provides paid vocational education to young Ethiopian women and men from neighboring districts. Trainees gain hands-on expertise in chemical laboratory analysis, mechanical distillation maintenance, and automated packaging logistics. Over 70% of graduates transition directly into permanent, pension-backed positions at our campus.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- 7. MILESTONES: Timeline of Growth (2012–Now)   -->
       <!-- ============================================== -->
       <section class="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-12">
         <div class="text-center max-w-2xl mx-auto">
