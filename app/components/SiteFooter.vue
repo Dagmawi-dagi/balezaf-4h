@@ -1,19 +1,22 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import LanguageSwitcher from '~/components/LanguageSwitcher.vue'
+import { useLanguage } from '~/composables/useLanguage'
 import { useProducts } from '~/composables/useProducts'
 
+const { t } = useLanguage()
 const { products } = useProducts()
 
-const exploreLinks = [
-  { label: 'Home', to: '/' },
-  { label: 'About Us', to: '/about' },
-  { label: 'Our Products', to: '/products' },
-  { label: 'Place an Order', to: '/order' },
-  { label: 'Journal & Stories', to: '/blog' },
-  { label: 'Events & Tastings', to: '/events' },
-  { label: 'Careers', to: '/careers' },
-  { label: 'Distributor Contact', to: '/contact' },
-  { label: 'Content Admin', to: '/admin' },
-]
+const exploreLinks = computed(() => [
+  { label: t.value.nav.home, to: '/' },
+  { label: t.value.nav.about, to: '/about' },
+  { label: t.value.nav.products, to: '/products' },
+  { label: t.value.nav.order, to: '/order' },
+  { label: t.value.nav.blog, to: '/blog' },
+  { label: t.value.nav.careers, to: '/careers' },
+  { label: t.value.nav.contact, to: '/contact' },
+  { label: t.value.nav.admin, to: '/admin' },
+])
 
 const socialLinks = [
   {
@@ -58,7 +61,7 @@ const socialLinks = [
           </NuxtLink>
 
           <p class="max-w-xs text-xs leading-relaxed text-[#a8c0a5]">
-            Distilling authentic Ethiopian spirits, signature gins, vodkas, and craft fruit liqueurs in Addis Ababa since 1996.
+            {{ t.footer.tagline }}
           </p>
 
           <!-- Direct Contact Strip -->
@@ -87,15 +90,20 @@ const socialLinks = [
               <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[10px] text-[#81ab71]">
                 📍
               </span>
-              <span>Addis Ababa, Ethiopia</span>
+              <span>{{ t.topBar.location }}</span>
             </p>
+          </div>
+
+          <!-- Language Preferences Switcher -->
+          <div class="pt-3 border-t border-white/10">
+            <LanguageSwitcher variant="footer" />
           </div>
         </div>
 
         <!-- Col 2: Spirits Portfolio Quick Links (2 of 12 columns) -->
         <div class="sm:col-span-1 lg:col-span-2">
           <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
-            Our Spirits
+            {{ t.footer.ourSpirits }}
           </p>
           <ul class="space-y-2">
             <li v-for="product in products.slice(0, 6)" :key="product.id">
@@ -116,7 +124,7 @@ const socialLinks = [
               to="/products"
               class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#81ab71] transition hover:text-[#c6dfbc]"
             >
-              <span>All 10 spirits ↗</span>
+              <span>{{ t.productsSec.viewAll }}</span>
             </NuxtLink>
           </div>
         </div>
@@ -124,7 +132,7 @@ const socialLinks = [
         <!-- Col 3: Exploration Links (2 of 12 columns) -->
         <div class="sm:col-span-1 lg:col-span-2">
           <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9fc29a]">
-            Explore
+            {{ t.footer.explore }}
           </p>
           <ul class="space-y-2">
             <li v-for="link in exploreLinks.slice(0, 6)" :key="link.to">
@@ -193,10 +201,10 @@ const socialLinks = [
         <!-- Copyright & Responsibility note -->
         <div class="space-y-1 text-center sm:text-left">
           <p class="text-xs text-[#8daa8c]">
-            © 2026 Balezaf Alcohol &amp; Liquors Factory PLC · Addis Ababa, Ethiopia.
+            © 2026 {{ t.footer.rights }}
           </p>
           <p class="text-[11px] text-[#6d8a6e]">
-            Please enjoy responsibly. Strict adherence to legal drinking age laws.
+            {{ t.footer.disclaimer }}
           </p>
         </div>
 

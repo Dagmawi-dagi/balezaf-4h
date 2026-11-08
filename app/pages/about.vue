@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import ScrollBottleSpread from '~/components/ScrollBottleSpread.vue'
+import { useLanguage } from '~/composables/useLanguage'
+
+const { t, isAmharic } = useLanguage()
 
 useSeoMeta({
   title: 'About Balezaf Biherawi | Modern Distillation & Ethiopian Craft',
@@ -205,18 +208,21 @@ const staffTeam = [
         <div class="relative mx-auto max-w-7xl">
           <div class="max-w-4xl">
             <div class="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.25em] text-[#b8d7af]">
-              <span>Balezaf Biherawi Alcohol &amp; Liquor Factory</span>
+              <span>{{ isAmharic ? 'ባለዛፍ ብሔራዊ አልኮልና መጠጥ ፋብሪካ' : 'Balezaf Biherawi Alcohol & Liquor Factory' }}</span>
               <span class="text-white/40">·</span>
-              <span>Est. 2012 · Addis Ababa</span>
+              <span>{{ isAmharic ? 'የተመሰረተበት 2012 · አዲስ አበባ' : 'Est. 2012 · Addis Ababa' }}</span>
             </div>
 
             <h1 class="mt-6 font-serif text-5xl leading-[1.08] tracking-tight sm:text-7xl lg:text-8xl">
-              Precision manufacturing.<br />
-              <em class="font-normal text-[#b8d7af]">Ethiopian character.</em>
+              {{ isAmharic ? 'ዘመናዊ የማምረቻ ጥበብ።' : 'Precision manufacturing.' }}<br />
+              <em class="font-normal text-[#b8d7af]">{{ isAmharic ? 'የኢትዮጵያ ድንቅ ባህልና ጥራት።' : 'Ethiopian character.' }}</em>
             </h1>
 
             <p class="mt-8 max-w-2xl text-lg leading-relaxed text-[#d8e7d4] sm:text-xl">
-              We engineer world-class spirits at the intersection of modern fractional distillation, advanced analytical chemistry, and centuries of indigenous Ethiopian botanical wisdom.
+              {{ isAmharic
+                ? 'በአዲስ አበባ የሚገኘው ባለዛፍ ፋብሪካ የሀገራችንን የተፈጥሮ እጽዋት፣ ንፁህ የምንጭ ውሃ እና የጠራ ማጣሪያን በማዋሃድ አለም አቀፍ ደረጃቸውን የጠበቁ መጠጦችን በከፍተኛ ጥራት ያመርታል።'
+                : 'We engineer world-class spirits at the intersection of modern fractional distillation, advanced analytical chemistry, and centuries of indigenous Ethiopian botanical wisdom.'
+              }}
             </p>
 
             <div class="mt-10 flex flex-wrap items-center gap-4 text-xs font-semibold">
@@ -224,13 +230,13 @@ const staffTeam = [
                 to="/products"
                 class="rounded-full bg-[#c6dfbc] px-7 py-3.5 text-[#173b2b] shadow-sm transition hover:bg-white"
               >
-                Explore Spirits Portfolio ↗
+                {{ isAmharic ? 'ምርቶቹን ይመልከቱ ↗' : 'Explore Spirits Portfolio ↗' }}
               </NuxtLink>
               <NuxtLink
                 to="/#contact"
                 class="rounded-full border border-white/25 px-7 py-3.5 text-white backdrop-blur-xs transition hover:bg-white/10"
               >
-                Schedule Factory Visit / Tour
+                {{ isAmharic ? 'ፋብሪካውን ይጎብኙ' : 'Schedule Factory Visit / Tour' }}
               </NuxtLink>
             </div>
           </div>

@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import HeroBottleArc from '~/components/HeroBottleArc.vue'
 import ProductDetailModal, { type ProductDetail } from '~/components/ProductDetailModal.vue'
+import { useLanguage } from '~/composables/useLanguage'
 import { useProducts } from '~/composables/useProducts'
 
+const { t, isAmharic } = useLanguage()
 const { topProducts } = useProducts()
 
 // Modal state
@@ -21,93 +23,99 @@ function closeProductModal() {
 }
 
 // 5 Heritage Milestones with responsive column configuration
-const milestones = [
+const milestones = computed(() => [
   {
     value: '10',
-    label: 'Spirits & Liqueurs',
-    desc: 'Signature gins, vodkas, ouzo, zebib, and fruit liqueurs.',
+    label: t.value.milestones.spirits,
+    desc: t.value.milestones.spiritsDesc,
     mobileSpan: 'col-span-1',
     tabletSpan: 'sm:col-span-2',
     iconType: 'bottle',
   },
   {
     value: '80+',
-    label: 'Team Members',
-    desc: 'Master distillers, botanists, bottlers, and distribution crew.',
+    label: t.value.milestones.team,
+    desc: t.value.milestones.teamDesc,
     mobileSpan: 'col-span-1',
     tabletSpan: 'sm:col-span-2',
     iconType: 'team',
   },
   {
     value: '2012',
-    label: 'Modern Plant',
-    desc: 'Upgraded automated distillation and high-precision bottling lines.',
+    label: t.value.milestones.modernPlant,
+    desc: t.value.milestones.modernPlantDesc,
     mobileSpan: 'col-span-1',
     tabletSpan: 'sm:col-span-2',
     iconType: 'plant',
   },
   {
     value: '2',
-    label: 'Warehouses',
-    desc: 'Climate-controlled secure storage for batch purity.',
+    label: t.value.milestones.warehouses,
+    desc: t.value.milestones.warehousesDesc,
     mobileSpan: 'col-span-1',
     tabletSpan: 'sm:col-span-3',
     iconType: 'warehouse',
   },
   {
     value: '1',
-    label: 'Production Plant',
-    desc: 'Purpose-built Addis Ababa facilities for thoughtful Ethiopian craft.',
+    label: t.value.milestones.campus,
+    desc: t.value.milestones.campusDesc,
     mobileSpan: 'col-span-2',
     tabletSpan: 'sm:col-span-3',
     iconType: 'factory',
   },
-]
+])
 
 // Customer & Hospitality Partner Testimonials
-const customerTestimonials = [
+const customerTestimonials = computed(() => [
   {
-    quote: 'Desta Gin has become the permanent crown jewel on our signature cocktail menu. The wild highland kosoret and citrus aroma profile astonishes international diplomats and guests who never realized Ethiopia was producing botanical spirits of this world-class caliber.',
+    quote: isAmharic.value
+      ? 'ደስታ ጂን በኮክቴል ዝርዝራችን ላይ ቋሚ ተመራጭ ሆኗል። የሀገር በቀሉ የኮሰረት እና የሎሚ መዓዛው አለምአቀፍ ዲፕሎማቶችንና እንግዶቻችንን በእጅጉ ያስደንቃል።'
+      : 'Desta Gin has become the permanent crown jewel on our signature cocktail menu. The wild highland kosoret and citrus aroma profile astonishes international diplomats and guests who never realized Ethiopia was producing botanical spirits of this world-class caliber.',
     author: 'Yared Mengistu',
-    title: 'Head Beverage Director',
-    establishment: 'The Skylight Luxury Hotel, Addis Ababa',
+    title: isAmharic.value ? 'የመጠጥና መስተንግዶ ዳይሬክተር' : 'Head Beverage Director',
+    establishment: isAmharic.value ? 'ስካይላይት የቅንጦት ሆቴል፣ አዲስ አበባ' : 'The Skylight Luxury Hotel, Addis Ababa',
     rating: 5,
-    badge: 'Luxury Hospitality Partner',
+    badge: t.value.testimonials.badgePartner,
     initials: 'YM',
   },
   {
-    quote: 'Their Zebib is without question the cleanest anise spirit I have ever poured. When crafting signature aperitifs, the silky mouthfeel and clean clouding louche effect are flawless. It bridges traditional Ethiopian banquets with modern craft mixology seamlessly.',
+    quote: isAmharic.value
+      ? 'ዘቢብ ካየኋቸው የአኒስ መጠጦች ሁሉ እጅግ በጣም የጠራና ንፁህ ነው። ለባህላዊ ድግሶችም ሆነ ለዘመናዊ የኮክቴል ዝግጅት ወደር የማይገኝለት ምርጥ ምርት ነው።'
+      : 'Their Zebib is without question the cleanest anise spirit I have ever poured. When crafting signature aperitifs, the silky mouthfeel and clean clouding louche effect are flawless. It bridges traditional Ethiopian banquets with modern craft mixology seamlessly.',
     author: 'Samrawit Fekadu',
-    title: 'Lead Mixologist & Bar Manager',
-    establishment: 'Bole Sky Lounge & Cocktail Bar',
+    title: isAmharic.value ? 'ዋና የኮክቴል ቀማሚና ባር ማኔጀር' : 'Lead Mixologist & Bar Manager',
+    establishment: isAmharic.value ? 'ቦሌ ስካይ ላውንጅና ባር' : 'Bole Sky Lounge & Cocktail Bar',
     rating: 5,
-    badge: 'Craft Cocktail Bar',
+    badge: t.value.testimonials.badgeBar,
     initials: 'SF',
   },
   {
-    quote: 'From supply-chain reliability to zero bottle variance across pallet shipments, Balezaf is our most dependable domestic partner. Their packaging aesthetics and industrial quality control rival top European spirit imports.',
+    quote: isAmharic.value
+      ? 'ከአቅርቦት አስተማማኝነት ጀምሮ እስከ ማሸጊያ ጥራት ድረስ ባለዛፍ ለእኛ እጅግ ታማኝ አጋራችን ነው። የአለም አቀፍ ደረጃን ያሟላ ድንቅ የሀገር ውስጥ ስራ ነው።'
+      : 'From supply-chain reliability to zero bottle variance across pallet shipments, Balezaf is our most dependable domestic partner. Their packaging aesthetics and industrial quality control rival top European spirit imports.',
     author: 'Tewodros Haile',
-    title: 'General Manager of Procurement',
-    establishment: 'Rift Valley Beverage Distributors',
+    title: isAmharic.value ? 'የግዥና አቅርቦት ስራ አስኪያጅ' : 'General Manager of Procurement',
+    establishment: isAmharic.value ? 'ሪፍት ቫሊ የመጠጥ አከፋፋዮች' : 'Rift Valley Beverage Distributors',
     rating: 5,
-    badge: 'National Distribution Partner',
+    badge: t.value.testimonials.badgeDistributor,
     initials: 'TH',
   },
-]
+])
 
-const partnerMetrics = [
-  { value: '450+', label: 'Hospitality Venues', desc: 'Hotels, bars, and resorts serving Balezaf nationwide' },
-  { value: '4.9 / 5', label: 'Average Quality Rating', desc: 'Across blind sommelier panels and bar managers' },
-  { value: '99.8%', label: 'On-Time Fulfillment', desc: 'Fulfillment accuracy across regional wholesale orders' },
-  { value: '100%', label: 'Ethiopian Terroir', desc: 'Locally sourced grains and wild mountain botanicals' },
-]
+const partnerMetrics = computed(() => [
+  { value: '450+', label: t.value.testimonials.statsVenues, desc: isAmharic.value ? 'በሀገር አቀፍ ደረጃ ባለዛፍን የሚያቀርቡ ሆቴሎችና ላውንጆች' : 'Hotels, bars, and resorts serving Balezaf nationwide' },
+  { value: '4.9 / 5', label: t.value.testimonials.statsRating, desc: isAmharic.value ? 'በታዋቂ ቀማሚዎችና ሆቴሎች የተሰጠ ከፍተኛ ደረጃ' : 'Across blind sommelier panels and bar managers' },
+  { value: '99.8%', label: t.value.testimonials.statsFulfillment, desc: isAmharic.value ? 'ለጅምላ ትዕዛዞች በሰዓቱ የማድረስ ትክክለኛነት' : 'Fulfillment accuracy across regional wholesale orders' },
+  { value: '100%', label: t.value.testimonials.statsTerroir, desc: isAmharic.value ? 'የሀገር ውስጥ ምርጥ እህሎችና የተፈጥሮ እጽዋት' : 'Locally sourced grains and wild mountain botanicals' },
+])
 
 const inquirySent = ref(false)
 
 const submitInquiry = async (FormD: any, form$: any) => {
   try {
     inquirySent.value = true
-    frontEndErrorFeedback().success('Thanks! Your inquiry has been received.')
+    frontEndErrorFeedback().success(t.value.contact.successMsg)
   } catch (error) {
     frontEndErrorFeedback().err(error)
   }
@@ -133,16 +141,15 @@ const submitInquiry = async (FormD: any, form$: any) => {
             <p
               class="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#c9e6c1]"
             >
-              Made with patience · Bottled with purpose
+              {{ t.hero.badge }}
             </p>
 
             <h1 class="font-serif text-4xl leading-[1.06] tracking-[-.03em] sm:text-5xl lg:text-6xl">
-              The spirit of <em class="font-normal text-[#b8d7af]">good</em> making.
+              {{ t.hero.titlePart1 }} <em class="font-normal text-[#b8d7af]">{{ t.hero.titleItalic }}</em>
             </h1>
 
             <p class="mt-3.5 max-w-lg text-sm leading-relaxed text-[#d8e7d4] sm:text-base">
-              Authentic Ethiopian spirits and craft liqueurs, distilled with local heritage and
-              modern mastery. Explore the rotating collection below.
+              {{ t.hero.desc }}
             </p>
 
             <div class="mt-6 flex flex-wrap items-center gap-3">
@@ -150,14 +157,14 @@ const submitInquiry = async (FormD: any, form$: any) => {
                 to="/order"
                 class="rounded-full bg-[#c6dfbc] px-6 py-2.5 text-xs font-semibold text-[#173b2b] shadow-md transition-all hover:bg-white"
               >
-                Place an order <span aria-hidden="true">↗</span>
+                {{ t.hero.orderBtn }}
               </NuxtLink>
 
               <NuxtLink
                 to="/products"
                 class="rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-xs font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20"
               >
-                Explore all 10 products
+                {{ t.hero.exploreBtn }}
               </NuxtLink>
             </div>
 
@@ -167,17 +174,17 @@ const submitInquiry = async (FormD: any, form$: any) => {
             >
               <div>
                 <strong class="block font-serif text-xl text-white">10</strong>
-                <span>Distinct Spirits</span>
+                <span>{{ isAmharic ? 'ልዩ መጠጦች' : 'Distinct Spirits' }}</span>
               </div>
               <div class="h-7 w-px bg-white/20"></div>
               <div>
                 <strong class="block font-serif text-xl text-white">1996</strong>
-                <span>Distillery Heritage</span>
+                <span>{{ isAmharic ? 'የፋብሪካው ቅርስ' : 'Distillery Heritage' }}</span>
               </div>
               <div class="h-7 w-px bg-white/20"></div>
               <div>
                 <strong class="block font-serif text-xl text-white">100%</strong>
-                <span>Ethiopian Made</span>
+                <span>{{ isAmharic ? 'የኢትዮጵያ ስራ' : 'Ethiopian Made' }}</span>
               </div>
             </div>
           </div>
@@ -192,12 +199,12 @@ const submitInquiry = async (FormD: any, form$: any) => {
       <!-- Story / Heritage Milestones Section (Responsive Grid for all screen sizes) -->
       <section id="story" class="mx-auto block w-full max-w-7xl px-5 pb-20 pt-16 sm:px-6 lg:px-10 lg:pb-28">
         <div class="text-center">
-          <p class="eyebrow">Our heritage</p>
+          <p class="eyebrow">{{ isAmharic ? 'ታሪካችን' : 'Our heritage' }}</p>
           <h2 class="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
-            Distilled with pride in Addis Ababa
+            {{ t.milestones.title }}
           </h2>
           <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#54715a]">
-            Decades of craftsmanship and dedicated infrastructure behind every bottle.
+            {{ isAmharic ? 'ከእያንዳንዱ ጠብታ ጀርባ ያለ የብዙ ዓመታት ጥበብና ዘመናዊ ቴክኖሎጂ' : 'Decades of craftsmanship and dedicated infrastructure behind every bottle.' }}
           </p>
         </div>
 
@@ -307,19 +314,19 @@ const submitInquiry = async (FormD: any, form$: any) => {
         <div class="mx-auto max-w-7xl">
           <div class="flex flex-wrap items-end justify-between gap-6">
             <div>
-              <p class="eyebrow text-[#b8d7af]">Top flagships</p>
+              <p class="eyebrow text-[#b8d7af]">{{ t.productsSec.eyebrow }}</p>
               <h2 class="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">
-                Crafted for your <em class="font-normal text-[#b8d7af]">ritual.</em>
+                {{ t.productsSec.title }} <em class="font-normal text-[#b8d7af]">{{ t.productsSec.titleItalic }}</em>
               </h2>
               <p class="mt-2 text-sm text-[#c9dec8]">
-                Three of our most celebrated Ethiopian spirits. Click any card for detailed notes.
+                {{ t.productsSec.subtitle }}
               </p>
             </div>
             <NuxtLink
               to="/products"
               class="rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-semibold transition hover:bg-white hover:text-[#173b2b]"
             >
-              View all 10 products ↗
+              {{ t.productsSec.viewAll }}
             </NuxtLink>
           </div>
 
@@ -357,7 +364,7 @@ const submitInquiry = async (FormD: any, form$: any) => {
                   <span
                     class="rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-[#c9e6c1] opacity-0 transition duration-300 group-hover:opacity-100"
                   >
-                    View specs
+                    {{ t.productsSec.viewSpecs }}
                   </span>
                 </div>
                 <p class="mt-1.5 text-xs leading-relaxed text-[#c9dec8] sm:text-sm">{{ product.note }}</p>
@@ -368,14 +375,14 @@ const submitInquiry = async (FormD: any, form$: any) => {
                     class="text-xs font-semibold text-[#c6dfbc] transition hover:text-white"
                     @click.stop
                   >
-                    Order bottle →
+                    {{ t.productsSec.orderBottle }}
                   </NuxtLink>
                   <button
                     type="button"
                     class="inline-flex items-center gap-1 text-xs text-[#a2c29f] transition hover:text-white"
                     @click.stop="openProductModal(product)"
                   >
-                    <span>Full notes</span>
+                    <span>{{ t.productsSec.fullNotes }}</span>
                     <span aria-hidden="true">↗</span>
                   </button>
                 </div>
@@ -389,12 +396,12 @@ const submitInquiry = async (FormD: any, form$: any) => {
       <section class="border-y border-[#dce8d7] bg-[#f8faf5] px-6 py-20 lg:px-10 lg:py-28">
         <div class="mx-auto max-w-7xl">
           <div class="max-w-3xl">
-            <p class="eyebrow text-[#65975d]">Partner &amp; Customer Voices</p>
+            <p class="eyebrow text-[#65975d]">{{ t.testimonials.eyebrow }}</p>
             <h2 class="mt-4 font-serif text-3xl sm:text-4xl lg:text-5xl text-[#173b2b]">
-              Trusted on Ethiopia’s <em class="font-normal text-[#65975d]">finest tables.</em>
+              {{ t.testimonials.title }} <em class="font-normal text-[#65975d]">{{ t.testimonials.titleItalic }}</em>
             </h2>
             <p class="mt-4 text-sm sm:text-base leading-relaxed text-[#43654e]">
-              From five-star diplomatic hotel lounges in Addis Ababa to premier craft cocktail bars and regional wholesale distributors—hear how our spirits elevate hospitality rituals across Ethiopia.
+              {{ t.testimonials.desc }}
             </p>
           </div>
 
@@ -457,18 +464,17 @@ const submitInquiry = async (FormD: any, form$: any) => {
         class="mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[.9fr_1.1fr] lg:px-10 lg:py-28"
       >
         <div>
-          <p class="eyebrow">Let&apos;s talk</p>
+          <p class="eyebrow">{{ t.contact.eyebrow }}</p>
           <h2 class="mt-4 max-w-md font-serif text-3xl leading-tight sm:text-4xl lg:text-5xl">
-            Bring a little more <em class="text-[#65975d]">spirit</em> to the table.
+            {{ t.contact.title }} <em class="text-[#65975d]">{{ t.contact.titleItalic }}</em>
           </h2>
           <p class="mt-4 max-w-md text-sm leading-relaxed text-[#66816b] sm:text-base">
-            For wholesale orders, retail distribution, partnerships, or bottle queries, our distillery
-            team is here for you.
+            {{ t.contact.desc }}
           </p>
 
           <div class="mt-8 space-y-3 text-sm text-[#355944]">
             <p class="flex items-center gap-3">
-              <span class="text-[#65975d]">✦</span> Addis Ababa, Ethiopia
+              <span class="text-[#65975d]">✦</span> {{ t.contact.location }}
             </p>
             <p class="flex items-center gap-3">
               <span class="text-[#65975d]">✦</span> +251 914 300 007

@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import LanguageSwitcher from '~/components/LanguageSwitcher.vue'
+import { useLanguage } from '~/composables/useLanguage'
+
+const { t, initLanguage } = useLanguage()
+
 const mobileOpen = ref(false)
 const isScrolled = ref(false)
 
@@ -7,6 +13,7 @@ const handleScroll = () => {
 }
 
 onMounted(() => {
+  initLanguage()
   handleScroll()
   window.addEventListener('scroll', handleScroll, { passive: true })
 })
@@ -15,14 +22,14 @@ onBeforeUnmount(() => {
   window.removeEventListener('scroll', handleScroll)
 })
 
-const links = [
-  { label: 'Home', to: '/' },
-  { label: 'About us', to: '/about' },
-  { label: 'Products', to: '/products' },
-  { label: 'Blog', to: '/blog' },
-  { label: 'Order', to: '/order' },
-  { label: 'Careers', to: '/careers' },
-]
+const links = computed(() => [
+  { label: t.value.nav.home, to: '/' },
+  { label: t.value.nav.about, to: '/about' },
+  { label: t.value.nav.products, to: '/products' },
+  { label: t.value.nav.blog, to: '/blog' },
+  { label: t.value.nav.order, to: '/order' },
+  { label: t.value.nav.careers, to: '/careers' },
+])
 </script>
 
 <template>
@@ -35,7 +42,14 @@ const links = [
           <a href="mailto:destaalcohol@gmail.com" class="hidden truncate transition hover:text-[#b8d7af] sm:inline">destaalcohol@gmail.com</a>
         </div>
         <div class="flex items-center gap-4">
-          <span class="hidden items-center gap-2 whitespace-nowrap text-[#b8d7af] md:inline-flex"><svg aria-hidden="true" class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2"/></svg><span>Addis Ababa, Ethiopia</span></span>
+          <LanguageSwitcher variant="topbar" />
+          <span class="hidden items-center gap-2 whitespace-nowrap text-[#b8d7af] md:inline-flex">
+            <svg aria-hidden="true" class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z"/>
+              <circle cx="12" cy="9" r="2.2"/>
+            </svg>
+            <span>{{ t.topBar.location }}</span>
+          </span>
           <div class="flex items-center gap-3 border-l border-white/20 pl-4" aria-label="Social media links">
             <a href="#" aria-label="TikTok" class="transition hover:text-[#b8d7af]">
               <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 fill-current"><path d="M15.2 3h3.1c.3 1.7 1.3 2.9 3 3.3v3.2a8.4 8.4 0 0 1-3-.8v6.2a6.1 6.1 0 1 1-6.1-6.1c.3 0 .7 0 1 .1v3.3a2.9 2.9 0 1 0 1.9 2.7V3Z" /></svg>
@@ -53,14 +67,42 @@ const links = [
     <div class="mx-auto flex max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
       <NuxtLink to="/" class="flex min-w-0 shrink items-center gap-2 sm:gap-3" aria-label="Balezaf Alcohol Liquors Factory PLC home">
         <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balezaf%20alcohol%20liquors%20factory%20plc%20LOGO-qsQOjEqqCnEubCgRx3GHDzu11GaPo2.png" alt="Balezaf Alcohol Liquors Factory PLC logo" class="h-10 w-10 shrink-0 rounded-full object-cover sm:h-12 sm:w-12" />
-        <div class="min-w-0 max-w-[170px] leading-tight sm:max-w-[220px]"><span class="block truncate text-[11px] font-semibold uppercase tracking-[0.06em] sm:text-sm sm:tracking-[0.08em]">Balezaf</span><span class="mt-1 block truncate text-[8px] uppercase tracking-[0.14em] text-[#65975d] sm:text-[9px] sm:tracking-[0.22em]">Alcohol &amp; Liquor Factory</span></div>
+        <div class="min-w-0 max-w-[170px] leading-tight sm:max-w-[220px]">
+          <span class="block truncate text-[11px] font-semibold uppercase tracking-[0.06em] sm:text-sm sm:tracking-[0.08em]">Balezaf</span>
+          <span class="mt-1 block truncate text-[8px] uppercase tracking-[0.14em] text-[#65975d] sm:text-[9px] sm:tracking-[0.22em]">Alcohol &amp; Liquor Factory</span>
+        </div>
       </NuxtLink>
-      <nav class="hidden items-center gap-7 text-sm font-medium xl:flex" aria-label="Main navigation">
-        <NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="transition hover:text-[#65975d]">{{ link.label }}</NuxtLink>
-        <NuxtLink to="/contact" class="rounded-full bg-[#173b2b] px-5 py-2.5 text-white transition hover:bg-[#35653c]">Contact us <span aria-hidden="true">↗</span></NuxtLink>
-      </nav>
-      <button class="rounded-full border border-[#b8d7af] px-3 py-2 text-sm xl:hidden" aria-label="Toggle menu" @click="mobileOpen = !mobileOpen">Menu</button>
+      
+      <div class="flex items-center gap-4">
+        <nav class="hidden items-center gap-6 text-sm font-medium xl:flex" aria-label="Main navigation">
+          <NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="transition hover:text-[#65975d]">{{ link.label }}</NuxtLink>
+          <NuxtLink to="/contact" class="rounded-full bg-[#173b2b] px-5 py-2.5 text-white transition hover:bg-[#35653c]">
+            {{ t.nav.contact }} <span aria-hidden="true">↗</span>
+          </NuxtLink>
+        </nav>
+
+        <!-- Desktop Language Switcher -->
+        <div class="hidden xl:block">
+          <LanguageSwitcher variant="header" />
+        </div>
+
+        <!-- Mobile Menu Toggle Button -->
+        <div class="flex items-center gap-2 xl:hidden">
+          <LanguageSwitcher variant="header" />
+          <button class="rounded-full border border-[#b8d7af] px-3 py-1.5 text-xs font-semibold" aria-label="Toggle menu" @click="mobileOpen = !mobileOpen">
+            {{ t.nav.menu }}
+          </button>
+        </div>
+      </div>
     </div>
-    <nav v-if="mobileOpen" class="mx-6 mb-5 rounded-2xl bg-[#173b2b] p-5 text-white xl:hidden" aria-label="Mobile navigation"><div class="flex flex-col gap-4"><NuxtLink v-for="link in links" :key="link.to" :to="link.to" @click="mobileOpen = false">{{ link.label }}</NuxtLink><NuxtLink to="/contact" @click="mobileOpen = false">Contact us</NuxtLink></div></nav>
+
+    <!-- Mobile Navigation Drawer -->
+    <nav v-if="mobileOpen" class="mx-6 mb-5 rounded-2xl bg-[#173b2b] p-5 text-white xl:hidden" aria-label="Mobile navigation">
+      <div class="flex flex-col gap-4">
+        <NuxtLink v-for="link in links" :key="link.to" :to="link.to" @click="mobileOpen = false">{{ link.label }}</NuxtLink>
+        <NuxtLink to="/contact" @click="mobileOpen = false">{{ t.nav.contact }} ↗</NuxtLink>
+        <LanguageSwitcher variant="mobile" />
+      </div>
+    </nav>
   </header>
 </template>
