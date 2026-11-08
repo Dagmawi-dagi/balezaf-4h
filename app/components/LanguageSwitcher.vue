@@ -56,16 +56,22 @@ onMounted(() => {
     </div>
   </div>
 
-  <!-- Variant: Top Bar (dark header bar) -->
-  <div v-else-if="variant === 'topbar'" class="inline-flex items-center gap-1.5 text-xs">
-    <span class="text-[#b8d7af] text-[11px] uppercase tracking-wider hidden sm:inline">ቋንቋ / Lang:</span>
-    <div class="inline-flex items-center rounded-full bg-white/10 p-0.5 text-[11px] font-medium border border-white/15">
+  <!-- Variant: Top Bar (alongside social icons on the top utility nav) -->
+  <div v-else-if="variant === 'topbar'" class="inline-flex items-center">
+    <div
+      class="inline-flex items-center rounded-full bg-white/10 p-0.5 text-xs font-semibold border border-white/20 shadow-xs backdrop-blur-xs"
+      role="group"
+      aria-label="Language selection"
+    >
       <button
         type="button"
         :class="[
-          'rounded-full px-2 py-0.5 transition',
-          currentLocale === 'en' ? 'bg-[#b8d7af] text-[#173b2b] font-bold' : 'text-white/80 hover:text-white'
+          'rounded-full px-2 py-0.5 text-[11px] font-semibold transition tracking-wide',
+          currentLocale === 'en'
+            ? 'bg-[#b8d7af] text-[#173b2b] shadow-xs'
+            : 'text-white/80 hover:text-white'
         ]"
+        aria-label="Switch to English"
         @click="setLocale('en')"
       >
         EN
@@ -73,12 +79,15 @@ onMounted(() => {
       <button
         type="button"
         :class="[
-          'rounded-full px-2 py-0.5 transition font-serif',
-          currentLocale === 'am' ? 'bg-[#b8d7af] text-[#173b2b] font-bold' : 'text-white/80 hover:text-white'
+          'rounded-full px-2 py-0.5 text-[11px] font-semibold transition font-serif',
+          currentLocale === 'am'
+            ? 'bg-[#b8d7af] text-[#173b2b] shadow-xs'
+            : 'text-white/80 hover:text-white'
         ]"
+        aria-label="ወደ አማርኛ ቀይር (Switch to Amharic)"
         @click="setLocale('am')"
       >
-        አማርኛ
+        አማ
       </button>
     </div>
   </div>
