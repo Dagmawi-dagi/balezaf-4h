@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import LanguageSwitcher from '~/components/LanguageSwitcher.vue'
 import { useLanguage } from '~/composables/useLanguage'
 import { useProducts } from '~/composables/useProducts'
 
@@ -92,11 +91,6 @@ const socialLinks = [
               </span>
               <span>{{ t.topBar.location }}</span>
             </p>
-          </div>
-
-          <!-- Language Preferences Switcher -->
-          <div class="pt-3 border-t border-white/10">
-            <LanguageSwitcher variant="footer" />
           </div>
         </div>
 

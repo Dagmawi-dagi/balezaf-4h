@@ -1,0 +1,100 @@
+{
+  "langName": "English",
+  "langAlt": "አማርኛ",
+  "topBar": {
+    "location": "Addis Ababa, Ethiopia",
+    "call": "Call Us"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "products": "Products",
+    "blog": "Blog",
+    "order": "Order",
+    "careers": "Careers",
+    "contact": "Contact Us",
+    "admin": "Admin",
+    "menu": "Menu",
+    "language": "Language"
+  },
+  "hero": {
+    "badge": "Made with patience · Bottled with purpose",
+    "titlePart1": "Rich Ethiopian spirits, crafted with",
+    "titleItalic": "patient pride.",
+    "desc": "From Addis Ababa, Balezaf blends traditional botanical wisdom with modern fractional distillation — creating balanced gins, vodkas, and heritage liqueurs for memorable Ethiopian rituals.",
+    "orderBtn": "Order for your venue →",
+    "exploreBtn": "Explore products",
+    "specPlant": "Purpose-built distillation facility in Addis Ababa",
+    "specTour": "Campus Tour"
+  },
+  "milestones": {
+    "title": "A Decade of Distillation Excellence",
+    "spirits": "Spirits & Liqueurs",
+    "spiritsDesc": "Signature gins, vodkas, ouzo, zebib, and fruit liqueurs.",
+    "team": "Team Members",
+    "teamDesc": "Master distillers, botanists, bottlers, and distribution crew.",
+    "modernPlant": "Modern Plant",
+    "modernPlantDesc": "Upgraded automated distillation and high-precision bottling lines.",
+    "warehouses": "Warehouses",
+    "warehousesDesc": "Climate-controlled secure storage for batch purity.",
+    "campus": "Production Plant",
+    "campusDesc": "Purpose-built Addis Ababa facilities for thoughtful Ethiopian craft."
+  },
+  "productsSec": {
+    "eyebrow": "Top flagships",
+    "title": "Crafted for your",
+    "titleItalic": "ritual.",
+    "subtitle": "Three of our most celebrated Ethiopian spirits. Click any card for detailed notes.",
+    "viewAll": "View all 10 products ↗",
+    "orderBottle": "Order bottle →",
+    "fullNotes": "Full notes",
+    "viewSpecs": "View specs"
+  },
+  "testimonials": {
+    "eyebrow": "Partner & Customer Voices",
+    "title": "Trusted on Ethiopia’s",
+    "titleItalic": "finest tables.",
+    "desc": "From five-star diplomatic hotel lounges in Addis Ababa to premier craft cocktail bars and regional wholesale distributors—hear how our spirits elevate hospitality rituals across Ethiopia.",
+    "badgePartner": "Luxury Hospitality Partner",
+    "badgeBar": "Craft Cocktail Bar",
+    "badgeDistributor": "National Distribution Partner",
+    "statsVenues": "Hospitality Venues",
+    "statsRating": "Average Quality Rating",
+    "statsFulfillment": "On-Time Fulfillment",
+    "statsTerroir": "Ethiopian Terroir"
+  },
+  "contact": {
+    "eyebrow": "Let’s talk",
+    "title": "Bring a little more",
+    "titleItalic": "spirit to the table.",
+    "desc": "For wholesale orders, retail distribution, partnerships, or bottle queries, our distillery team is here for you.",
+    "location": "Addis Ababa, Ethiopia",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@company.com",
+    "messageLabel": "How can we help?",
+    "messagePlaceholder": "Tell us about your order or partnership",
+    "submitBtn": "Send inquiry ↗",
+    "successMsg": "Thanks — your inquiry has been received. We’ll be in touch shortly."
+  },
+  "footer": {
+    "tagline": "Distilling authentic Ethiopian spirits, signature gins, vodkas, and craft fruit liqueurs in Addis Ababa since 1996.",
+    "ourSpirits": "Our Spirits",
+    "explore": "Explore",
+    "distilleryMap": "Distillery Location",
+    "mapDirections": "Open in Google Maps ↗",
+    "rights": "Balezaf Alcohol & Liquors Factory PLC. All rights reserved.",
+    "disclaimer": "Please enjoy responsibly. Intended only for persons of legal drinking age (21+).",
+    "switchLang": "Language Preference"
+  },
+  "about": {
+    "eyebrow": "Our Manufacturing Standard",
+    "title": "Distilling Ethiopian heritage with",
+    "titleItalic": "modern industrial precision.",
+    "peopleTitle": "The People of Balezaf",
+    "peopleSubtitle": "The master distillers & engineers behind every batch.",
+    "communityTitle": "Community & Social Responsibility",
+    "communitySubtitle": "Rooted in the soil. Invested in our people."
+  }
+}

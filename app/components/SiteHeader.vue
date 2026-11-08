@@ -42,7 +42,6 @@ const links = computed(() => [
           <a href="mailto:destaalcohol@gmail.com" class="hidden truncate transition hover:text-[#b8d7af] sm:inline">destaalcohol@gmail.com</a>
         </div>
         <div class="flex items-center gap-4">
-          <LanguageSwitcher variant="topbar" />
           <span class="hidden items-center gap-2 whitespace-nowrap text-[#b8d7af] md:inline-flex">
             <svg aria-hidden="true" class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z"/>
@@ -101,7 +100,6 @@ const links = computed(() => [
       <div class="flex flex-col gap-4">
         <NuxtLink v-for="link in links" :key="link.to" :to="link.to" @click="mobileOpen = false">{{ link.label }}</NuxtLink>
         <NuxtLink to="/contact" @click="mobileOpen = false">{{ t.nav.contact }} ↗</NuxtLink>
-        <LanguageSwitcher variant="mobile" />
       </div>
     </nav>
   </header>
