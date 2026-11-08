@@ -26,6 +26,7 @@ const {
   resetToDefaults: resetTestimonialsToDefaults,
   downloadJsonFile: downloadTestimonialsJson,
   importJsonString: importTestimonialsJsonString,
+  fetchServerTestimonials,
 } = useTestimonials()
 
 const { user, loading: authLoading, initialized: authInitialized, fetchUser, login, logout } = useAuth()
@@ -1197,6 +1198,9 @@ async function fetchBackendData() {
     if (appRes && appRes.success && Array.isArray(appRes.data)) {
       applications.value = appRes.data
     }
+
+    // 4. Fetch live Testimonials from server JSON file
+    await fetchServerTestimonials()
   } catch (err) {
     console.warn('Could not sync with backend API, using cached:', err)
   }

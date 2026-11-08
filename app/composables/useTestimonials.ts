@@ -158,14 +158,28 @@ function saveToStorage() {
   }
 }
 
+// Fetch live server-stored JSON testimonials so visitors worldwide see updates
+async function fetchServerTestimonials() {
+  try {
+    const res: any = await $fetch('/api/testimonials')
+    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+      testimonials.value = res.data
+      saveToStorage()
+    }
+  } catch (err) {
+    console.warn('Could not sync with /api/testimonials:', err)
+  }
+}
+
 export function useTestimonials() {
-  const init = () => {
-    if (isInitialized.value || !import.meta.client) return
+  const init = async () => {
+    if (isInitialized.value) return
     isInitialized.value = true
     loadFromStorage()
+    await fetchServerTestimonials()
   }
 
-  // Trigger init if in browser
+  // Auto initialize on client
   if (import.meta.client && !isInitialized.value) {
     init()
   }
@@ -180,7 +194,7 @@ export function useTestimonials() {
     testimonials.value.filter((t): t is EmployeeTestimonial => t.type === 'employee')
   )
 
-  const addTestimonial = (item: Omit<TestimonialItem, 'id' | 'createdAt'> & { id?: string; createdAt?: string }) => {
+  const addTestimonial = async (item: Omit<TestimonialItem, 'id' | 'createdAt'> & { id?: string; createdAt?: string }) => {
     const newItem: TestimonialItem = {
       ...item,
       id: item.id || `${item.type === 'customer' ? 'cust' : 'emp'}-${Date.now()}`,
@@ -188,10 +202,21 @@ export function useTestimonials() {
     } as TestimonialItem
     testimonials.value.unshift(newItem)
     saveToStorage()
+
+    // Persist to server JSON file
+    try {
+      await $fetch('/api/testimonials', {
+        method: 'POST',
+        body: { action: 'create', item: newItem },
+      })
+    } catch (err) {
+      console.warn('Could not persist to server JSON file:', err)
+    }
+
     return newItem
   }
 
-  const updateTestimonial = (id: string, updates: Partial<TestimonialItem>) => {
+  const updateTestimonial = async (id: string, updates: Partial<TestimonialItem>) => {
     const idx = testimonials.value.findIndex((t) => t.id === id)
     if (idx !== -1) {
       testimonials.value[idx] = {
@@ -199,24 +224,54 @@ export function useTestimonials() {
         ...updates,
       } as TestimonialItem
       saveToStorage()
+
+      // Persist to server JSON file
+      try {
+        await $fetch('/api/testimonials', {
+          method: 'POST',
+          body: { action: 'update', id, updates },
+        })
+      } catch (err) {
+        console.warn('Could not persist update to server JSON file:', err)
+      }
+
       return true
     }
     return false
   }
 
-  const deleteTestimonial = (id: string) => {
+  const deleteTestimonial = async (id: string) => {
     const prevLen = testimonials.value.length
     testimonials.value = testimonials.value.filter((t) => t.id !== id)
     if (testimonials.value.length !== prevLen) {
       saveToStorage()
+
+      // Persist deletion to server JSON file
+      try {
+        await $fetch('/api/testimonials', {
+          method: 'POST',
+          body: { action: 'delete', id },
+        })
+      } catch (err) {
+        console.warn('Could not persist delete to server JSON file:', err)
+      }
+
       return true
     }
     return false
   }
 
-  const resetToDefaults = () => {
+  const resetToDefaults = async () => {
     testimonials.value = [...defaultTestimonials]
     saveToStorage()
+    try {
+      await $fetch('/api/testimonials', {
+        method: 'POST',
+        body: { action: 'sync', items: testimonials.value },
+      })
+    } catch (err) {
+      console.warn('Could not reset server JSON file:', err)
+    }
   }
 
   const exportJson = (): string => {
@@ -235,12 +290,20 @@ export function useTestimonials() {
     URL.revokeObjectURL(url)
   }
 
-  const importJsonString = (jsonStr: string): boolean => {
+  const importJsonString = async (jsonStr: string): Promise<boolean> => {
     try {
       const parsed = JSON.parse(jsonStr)
       if (Array.isArray(parsed) && parsed.length > 0) {
         testimonials.value = parsed
         saveToStorage()
+        try {
+          await $fetch('/api/testimonials', {
+            method: 'POST',
+            body: { action: 'sync', items: testimonials.value },
+          })
+        } catch (err) {
+          console.warn('Could not sync imported JSON to server:', err)
+        }
         return true
       }
     } catch (err) {
@@ -261,5 +324,6 @@ export function useTestimonials() {
     downloadJsonFile,
     importJsonString,
     init,
+    fetchServerTestimonials,
   }
 }

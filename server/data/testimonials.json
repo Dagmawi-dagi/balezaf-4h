@@ -1,0 +1,101 @@
+[
+  {
+    "id": "cust-1",
+    "type": "customer",
+    "author": "Yared Mengistu",
+    "title": "Head Beverage Director",
+    "titleAm": "የመጠጥና መስተንግዶ ዳይሬክተር",
+    "establishment": "The Skylight Luxury Hotel, Addis Ababa",
+    "establishmentAm": "ስካይላይት የቅንጦት ሆቴል፣ አዲስ አበባ",
+    "quote": "Desta Gin has become the permanent crown jewel on our signature cocktail menu. The wild highland kosoret and citrus aroma profile astonishes international diplomats and guests who never realized Ethiopia was producing botanical spirits of this world-class caliber.",
+    "quoteAm": "ደስታ ጂን በኮክቴል ዝርዝራችን ላይ ቋሚ ተመራጭ ሆኗል። የሀገር በቀሉ የኮሰረት እና የሎሚ መዓዛው አለምአቀፍ ዲፕሎማቶችንና እንግዶቻችንን በእጅጉ ያስደንቃል።",
+    "rating": 5,
+    "badge": "Luxury Hospitality Partner",
+    "initials": "YM",
+    "avatar": "",
+    "featured": true,
+    "createdAt": "2026-01-15"
+  },
+  {
+    "id": "cust-2",
+    "type": "customer",
+    "author": "Samrawit Fekadu",
+    "title": "Lead Mixologist & Bar Manager",
+    "titleAm": "ዋና የኮክቴል ቀማሚና ባር ማኔጀር",
+    "establishment": "Bole Sky Lounge & Cocktail Bar",
+    "establishmentAm": "ቦሌ ስካይ ላውንጅና ባር",
+    "quote": "Their Zebib is without question the cleanest anise spirit I have ever poured. When crafting signature aperitifs, the silky mouthfeel and clean clouding louche effect are flawless. It bridges traditional Ethiopian banquets with modern craft mixology seamlessly.",
+    "quoteAm": "ዘቢብ ካየኋቸው የአኒስ መጠጦች ሁሉ እጅግ በጣም የጠራና ንፁህ ነው። ለባህላዊ ድግሶችም ሆነ ለዘመናዊ የኮክቴል ዝግጅት ወደር የማይገኝለት ምርጥ ምርት ነው።",
+    "rating": 5,
+    "badge": "Craft Cocktail Bar",
+    "initials": "SF",
+    "avatar": "",
+    "featured": true,
+    "createdAt": "2026-02-01"
+  },
+  {
+    "id": "cust-3",
+    "type": "customer",
+    "author": "Tewodros Haile",
+    "title": "General Manager of Procurement",
+    "titleAm": "የግዥና አቅርቦት ስራ አስኪያጅ",
+    "establishment": "Rift Valley Beverage Distributors",
+    "establishmentAm": "ሪፍት ቫሊ የመጠጥ አከፋፋዮች",
+    "quote": "From supply-chain reliability to zero bottle variance across pallet shipments, Balezaf is our most dependable domestic partner. Their packaging aesthetics and industrial quality control rival top European spirit imports.",
+    "quoteAm": "ከአቅርቦት አስተማማኝነት ጀምሮ እስከ ማሸጊያ ጥራት ድረስ ባለዛፍ ለእኛ እጅግ ታማኝ አጋራችን ነው። የአለም አቀፍ ደረጃን ያሟላ ድንቅ የሀገር ውስጥ ስራ ነው።",
+    "rating": 5,
+    "badge": "National Distribution Partner",
+    "initials": "TH",
+    "avatar": "",
+    "featured": true,
+    "createdAt": "2026-02-14"
+  },
+  {
+    "id": "emp-1",
+    "type": "employee",
+    "name": "Dawit Tadesse",
+    "role": "Master Distiller & Head of Production",
+    "tenure": "9 Years at Balezaf",
+    "image": "/images/staff-distiller.jpg",
+    "specialty": "Fractional Distillation & Botanical Infusion",
+    "quote": "Distillation is both rigorous chemistry and sacred sensory intuition. When you stand next to the copper pot still at 6:00 AM, smelling the bright citrus and wild kosoret as the spirit vapors rise, you feel the soul of Ethiopia in every drop.",
+    "highlights": [
+      "Supervised 2,400+ distillation runs",
+      "Pioneered signature Desta recipes",
+      "Trained 18 young apprentices"
+    ],
+    "createdAt": "2026-01-10"
+  },
+  {
+    "id": "emp-2",
+    "type": "employee",
+    "name": "Dr. Bethlehem Assefa",
+    "role": "Chief Quality Chemist & Laboratory Director",
+    "tenure": "6 Years at Balezaf",
+    "image": "/images/staff-chemist.jpg",
+    "specialty": "Gas Chromatography & Chemical Purity",
+    "quote": "Our laboratory never compromises. We hold every single batch to tighter tolerances than international benchmarks—testing for molecular clarity, volatile congeners, and absolute proof accuracy before a single bottle is cleared.",
+    "highlights": [
+      "M.Sc. Analytical Chemistry (AAU)",
+      "ECAE Quality Compliance Lead",
+      "100% batch release verification"
+    ],
+    "createdAt": "2026-01-20"
+  },
+  {
+    "id": "emp-3",
+    "type": "employee",
+    "name": "Henok Alemu",
+    "role": "Senior Packaging & Operations Supervisor",
+    "tenure": "7 Years at Balezaf",
+    "image": "/images/staff-packaging.jpg",
+    "specialty": "Automated Line Engineering & Logistics",
+    "quote": "I joined Balezaf as a junior maintenance technician in 2017 and grew into supervising the automated bottling hall. The culture here is like family: we take immense pride seeing our bottles celebrated at gatherings across Ethiopia.",
+    "highlights": [
+      "Promoted from vocational trainee",
+      "Maintains 99.4% line efficiency",
+      "Zero-breakage handling lead"
+    ],
+    "createdAt": "2026-02-05"
+  }
+]
