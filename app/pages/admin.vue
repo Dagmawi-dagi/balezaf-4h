@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { type ProductItem, resolveBottleImage, useProducts } from '~/composables/useProducts'
 import { useAuth } from '~/composables/useAuth'
+import { useTestimonials, type CustomerTestimonial, type EmployeeTestimonial, type TestimonialItem } from '~/composables/useTestimonials'
 
 const {
   products,
@@ -14,6 +15,16 @@ const {
   importJsonString,
   availableImageKeys,
 } = useProducts()
+
+const {
+  allTestimonials,
+  customerTestimonials,
+  employeeTestimonials,
+  addTestimonial,
+  updateTestimonial,
+  deleteTestimonial,
+  resetToDefaults: resetTestimonialsToDefaults,
+} = useTestimonials()
 
 const { user, loading: authLoading, initialized: authInitialized, fetchUser, login, logout } = useAuth()
 
@@ -57,7 +68,7 @@ async function handleAdminLogout() {
 }
 
 const activeTab = ref('Products')
-const tabs = ['Products', 'Overview', 'Events', 'Blog posts', 'Job vacancies', 'Applications']
+const tabs = ['Products', 'Testimonials', 'Overview', 'Events', 'Blog posts', 'Job vacancies', 'Applications']
 const viewMode = ref<'table' | 'grid'>('table')
 const searchQuery = ref('')
 
@@ -463,6 +474,216 @@ function saveEventsToStorage() {
     localStorage.setItem('balezaf_events', JSON.stringify(events.value))
   }
 }
+
+// ----------------------------------------------------
+// TESTIMONIALS (Customer & Employee) STATE & HANDLERS
+// ----------------------------------------------------
+const testimonialFilter = ref<'all' | 'customer' | 'employee'>('all')
+const testimonialSearch = ref('')
+const isTestimonialModalOpen = ref(false)
+const isNewTestimonial = ref(true)
+const editingTestimonialId = ref<string | null>(null)
+const testimonialType = ref<'customer' | 'employee'>('customer')
+const isUploadingTestimonialImg = ref(false)
+const testimonialFileInput = ref<HTMLInputElement | null>(null)
+
+const testimonialForm = reactive({
+  type: 'customer' as 'customer' | 'employee',
+  // Customer fields
+  author: '',
+  title: '',
+  titleAm: '',
+  establishment: '',
+  establishmentAm: '',
+  rating: 5,
+  badge: 'Luxury Hospitality Partner',
+  // Employee fields
+  name: '',
+  role: '',
+  tenure: '',
+  specialty: '',
+  highlightsText: '',
+  // Shared fields
+  quote: '',
+  quoteAm: '',
+  image: '',
+})
+
+const testimonialFormValues = computed(() => ({
+  type: testimonialForm.type,
+  author: testimonialForm.author || '',
+  title: testimonialForm.title || '',
+  titleAm: testimonialForm.titleAm || '',
+  establishment: testimonialForm.establishment || '',
+  establishmentAm: testimonialForm.establishmentAm || '',
+  rating: Number(testimonialForm.rating) || 5,
+  badge: testimonialForm.badge || 'Luxury Hospitality Partner',
+  name: testimonialForm.name || '',
+  role: testimonialForm.role || '',
+  tenure: testimonialForm.tenure || '',
+  specialty: testimonialForm.specialty || '',
+  highlightsText: testimonialForm.highlightsText || '',
+  quote: testimonialForm.quote || '',
+  quoteAm: testimonialForm.quoteAm || '',
+}))
+
+function openTestimonialCreateModal(type: 'customer' | 'employee' = 'customer') {
+  isNewTestimonial.value = true
+  editingTestimonialId.value = null
+  testimonialType.value = type
+  testimonialForm.type = type
+  testimonialForm.author = ''
+  testimonialForm.title = ''
+  testimonialForm.titleAm = ''
+  testimonialForm.establishment = ''
+  testimonialForm.establishmentAm = ''
+  testimonialForm.rating = 5
+  testimonialForm.badge = type === 'customer' ? 'Luxury Hospitality Partner' : 'Staff Voice'
+  testimonialForm.name = ''
+  testimonialForm.role = ''
+  testimonialForm.tenure = ''
+  testimonialForm.specialty = ''
+  testimonialForm.highlightsText = ''
+  testimonialForm.quote = ''
+  testimonialForm.quoteAm = ''
+  testimonialForm.image = ''
+  isTestimonialModalOpen.value = true
+}
+
+function openTestimonialEditModal(item: TestimonialItem) {
+  isNewTestimonial.value = false
+  editingTestimonialId.value = item.id
+  testimonialType.value = item.type
+  testimonialForm.type = item.type
+  testimonialForm.quote = item.quote || ''
+  testimonialForm.quoteAm = item.quoteAm || ''
+
+  if (item.type === 'customer') {
+    testimonialForm.author = item.author || ''
+    testimonialForm.title = item.title || ''
+    testimonialForm.titleAm = item.titleAm || ''
+    testimonialForm.establishment = item.establishment || ''
+    testimonialForm.establishmentAm = item.establishmentAm || ''
+    testimonialForm.rating = item.rating || 5
+    testimonialForm.badge = item.badge || 'Luxury Hospitality Partner'
+    testimonialForm.image = item.avatar || ''
+  } else {
+    testimonialForm.name = item.name || ''
+    testimonialForm.role = item.role || ''
+    testimonialForm.tenure = item.tenure || ''
+    testimonialForm.specialty = item.specialty || ''
+    testimonialForm.highlightsText = Array.isArray(item.highlights) ? item.highlights.join('\n') : (item.highlights || '')
+    testimonialForm.image = item.image || ''
+  }
+
+  isTestimonialModalOpen.value = true
+}
+
+async function handleTestimonialImageUpload(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  isUploadingTestimonialImg.value = true
+  try {
+    const dataUrl = await processImageFile(file)
+    testimonialForm.image = dataUrl
+    notify('Photo attached!')
+  } catch (err) {
+    console.error(err)
+    alert('Failed to process image.')
+  } finally {
+    isUploadingTestimonialImg.value = false
+    if (testimonialFileInput.value) testimonialFileInput.value.value = ''
+  }
+}
+
+function removeTestimonialImage() {
+  testimonialForm.image = ''
+  if (testimonialFileInput.value) testimonialFileInput.value.value = ''
+}
+
+function saveTestimonialVueform(FD: any, form$: any) {
+  const d = form$.data
+  const type = testimonialType.value
+
+  if (type === 'customer') {
+    const itemData: Omit<CustomerTestimonial, 'id'> = {
+      type: 'customer',
+      author: d.author || 'Anonymous Partner',
+      title: d.title || 'Client / Partner',
+      titleAm: d.titleAm || '',
+      establishment: d.establishment || 'Balezaf Partner Venue',
+      establishmentAm: d.establishmentAm || '',
+      rating: Number(d.rating) || 5,
+      badge: d.badge || 'Customer Voice',
+      quote: d.quote || '',
+      quoteAm: d.quoteAm || '',
+      avatar: testimonialForm.image || '',
+      initials: (d.author || 'CP').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase(),
+      featured: true,
+    }
+
+    if (isNewTestimonial.value) {
+      addTestimonial(itemData)
+      frontEndErrorFeedback().success(`Added customer testimonial from "${itemData.author}"!`)
+    } else if (editingTestimonialId.value) {
+      updateTestimonial(editingTestimonialId.value, itemData)
+      frontEndErrorFeedback().success(`Updated customer testimonial from "${itemData.author}"!`)
+    }
+  } else {
+    const highlights = d.highlightsText
+      ? d.highlightsText.split('\n').map((l: string) => l.trim()).filter(Boolean)
+      : []
+
+    const itemData: Omit<EmployeeTestimonial, 'id'> = {
+      type: 'employee',
+      name: d.name || 'Team Member',
+      role: d.role || 'Distillery Specialist',
+      tenure: d.tenure || 'Team Balezaf',
+      specialty: d.specialty || 'Craft Distillation & Quality',
+      quote: d.quote || '',
+      quoteAm: d.quoteAm || '',
+      highlights,
+      image: testimonialForm.image || '/images/staff-distiller.jpg',
+    }
+
+    if (isNewTestimonial.value) {
+      addTestimonial(itemData)
+      frontEndErrorFeedback().success(`Added employee testimony for "${itemData.name}"!`)
+    } else if (editingTestimonialId.value) {
+      updateTestimonial(editingTestimonialId.value, itemData)
+      frontEndErrorFeedback().success(`Updated employee testimony for "${itemData.name}"!`)
+    }
+  }
+
+  isTestimonialModalOpen.value = false
+}
+
+function removeTestimonial(id: string, name: string) {
+  if (confirm(`Are you sure you want to delete the testimonial from "${name}"?`)) {
+    deleteTestimonial(id)
+    notify(`Deleted testimonial from "${name}"`)
+  }
+}
+
+const filteredTestimonialsList = computed(() => {
+  let list = allTestimonials.value
+  if (testimonialFilter.value === 'customer') {
+    list = list.filter(t => t.type === 'customer')
+  } else if (testimonialFilter.value === 'employee') {
+    list = list.filter(t => t.type === 'employee')
+  }
+  if (testimonialSearch.value.trim()) {
+    const q = testimonialSearch.value.toLowerCase()
+    list = list.filter(t => {
+      if (t.type === 'customer') {
+        return t.author.toLowerCase().includes(q) || t.establishment.toLowerCase().includes(q) || t.quote.toLowerCase().includes(q)
+      } else {
+        return t.name.toLowerCase().includes(q) || t.role.toLowerCase().includes(q) || t.quote.toLowerCase().includes(q)
+      }
+    })
+  }
+  return list
+})
 
 // ----------------------------------------------------
 // 3. BLOG POSTS MANAGEMENT (With Image Upload)
@@ -1463,15 +1684,208 @@ useSeoMeta({
           </div>
 
           <!-- ============================================== -->
+          <!-- TESTIMONIALS TAB (Customer & Employee Voices)  -->
+          <!-- ============================================== -->
+          <div v-else-if="activeTab === 'Testimonials'" class="space-y-3.5">
+            <!-- Toolbar & Actions -->
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#dce8d7] bg-white p-3.5 shadow-2xs">
+              <div>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-[#547959]">Testimonials &amp; Staff Voices</h2>
+                <p class="text-[11px] text-[#6e8a72]">Manage customer partner testimonials on Home and employee testimonies on About Us.</p>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  class="rounded-md border border-[#cddfc9] bg-white px-3 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9] transition"
+                  @click="openTestimonialCreateModal('customer')"
+                >
+                  + Add Customer Review
+                </button>
+                <button
+                  type="button"
+                  class="rounded-md bg-[#173b2b] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2b593a] transition shadow-xs"
+                  @click="openTestimonialCreateModal('employee')"
+                >
+                  + Add Staff Testimony
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter Tabs & Search -->
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#dce8d7] bg-white p-3 shadow-2xs">
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  :class="[
+                    'rounded-lg px-3 py-1 text-xs font-semibold transition',
+                    testimonialFilter === 'all'
+                      ? 'bg-[#173b2b] text-white'
+                      : 'text-[#55715a] hover:bg-[#edf4eb]'
+                  ]"
+                  @click="testimonialFilter = 'all'"
+                >
+                  All ({{ allTestimonials.length }})
+                </button>
+                <button
+                  type="button"
+                  :class="[
+                    'rounded-lg px-3 py-1 text-xs font-semibold transition',
+                    testimonialFilter === 'customer'
+                      ? 'bg-[#173b2b] text-white'
+                      : 'text-[#55715a] hover:bg-[#edf4eb]'
+                  ]"
+                  @click="testimonialFilter = 'customer'"
+                >
+                  Customer Reviews ({{ customerTestimonials.length }})
+                </button>
+                <button
+                  type="button"
+                  :class="[
+                    'rounded-lg px-3 py-1 text-xs font-semibold transition',
+                    testimonialFilter === 'employee'
+                      ? 'bg-[#173b2b] text-white'
+                      : 'text-[#55715a] hover:bg-[#edf4eb]'
+                  ]"
+                  @click="testimonialFilter = 'employee'"
+                >
+                  Employee Testimonies ({{ employeeTestimonials.length }})
+                </button>
+              </div>
+
+              <div class="w-full sm:w-64">
+                <input
+                  v-model="testimonialSearch"
+                  type="text"
+                  placeholder="Search by name, role, venue..."
+                  class="w-full rounded-lg border border-[#cddfc9] bg-[#fbfdfa] px-3 py-1 text-xs text-[#173b2b] focus:border-[#35653c] focus:outline-hidden"
+                />
+              </div>
+            </div>
+
+            <!-- Testimonial Items List -->
+            <div class="overflow-hidden rounded-xl border border-[#dce8d7] bg-white shadow-2xs">
+              <div v-if="filteredTestimonialsList.length === 0" class="p-8 text-center text-xs text-[#6e8a72]">
+                No testimonials match your filter. Click "+ Add Customer Review" or "+ Add Staff Testimony" above.
+              </div>
+              <div v-else class="divide-y divide-[#edf3eb]">
+                <div
+                  v-for="item in filteredTestimonialsList"
+                  :key="item.id"
+                  class="flex flex-col sm:flex-row sm:items-start justify-between p-4 hover:bg-[#fbfdfa] transition gap-4"
+                >
+                  <div class="flex items-start gap-3.5 min-w-0 flex-1">
+                    <!-- Photo / Avatar Thumbnail -->
+                    <div class="h-14 w-14 shrink-0 rounded-xl overflow-hidden border border-[#dce8d7] bg-[#173b2b]/5 flex items-center justify-center">
+                      <img
+                        v-if="item.type === 'customer' ? item.avatar : item.image"
+                        :src="item.type === 'customer' ? item.avatar : item.image"
+                        :alt="item.type === 'customer' ? item.author : item.name"
+                        class="h-full w-full object-cover"
+                      />
+                      <div v-else-if="item.type === 'customer'" class="flex h-full w-full items-center justify-center bg-[#173b2b] text-xs font-bold text-[#c6dfbc]">
+                        {{ item.initials || 'CP' }}
+                      </div>
+                      <div v-else class="text-xl">
+                        👤
+                      </div>
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <!-- Type Badge -->
+                        <span
+                          :class="[
+                            'rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider',
+                            item.type === 'customer'
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                          ]"
+                        >
+                          {{ item.type === 'customer' ? 'Customer Review' : 'Employee Testimony' }}
+                        </span>
+
+                        <!-- Badge / Category -->
+                        <span v-if="item.type === 'customer'" class="rounded bg-[#edf4eb] px-2 py-0.5 text-[10px] font-semibold text-[#285736]">
+                          {{ item.badge }}
+                        </span>
+                        <span v-else class="rounded bg-[#edf4eb] px-2 py-0.5 text-[10px] font-semibold text-[#285736]">
+                          {{ item.tenure }}
+                        </span>
+
+                        <!-- Rating Stars for Customers -->
+                        <span v-if="item.type === 'customer'" class="text-amber-500 text-xs">
+                          {{ '★'.repeat(item.rating || 5) }}
+                        </span>
+                      </div>
+
+                      <h3 class="mt-1.5 font-bold text-sm text-[#173b2b]">
+                        {{ item.type === 'customer' ? item.author : item.name }}
+                      </h3>
+                      <p class="text-xs text-[#527359]">
+                        {{ item.type === 'customer' ? item.title : item.role }}
+                        <span class="text-[#718e75]">· {{ item.type === 'customer' ? item.establishment : item.specialty }}</span>
+                      </p>
+
+                      <!-- Quote preview -->
+                      <blockquote class="mt-2 text-xs italic text-[#355944] border-l-2 border-[#b8d7af] pl-2.5 line-clamp-2">
+                        “{{ item.quote }}”
+                      </blockquote>
+
+                      <div v-if="item.type === 'employee' && item.highlights && item.highlights.length" class="mt-2 flex flex-wrap gap-1.5">
+                        <span
+                          v-for="h in item.highlights.slice(0, 3)"
+                          :key="h"
+                          class="rounded-md bg-[#f4f7f2] px-2 py-0.5 text-[10px] text-[#4a6b51]"
+                        >
+                          ✓ {{ h }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="flex items-center gap-2 shrink-0 sm:self-center">
+                    <button
+                      type="button"
+                      class="rounded-md border border-[#cddfc9] bg-white px-2.5 py-1 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9] transition"
+                      @click="openTestimonialEditModal(item)"
+                    >
+                      Edit ✎
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50 transition"
+                      @click="removeTestimonial(item.id, item.type === 'customer' ? item.author : item.name)"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
           <!-- 2. OVERVIEW TAB (Standard Metrics Dashboard)   -->
           <!-- ============================================== -->
           <div v-else-if="activeTab === 'Overview'" class="space-y-4">
-            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               <div class="rounded-xl border border-[#dce8d7] bg-white p-4 shadow-2xs">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-[#6e8a72]">Spirits Catalogue</span>
                 <div class="mt-1 flex items-baseline justify-between">
                   <strong class="font-serif text-2xl font-bold text-[#173b2b]">{{ products.length }}</strong>
                   <button class="text-[11px] font-semibold text-[#35653c] hover:underline" @click="activeTab = 'Products'">
+                    View →
+                  </button>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-[#dce8d7] bg-white p-4 shadow-2xs">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-[#6e8a72]">Testimonials</span>
+                <div class="mt-1 flex items-baseline justify-between">
+                  <strong class="font-serif text-2xl font-bold text-[#173b2b]">{{ allTestimonials.length }}</strong>
+                  <button class="text-[11px] font-semibold text-[#35653c] hover:underline" @click="activeTab = 'Testimonials'">
                     View →
                   </button>
                 </div>
@@ -1520,6 +1934,20 @@ useSeoMeta({
                   @click="openProductAddModal"
                 >
                   + New Product
+                </button>
+                <button
+                  type="button"
+                  class="rounded-md border border-[#cddfc9] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
+                  @click="openTestimonialCreateModal('customer')"
+                >
+                  + Customer Review
+                </button>
+                <button
+                  type="button"
+                  class="rounded-md border border-[#cddfc9] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
+                  @click="openTestimonialCreateModal('employee')"
+                >
+                  + Staff Testimony
                 </button>
                 <button
                   type="button"
@@ -2235,6 +2663,249 @@ useSeoMeta({
                 <ButtonElement
                   name="submit"
                   :button-label="isNewEvent ? 'Publish Event' : 'Save Changes'"
+                  :submits="true"
+                  :full="true"
+                />
+              </Vueform>
+            </ClientOnly>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- ============================================== -->
+    <!-- MODAL: TESTIMONIAL CREATE / EDIT (Vueform)    -->
+    <!-- ============================================== -->
+    <Teleport to="body">
+      <div
+        v-if="isTestimonialModalOpen"
+        class="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-xs" @click="isTestimonialModalOpen = false"></div>
+
+        <div class="relative z-10 flex max-h-[90vh] w-full max-w-xl flex-col rounded-xl border border-[#cddfc9] bg-white text-[#173b2b] shadow-2xl overflow-hidden">
+          <div class="flex items-center justify-between border-b border-[#e5efe2] bg-[#f8faf6] px-5 py-3 shrink-0">
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-[#547959]">Testimonials Management</p>
+              <h2 class="text-sm font-bold text-[#173b2b]">
+                {{ isNewTestimonial ? (testimonialType === 'customer' ? 'Add Customer Testimonial' : 'Add Employee Testimony') : 'Edit Testimonial' }}
+              </h2>
+            </div>
+            <button
+              type="button"
+              class="flex h-7 w-7 items-center justify-center rounded-md border border-[#cddfc9] text-xs text-[#55715a] hover:bg-[#edf5e9]"
+              @click="isTestimonialModalOpen = false"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div class="overflow-y-auto p-5 space-y-4">
+            <!-- Type Selector Tabs -->
+            <div class="flex items-center gap-2 rounded-lg bg-[#edf4eb] p-1 border border-[#dce8d7]">
+              <button
+                type="button"
+                :class="[
+                  'flex-1 rounded-md py-1.5 text-xs font-semibold transition',
+                  testimonialType === 'customer'
+                    ? 'bg-white text-[#173b2b] shadow-xs'
+                    : 'text-[#55715a] hover:text-[#173b2b]'
+                ]"
+                @click="testimonialType = 'customer'; testimonialForm.type = 'customer'"
+              >
+                Customer / Partner Review
+              </button>
+              <button
+                type="button"
+                :class="[
+                  'flex-1 rounded-md py-1.5 text-xs font-semibold transition',
+                  testimonialType === 'employee'
+                    ? 'bg-white text-[#173b2b] shadow-xs'
+                    : 'text-[#55715a] hover:text-[#173b2b]'
+                ]"
+                @click="testimonialType = 'employee'; testimonialForm.type = 'employee'"
+              >
+                Employee / Staff Testimony
+              </button>
+            </div>
+
+            <!-- Photo Upload Area -->
+            <div class="rounded-lg border border-dashed border-[#cddfc9] bg-[#fbfdfa] p-3 text-center">
+              <div v-if="testimonialForm.image" class="relative inline-block">
+                <img
+                  :src="testimonialForm.image"
+                  alt="Preview"
+                  class="h-20 w-20 rounded-xl object-cover border border-[#cddfc9] shadow-xs mx-auto"
+                />
+                <button
+                  type="button"
+                  class="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] text-white hover:bg-red-700 shadow-xs"
+                  title="Remove photo"
+                  @click="removeTestimonialImage"
+                >
+                  ✕
+                </button>
+              </div>
+              <div v-else class="space-y-1">
+                <p class="text-xs font-medium text-[#173b2b]">
+                  {{ testimonialType === 'customer' ? 'Customer / Partner Photo (Optional)' : 'Staff Photo (Recommended)' }}
+                </p>
+                <p class="text-[11px] text-[#6e8a72]">Upload a clean square JPG or PNG</p>
+                <button
+                  type="button"
+                  class="mt-1 rounded-md border border-[#cddfc9] bg-white px-3 py-1 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9]"
+                  :disabled="isUploadingTestimonialImg"
+                  @click="testimonialFileInput?.click()"
+                >
+                  📷 {{ isUploadingTestimonialImg ? 'Uploading...' : 'Upload Photo' }}
+                </button>
+              </div>
+              <input
+                ref="testimonialFileInput"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handleTestimonialImageUpload"
+              />
+            </div>
+
+            <!-- Customer Testimonial Form with Vueform -->
+            <ClientOnly v-if="testimonialType === 'customer'">
+              <Vueform
+                :endpoint="saveTestimonialVueform"
+                :default-values="testimonialFormValues"
+                :key="editingTestimonialId ? `edit-cust-${editingTestimonialId}` : 'new-cust'"
+              >
+                <TextElement
+                  name="author"
+                  label="Author Full Name *"
+                  placeholder="e.g. Yared Mengistu"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="title"
+                  label="Role / Title *"
+                  placeholder="e.g. Head Beverage Director"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="establishment"
+                  label="Establishment / Venue / Company *"
+                  placeholder="e.g. The Skylight Luxury Hotel, Addis Ababa"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <SelectElement
+                  name="badge"
+                  label="Venue Category / Badge"
+                  :items="['Luxury Hospitality Partner', 'Craft Cocktail Bar', 'National Distribution Partner', 'Retail Customer', 'VIP Partner']"
+                  :columns="{ container: 6 }"
+                />
+                <SelectElement
+                  name="rating"
+                  label="Rating (Stars)"
+                  :items="[
+                    { value: 5, label: '★★★★★ (5 Stars)' },
+                    { value: 4, label: '★★★★☆ (4 Stars)' },
+                    { value: 3, label: '★★★☆☆ (3 Stars)' },
+                  ]"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="titleAm"
+                  label="Role in Amharic (Optional)"
+                  placeholder="e.g. የመጠጥና መስተንግዶ ዳይሬክተር"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="establishmentAm"
+                  label="Venue in Amharic (Optional)"
+                  placeholder="e.g. ስካይላይት የቅንጦት ሆቴል፣ አዲስ አበባ"
+                  :columns="{ container: 12 }"
+                />
+                <TextareaElement
+                  name="quote"
+                  label="Testimonial Quote (English) *"
+                  placeholder="What did the customer or partner say about Balezaf spirits?"
+                  :rows="3"
+                  :rules="['required']"
+                />
+                <TextareaElement
+                  name="quoteAm"
+                  label="Testimonial Quote (Amharic - Optional)"
+                  placeholder="የደንበኛው አስተያየት በአማርኛ..."
+                  :rows="2"
+                />
+                <ButtonElement
+                  name="submit"
+                  :button-label="isNewTestimonial ? 'Save Customer Testimonial' : 'Update Testimonial'"
+                  :submits="true"
+                  :full="true"
+                />
+              </Vueform>
+            </ClientOnly>
+
+            <!-- Employee Testimonial Form with Vueform -->
+            <ClientOnly v-else>
+              <Vueform
+                :endpoint="saveTestimonialVueform"
+                :default-values="testimonialFormValues"
+                :key="editingTestimonialId ? `edit-emp-${editingTestimonialId}` : 'new-emp'"
+              >
+                <TextElement
+                  name="name"
+                  label="Employee Full Name *"
+                  placeholder="e.g. Dawit Tadesse"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="role"
+                  label="Job Position / Role *"
+                  placeholder="e.g. Master Distiller & Head of Production"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="tenure"
+                  label="Tenure at Balezaf *"
+                  placeholder="e.g. 9 Years at Balezaf"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextElement
+                  name="specialty"
+                  label="Area of Expertise / Specialty *"
+                  placeholder="e.g. Fractional Distillation & Botanical Infusion"
+                  :rules="['required']"
+                  :columns="{ container: 6 }"
+                />
+                <TextareaElement
+                  name="highlightsText"
+                  label="Key Highlights (One achievement per line)"
+                  placeholder="Supervised 2,400+ distillation runs&#10;Pioneered signature Desta recipes&#10;Trained 18 young apprentices"
+                  :rows="3"
+                />
+                <TextareaElement
+                  name="quote"
+                  label="Employee Quote / Testimony (English) *"
+                  placeholder="What does this employee share about their craft, values, and pride at Balezaf?"
+                  :rows="3"
+                  :rules="['required']"
+                />
+                <TextareaElement
+                  name="quoteAm"
+                  label="Employee Quote (Amharic - Optional)"
+                  placeholder="የሰራተኛው አስተያየት በአማርኛ..."
+                  :rows="2"
+                />
+                <ButtonElement
+                  name="submit"
+                  :button-label="isNewTestimonial ? 'Save Employee Testimony' : 'Update Testimony'"
                   :submits="true"
                   :full="true"
                 />

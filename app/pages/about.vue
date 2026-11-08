@@ -2,8 +2,10 @@
 import { computed, ref } from 'vue'
 import ScrollBottleSpread from '~/components/ScrollBottleSpread.vue'
 import { useLanguage } from '~/composables/useLanguage'
+import { useTestimonials } from '~/composables/useTestimonials'
 
 const { t, isAmharic } = useLanguage()
+const { employeeTestimonials: staffTeam } = useTestimonials()
 
 useSeoMeta({
   title: 'About Balezaf Biherawi | Modern Distillation & Ethiopian Craft',
@@ -161,36 +163,7 @@ const sustainabilityMetrics = [
   },
 ]
 
-// Master Craftspeople & Staff Testimonials
-const staffTeam = [
-  {
-    name: 'Dawit Tadesse',
-    role: 'Master Distiller & Head of Production',
-    tenure: '9 Years at Balezaf',
-    image: '/images/staff-distiller.jpg',
-    specialty: 'Fractional Distillation & Botanical Infusion',
-    quote: 'Distillation is both rigorous chemistry and sacred sensory intuition. When you stand next to the copper pot still at 6:00 AM, smelling the bright citrus and wild kosoret as the spirit vapors rise, you feel the soul of Ethiopia in every drop.',
-    highlights: ['Supervised 2,400+ distillation runs', 'Pioneered signature Desta recipes', 'Trained 18 young apprentices'],
-  },
-  {
-    name: 'Dr. Bethlehem Assefa',
-    role: 'Chief Quality Chemist & Laboratory Director',
-    tenure: '6 Years at Balezaf',
-    image: '/images/staff-chemist.jpg',
-    specialty: 'Gas Chromatography & Chemical Purity',
-    quote: 'Our laboratory never compromises. We hold every single batch to tighter tolerances than international benchmarks—testing for molecular clarity, volatile congeners, and absolute proof accuracy before a single bottle is cleared.',
-    highlights: ['M.Sc. Analytical Chemistry (AAU)', 'ECAE Quality Compliance Lead', '100% batch release verification'],
-  },
-  {
-    name: 'Henok Alemu',
-    role: 'Senior Packaging & Operations Supervisor',
-    tenure: '7 Years at Balezaf',
-    image: '/images/staff-packaging.jpg',
-    specialty: 'Automated Line Engineering & Logistics',
-    quote: 'I joined Balezaf as a junior maintenance technician in 2017 and grew into supervising the automated bottling hall. The culture here is like family: we take immense pride seeing our bottles celebrated at gatherings across Ethiopia.',
-    highlights: ['Promoted from vocational trainee', 'Maintains 99.4% line efficiency', 'Zero-breakage handling lead'],
-  },
-]
+
 </script>
 
 <template>

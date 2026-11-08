@@ -4,9 +4,11 @@ import HeroBottleArc from '~/components/HeroBottleArc.vue'
 import ProductDetailModal, { type ProductDetail } from '~/components/ProductDetailModal.vue'
 import { useLanguage } from '~/composables/useLanguage'
 import { useProducts } from '~/composables/useProducts'
+import { useTestimonials } from '~/composables/useTestimonials'
 
 const { t, isAmharic } = useLanguage()
 const { topProducts } = useProducts()
+const { customerTestimonials: rawTestimonials } = useTestimonials()
 
 // Modal state
 const isModalOpen = ref(false)
@@ -67,41 +69,16 @@ const milestones = computed(() => [
 ])
 
 // Customer & Hospitality Partner Testimonials
-const customerTestimonials = computed(() => [
-  {
-    quote: isAmharic.value
-      ? 'ደስታ ጂን በኮክቴል ዝርዝራችን ላይ ቋሚ ተመራጭ ሆኗል። የሀገር በቀሉ የኮሰረት እና የሎሚ መዓዛው አለምአቀፍ ዲፕሎማቶችንና እንግዶቻችንን በእጅጉ ያስደንቃል።'
-      : 'Desta Gin has become the permanent crown jewel on our signature cocktail menu. The wild highland kosoret and citrus aroma profile astonishes international diplomats and guests who never realized Ethiopia was producing botanical spirits of this world-class caliber.',
-    author: 'Yared Mengistu',
-    title: isAmharic.value ? 'የመጠጥና መስተንግዶ ዳይሬክተር' : 'Head Beverage Director',
-    establishment: isAmharic.value ? 'ስካይላይት የቅንጦት ሆቴል፣ አዲስ አበባ' : 'The Skylight Luxury Hotel, Addis Ababa',
-    rating: 5,
-    badge: t.value.testimonials.badgePartner,
-    initials: 'YM',
-  },
-  {
-    quote: isAmharic.value
-      ? 'ዘቢብ ካየኋቸው የአኒስ መጠጦች ሁሉ እጅግ በጣም የጠራና ንፁህ ነው። ለባህላዊ ድግሶችም ሆነ ለዘመናዊ የኮክቴል ዝግጅት ወደር የማይገኝለት ምርጥ ምርት ነው።'
-      : 'Their Zebib is without question the cleanest anise spirit I have ever poured. When crafting signature aperitifs, the silky mouthfeel and clean clouding louche effect are flawless. It bridges traditional Ethiopian banquets with modern craft mixology seamlessly.',
-    author: 'Samrawit Fekadu',
-    title: isAmharic.value ? 'ዋና የኮክቴል ቀማሚና ባር ማኔጀር' : 'Lead Mixologist & Bar Manager',
-    establishment: isAmharic.value ? 'ቦሌ ስካይ ላውንጅና ባር' : 'Bole Sky Lounge & Cocktail Bar',
-    rating: 5,
-    badge: t.value.testimonials.badgeBar,
-    initials: 'SF',
-  },
-  {
-    quote: isAmharic.value
-      ? 'ከአቅርቦት አስተማማኝነት ጀምሮ እስከ ማሸጊያ ጥራት ድረስ ባለዛፍ ለእኛ እጅግ ታማኝ አጋራችን ነው። የአለም አቀፍ ደረጃን ያሟላ ድንቅ የሀገር ውስጥ ስራ ነው።'
-      : 'From supply-chain reliability to zero bottle variance across pallet shipments, Balezaf is our most dependable domestic partner. Their packaging aesthetics and industrial quality control rival top European spirit imports.',
-    author: 'Tewodros Haile',
-    title: isAmharic.value ? 'የግዥና አቅርቦት ስራ አስኪያጅ' : 'General Manager of Procurement',
-    establishment: isAmharic.value ? 'ሪፍት ቫሊ የመጠጥ አከፋፋዮች' : 'Rift Valley Beverage Distributors',
-    rating: 5,
-    badge: t.value.testimonials.badgeDistributor,
-    initials: 'TH',
-  },
-])
+const customerTestimonials = computed(() => {
+  return rawTestimonials.value.map((item) => ({
+    ...item,
+    displayQuote: (isAmharic.value && item.quoteAm) ? item.quoteAm : item.quote,
+    displayTitle: (isAmharic.value && item.titleAm) ? item.titleAm : item.title,
+    displayEstablishment: (isAmharic.value && item.establishmentAm) ? item.establishmentAm : item.establishment,
+    badge: item.badge || t.value.testimonials.badgePartner,
+    initials: item.initials || (item.author ? item.author.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() : 'CP'),
+  }))
+})
 
 const partnerMetrics = computed(() => [
   { value: '450+', label: t.value.testimonials.statsVenues, desc: isAmharic.value ? 'በሀገር አቀፍ ደረጃ ባለዛፍን የሚያቀርቡ ሆቴሎችና ላውንጆች' : 'Hotels, bars, and resorts serving Balezaf nationwide' },
@@ -415,8 +392,8 @@ const submitInquiry = async (FormD: any, form$: any) => {
               <div>
                 <!-- Rating Stars & Badge -->
                 <div class="flex items-center justify-between">
-                  <div class="flex text-amber-500 text-sm tracking-wider" aria-label="5 out of 5 stars">
-                    ★★★★★
+                  <div class="flex text-amber-500 text-sm tracking-wider" :aria-label="`${item.rating || 5} out of 5 stars`">
+                    {{ '★'.repeat(Math.min(Math.max(item.rating || 5, 1), 5)) }}
                   </div>
                   <span class="rounded-full bg-[#edf5e9] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#285736]">
                     {{ item.badge }}
@@ -425,19 +402,28 @@ const submitInquiry = async (FormD: any, form$: any) => {
 
                 <!-- Quote text -->
                 <blockquote class="mt-5 font-serif text-base italic leading-relaxed text-[#173b2b]">
-                  “{{ item.quote }}”
+                  “{{ item.displayQuote || item.quote }}”
                 </blockquote>
               </div>
 
               <!-- Author Info -->
               <div class="mt-8 flex items-center gap-3.5 border-t border-[#edf3ea] pt-5">
-                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#173b2b] text-xs font-bold text-[#c6dfbc]">
+                <img
+                  v-if="item.avatar"
+                  :src="item.avatar"
+                  :alt="item.author"
+                  class="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-[#dfe9da]"
+                />
+                <div
+                  v-else
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#173b2b] text-xs font-bold text-[#c6dfbc]"
+                >
                   {{ item.initials }}
                 </div>
                 <div>
                   <h4 class="text-sm font-bold text-[#173b2b]">{{ item.author }}</h4>
-                  <p class="text-xs text-[#527359]">{{ item.title }}</p>
-                  <p class="text-[11px] font-semibold text-[#718e75]">{{ item.establishment }}</p>
+                  <p class="text-xs text-[#527359]">{{ item.displayTitle || item.title }}</p>
+                  <p class="text-[11px] font-semibold text-[#718e75]">{{ item.displayEstablishment || item.establishment }}</p>
                 </div>
               </div>
             </div>
