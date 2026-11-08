@@ -219,6 +219,36 @@ export function useTestimonials() {
     saveToStorage()
   }
 
+  const exportJson = (): string => {
+    return JSON.stringify(testimonials.value, null, 2)
+  }
+
+  const downloadJsonFile = () => {
+    if (!import.meta.client) return
+    const jsonStr = exportJson()
+    const blob = new Blob([jsonStr], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'balezaf-testimonials.json'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const importJsonString = (jsonStr: string): boolean => {
+    try {
+      const parsed = JSON.parse(jsonStr)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        testimonials.value = parsed
+        saveToStorage()
+        return true
+      }
+    } catch (err) {
+      console.error('Failed to import testimonials JSON:', err)
+    }
+    return false
+  }
+
   return {
     allTestimonials,
     customerTestimonials,
@@ -227,6 +257,9 @@ export function useTestimonials() {
     updateTestimonial,
     deleteTestimonial,
     resetToDefaults,
+    exportJson,
+    downloadJsonFile,
+    importJsonString,
     init,
   }
 }

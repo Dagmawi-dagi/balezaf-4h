@@ -24,6 +24,8 @@ const {
   updateTestimonial,
   deleteTestimonial,
   resetToDefaults: resetTestimonialsToDefaults,
+  downloadJsonFile: downloadTestimonialsJson,
+  importJsonString: importTestimonialsJsonString,
 } = useTestimonials()
 
 const { user, loading: authLoading, initialized: authInitialized, fetchUser, login, logout } = useAuth()
@@ -1695,6 +1697,14 @@ useSeoMeta({
               </div>
 
               <div class="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  class="rounded-md border border-[#cddfc9] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#55715a] hover:bg-[#edf5e9] transition"
+                  title="Download all testimonials as a JSON backup file"
+                  @click="downloadTestimonialsJson"
+                >
+                  📥 Export JSON
+                </button>
                 <button
                   type="button"
                   class="rounded-md border border-[#cddfc9] bg-white px-3 py-1.5 text-xs font-semibold text-[#173b2b] hover:bg-[#edf5e9] transition"
